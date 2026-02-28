@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using DocuArchiCore.Abstractions.Security;
 using DocuArchiCore.Infrastructure.Security;
 using MiApp.DTOs.DTOs.Account;
@@ -31,12 +31,16 @@ using MiApp.Services.Service.Docuarchi.Inicio;
 using MiApp.Services.Service.Docuarchi.Usuario;
 using MiApp.Services.Service.General;
 using MiApp.Services.Service.GestorDocumental.Inicio;
+using MiApp.Services.Service.GestorDocumental.Usuario;
 using MiApp.Services.Service.Home.Menu;
 using MiApp.Services.Service.Mapping;
 using MiApp.Services.Service.Mapping.Home.Menu;
 using MiApp.Services.Service.Radicacion.Inicio;
 using MiApp.Services.Service.Radicacion.PlantillaRadicado;
+using MiApp.Services.Service.Radicacion.PlantillaValidacion;
+using MiApp.Services.Service.Radicacion.Tramite;
 using MiApp.Services.Service.Seguridad.Autorizacion.Configuracion;
+using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using MiApp.Services.Service.Seguridad.Autorizacion.Extensiones;
 using MiApp.Services.Service.Seguridad.Autorizacion.Test;
 using MiApp.Services.Service.Seguridad.PasswordPolice;
@@ -45,6 +49,7 @@ using MiApp.Services.Service.Usuario;
 using MiApp.Services.Service.Workflow.Inicio;
 using MiApp.Services.Service.Workflow.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
@@ -63,17 +68,31 @@ builder.Services.AddSwaggerGen();
 // ===================================================
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<RaMenuPrincipalProfile>());
+
 // ===================================================
-// CORS para React
+// CORS para React y otros clientes
 // ===================================================
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("react", p =>
-        p.WithOrigins("http://localhost:5173")
-         .AllowAnyHeader()
-         .AllowAnyMethod());
+    {
+        if (allowedOrigins == null || allowedOrigins.Length == 0)
+        {
+            // Si no hay orígenes configurados, no permitimos ninguno
+            p.WithOrigins(Array.Empty<string>())
+             .AllowAnyHeader()
+             .AllowAnyMethod();
+        }
+        else
+        {
+            p.WithOrigins(allowedOrigins)
+             .AllowAnyHeader()
+             .AllowAnyMethod();
+        }
+    });
 });
-
 // ===================================================
 // data Access
 // ===================================================
@@ -115,6 +134,16 @@ builder.Services.AddScoped<ISecondFactorChallengeRepository, SecondFactorChallen
 builder.Services.AddScoped<IRecoverTokenConsumedRepository, RecoverTokenConsumedRepository>();
 builder.Services.AddScoped <IPasswordWorkflowService, PasswordWorkflowService>();
 builder.Services.AddScoped<IRemitenteInternoPasswordService, RemitenteInternoPasswordService>();
+builder.Services.AddScoped<IUsuarioCaracterizacionRepository,  UsuarioCaracterizacionRepository>();
+builder.Services.AddScoped<IFlujosRelacionadosTramiteRepository, FlujosRelacionadosTramiteRepository>();
+builder.Services.AddScoped<IRaRestriRelacionTramiteR, RaRestriRelacionTramiteR>();
+builder.Services.AddScoped<ITotalDiasVencimientoTramiteRepository, TotalDiasVencimientoTramiteRepository>();
+builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
+builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
+
+
+
+
 // ===================================================
 // Services (L)
 // ===================================================
@@ -135,22 +164,26 @@ builder.Services.AddScoped<ISessionHelperService, SessionHelperService>();
 builder.Services.AddScoped<ISecondFactorProvider, EmailSecondFactorProvider>();
 builder.Services.AddScoped<IAutenticacionApplicationService, AutenticacionApplicationService>();
 builder.Services.AddScoped<ISecondFactorService, SecondFactorService>();
-builder.Services.AddScoped<ISecondFactorProvider, EmailSecondFactorProvider>();
 builder.Services.AddScoped<IEmailSender, EmailSenderStub>();
 builder.Services.AddScoped<IAuthOrchestrator, AuthOrchestrator>();
 builder.Services.AddScoped<IPasswordPolicyValidator, PasswordPolicyValidator>();
 builder.Services.AddScoped<IPermissionTestService, PermissionTestService>();
-
-
-
+builder.Services.AddScoped<IPlantillaValidacionL, PlantillaValidacionL>();
+builder.Services.AddScoped<IUsuarioCaracterizacionService,  UsuarioCaracterizacionService>();
+builder.Services.AddScoped<IFlujosRelacionadosTramiteService, FlujosRelacionadosTramiteService>();
+builder.Services.AddScoped<IRelacionTipoRestriccionService, RelacionTipoRestriccionService>();
+builder.Services.AddScoped<ITotalDiasVencimientoTramiteService, TotalDiasVencimientoTramiteService>();
+builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoCompleteDestinatarioRestriccionService>();
+builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
 builder.Services.Configure<PermissionTestSettings>(
-    builder.Configuration.GetSection("PermissionTest"));
+builder.Configuration.GetSection("PermissionTest"));
 builder.Services.AddScoped<ITokenIssuer, TokenIssuer>();
 builder.Services.AddScoped<IIpHelper, IpHelperL>();
-
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();  //CAMBIADO:     Retorna el sistema de autenticación actual (JWT o ASP.NET Session) según el contexto
+builder.Services.AddScoped<IClaimValidationService, ClaimValidationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SesionActual>();
 
@@ -196,7 +229,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidAudience = builder.Configuration["Jwt:Audience"],
         ClockSkew = TimeSpan.Zero
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Permitir preflight sin token
+            if (context.HttpContext.Request.Method == "OPTIONS")
+            {
+                context.NoResult();
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
+
+
 builder.Services.AddDocuArchiSecurity();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -206,16 +254,33 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 // ===================================================
 var app = builder.Build();
 
+
+
+
 app.UseSwagger();
 app.UseSwaggerUI();
+
 app.UseHttpsRedirection();
-app.UseCors("react");
-app.UseAuthentication(); // 👈 agregado
-app.UseAuthorization();
-app.UseSession();
-app.UseAuthorization();
+
+app.UseRouting();                // 🔥 NECESARIO
+
+app.UseCors("react");            // 🔥 AQUÍ VA CORS
+
+app.UseSession();                // si usas Session
+
+app.UseAuthentication();         // JWT
+app.UseAuthorization();          // Authorization policies
+
 app.MapControllers();
+
 app.Run();
+
+
+
+
+
+
+
 
 
 
