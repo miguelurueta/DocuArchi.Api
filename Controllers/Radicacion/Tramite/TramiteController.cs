@@ -17,17 +17,20 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         private readonly IFlujosRelacionadosTramiteService _flujosRelacionadosTramiteService;
         private readonly IRelacionTipoRestriccionService _relacionTipoRestriccionService;
         private readonly ITotalDiasVencimientoTramiteService _totalDiasVencimientoTramiteService;
+        private readonly IListaDiasFeriadosTramiteService _listaDiasFeriadosTramiteService;
 
         public TramiteController(
             IClaimValidationService claimValidationService,
             IFlujosRelacionadosTramiteService flujosRelacionadosTramiteService,
             IRelacionTipoRestriccionService relacionTipoRestriccionService,
-            ITotalDiasVencimientoTramiteService totalDiasVencimientoTramiteService)
+            ITotalDiasVencimientoTramiteService totalDiasVencimientoTramiteService,
+            IListaDiasFeriadosTramiteService listaDiasFeriadosTramiteService)
         {
             _claimValidationService = claimValidationService;
             _flujosRelacionadosTramiteService = flujosRelacionadosTramiteService;
             _relacionTipoRestriccionService = relacionTipoRestriccionService;
             _totalDiasVencimientoTramiteService = totalDiasVencimientoTramiteService;
+            _listaDiasFeriadosTramiteService = listaDiasFeriadosTramiteService;
         }
 
         [HttpGet("tramites/empsolicitaListaflujosRelacionadosTramite")]
@@ -75,6 +78,23 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 
             var result = await _totalDiasVencimientoTramiteService
                 .ServiceSolicitaTotalDiasVencimientoTramite(idPlantilla, idTipoTramite, validation.ClaimValue);
+
+            if (!result.success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpGet("tramites/solicitaListaDiasFeriados")]
+        public async Task<ActionResult<AppResponses<List<string>>>> SolicitaListaDiasFeriados()
+        {
+            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!validation.Success || validation.ClaimValue == null)
+            {
+                return BadRequest(validation.Response);
+            }
+
+            var result = await _listaDiasFeriadosTramiteService.ServiceSolicitaListaDiasFeriados(validation.ClaimValue);
 
             if (!result.success)
                 return BadRequest(result);

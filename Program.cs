@@ -138,6 +138,7 @@ builder.Services.AddScoped<IUsuarioCaracterizacionRepository,  UsuarioCaracteriz
 builder.Services.AddScoped<IFlujosRelacionadosTramiteRepository, FlujosRelacionadosTramiteRepository>();
 builder.Services.AddScoped<IRaRestriRelacionTramiteR, RaRestriRelacionTramiteR>();
 builder.Services.AddScoped<ITotalDiasVencimientoTramiteRepository, TotalDiasVencimientoTramiteRepository>();
+builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriadosTramiteRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
 
@@ -173,6 +174,7 @@ builder.Services.AddScoped<IUsuarioCaracterizacionService,  UsuarioCaracterizaci
 builder.Services.AddScoped<IFlujosRelacionadosTramiteService, FlujosRelacionadosTramiteService>();
 builder.Services.AddScoped<IRelacionTipoRestriccionService, RelacionTipoRestriccionService>();
 builder.Services.AddScoped<ITotalDiasVencimientoTramiteService, TotalDiasVencimientoTramiteService>();
+builder.Services.AddScoped<IListaDiasFeriadosTramiteService, ListaDiasFeriadosTramiteService>();
 builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoCompleteDestinatarioRestriccionService>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
 // ===================================================
@@ -274,6 +276,7 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 
 app.Run();
+
 
 
 
