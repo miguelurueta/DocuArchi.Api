@@ -186,6 +186,130 @@
     ]
   },
   {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "SolicitaDatosAutoCompleteTerceroPlantillaController",
+    "RelativePath": "api/PlantillaRadicado/autoCompleteTercero",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "parameterDropDonws",
+        "Type": "MiApp.DTOs.DTOs.General.ParameterDropDonws",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.rowTomSelect, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "GetCaracterizacionUsuarios",
+    "RelativePath": "api/PlantillaRadicado/caracterizacionDestinatario",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idRemitDestInterno",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.GestorDocumental.usuario.UsuarioCaracterizacionDto, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "SolicitaEstructuraCamposRadicacion",
+    "RelativePath": "api/PlantillaRadicado/listaPlantilla",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.Class_config_general_service, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "EmpsolicitaAutoCompleteDestinatarioRestriccion",
+    "RelativePath": "api/PlantillaRadicado/solicitaAutoCompleteCampos",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "parameterAutoComplete",
+        "Type": "MiApp.DTOs.DTOs.General.ParameterAutoComplete",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.ReturnAutoComplete, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "EmpsolicitaAutoCompleteDestinatarioRestriccion",
+    "RelativePath": "api/PlantillaRadicado/solicitaAutoCompleteDestinatarioRestriccion",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "param",
+        "Type": "MiApp.DTOs.DTOs.Radicacion.Tramite.parameterRestricionDestinatario",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.rowTomSelect, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "DocuArchi.Api.Controllers.Account.PermissionTestController",
     "Method": "TestUserClaim",
     "RelativePath": "api/seguridad/TestUserClaim",
@@ -202,6 +326,135 @@
     "ReturnTypes": [
       {
         "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "EmpsolicitaListaflujosRelacionadosTramite",
+    "RelativePath": "api/tramite/tramites/empsolicitaListaflujosRelacionadosTramite",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idTipoDocEntrante",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.serviceIlistdrow, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "EmpsolicitaEstructuraRelacionTipoRestriccion",
+    "RelativePath": "api/tramite/tramites/solicitaEstructuraRelacionTipoRestriccion",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idTipoTramite",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[MiApp.DTOs.DTOs.Radicacion.Tramite.CDeRelacionEstadoRetriccionDto, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "SolicitaFechaLimiteRespuesta",
+    "RelativePath": "api/tramite/tramites/solicitaFechaLimiteRespuesta",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idTipoTramite",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[MiApp.DTOs.DTOs.Radicacion.Tramite.FechaLimiteRespuestaDto, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "SolicitaListaDiasFeriados",
+    "RelativePath": "api/tramite/tramites/solicitaListaDiasFeriados",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "SolicitaTotalDiasVencimientoTramite",
+    "RelativePath": "api/tramite/tramites/solicitaTotalDiasVencimientoTramite",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idPlantilla",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "idTipoTramite",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",

@@ -177,6 +177,7 @@ builder.Services.AddScoped<ITotalDiasVencimientoTramiteService, TotalDiasVencimi
 builder.Services.AddScoped<IListaDiasFeriadosTramiteService, ListaDiasFeriadosTramiteService>();
 builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoCompleteDestinatarioRestriccionService>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
+builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -276,6 +277,7 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 
 app.Run();
+
 
 
 

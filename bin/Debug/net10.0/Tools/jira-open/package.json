@@ -1,0 +1,13 @@
+{
+  "name": "jira-open-tools",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "opsxj:test-jira": "powershell -NoProfile -ExecutionPolicy Bypass -File ./test-jira-connection.ps1",
+    "opsxj:test-pr": "powershell -NoProfile -ExecutionPolicy Bypass -File ./test-opsxj-pr-flow.ps1",
+    "opsxj:test-archive": "powershell -NoProfile -ExecutionPolicy Bypass -File ./test-opsxj-archive-flow.ps1",
+    "opsxj:new": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj.ps1 new",
+    "opsxj:archive": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj.ps1 archive",
+    "opsxj:jira-done": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj.ps1 jira-done"
+  }
+}

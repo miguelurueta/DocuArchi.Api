@@ -23,4 +23,8 @@
     <ProjectReference Include="..\MiApp.Services\MiApp.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\GestorDocumental\" />
+  </ItemGroup>
+
 </Project>

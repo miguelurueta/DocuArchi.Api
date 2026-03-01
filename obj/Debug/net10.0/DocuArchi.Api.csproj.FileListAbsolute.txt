@@ -111,10 +111,12 @@ D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\sta
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\staticwebassets.development.json
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\swae.build.ex.cache
-D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\DocuArch.9158E8D9.Up2Date
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\DocuArchi.Api.dll
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\refint\DocuArchi.Api.dll
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\DocuArchi.Api.pdb
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\DocuArchi.Api.genruntimeconfig.cache
 D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\ref\DocuArchi.Api.dll
+D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\DocuArchi.Api.sourcelink.json
+D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\bin\Debug\net10.0\Tools\jira-open\package.json
+D:\imagenesda\GestorDocumental\DocuArchiCore\DocuArchi.Api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
