@@ -43,7 +43,29 @@ function Get-RepoStatus {
     }
 
     $dirtyOutput = (& git -C $RepoPath status --porcelain 2>$null)
-    $dirty = if ([string]::IsNullOrWhiteSpace($dirtyOutput)) { "clean" } else { "dirty" }
+    $dirtyLines = @()
+    if (-not [string]::IsNullOrWhiteSpace($dirtyOutput)) {
+        $dirtyLines = @($dirtyOutput -split "`r?`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    }
+    $effectiveDirty = @(
+        $dirtyLines | Where-Object {
+            $line = $_
+            $path = if ($line.Length -ge 4) { $line.Substring(3) } else { $line }
+            $normalized = $path.Replace('\', '/')
+            -not ($normalized -match "^bin/")
+        } | Where-Object {
+            $line = $_
+            $path = if ($line.Length -ge 4) { $line.Substring(3) } else { $line }
+            $normalized = $path.Replace('\', '/')
+            -not ($normalized -match "^obj/")
+        } | Where-Object {
+            $line = $_
+            $path = if ($line.Length -ge 4) { $line.Substring(3) } else { $line }
+            $normalized = $path.Replace('\', '/')
+            -not ($normalized -match "^openspec/logs/")
+        }
+    )
+    $dirty = if ($effectiveDirty.Count -eq 0) { "clean" } else { "dirty" }
 
     $matchesPattern = ($branch -match "^(main|master|[A-Za-z]+-\d+-.+)$")
     $expectedOk = $true
