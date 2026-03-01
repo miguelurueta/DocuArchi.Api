@@ -1,4 +1,4 @@
-﻿using MiApp.DTOs.DTOs.General;
+using MiApp.DTOs.DTOs.General;
 using MiApp.DTOs.DTOs.Radicacion.Tramite;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.Tramite;
@@ -18,19 +18,22 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         private readonly IRelacionTipoRestriccionService _relacionTipoRestriccionService;
         private readonly ITotalDiasVencimientoTramiteService _totalDiasVencimientoTramiteService;
         private readonly IListaDiasFeriadosTramiteService _listaDiasFeriadosTramiteService;
+        private readonly IFechaLimiteRespuestaService _fechaLimiteRespuestaService;
 
         public TramiteController(
             IClaimValidationService claimValidationService,
             IFlujosRelacionadosTramiteService flujosRelacionadosTramiteService,
             IRelacionTipoRestriccionService relacionTipoRestriccionService,
             ITotalDiasVencimientoTramiteService totalDiasVencimientoTramiteService,
-            IListaDiasFeriadosTramiteService listaDiasFeriadosTramiteService)
+            IListaDiasFeriadosTramiteService listaDiasFeriadosTramiteService,
+            IFechaLimiteRespuestaService fechaLimiteRespuestaService)
         {
             _claimValidationService = claimValidationService;
             _flujosRelacionadosTramiteService = flujosRelacionadosTramiteService;
             _relacionTipoRestriccionService = relacionTipoRestriccionService;
             _totalDiasVencimientoTramiteService = totalDiasVencimientoTramiteService;
             _listaDiasFeriadosTramiteService = listaDiasFeriadosTramiteService;
+            _fechaLimiteRespuestaService = fechaLimiteRespuestaService;
         }
 
         [HttpGet("tramites/empsolicitaListaflujosRelacionadosTramite")]
@@ -98,6 +101,25 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 
             if (!result.success)
                 return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpGet("tramites/solicitaFechaLimiteRespuesta")]
+        public async Task<ActionResult<AppResponses<FechaLimiteRespuestaDto>>> SolicitaFechaLimiteRespuesta(int idTipoTramite)
+        {
+            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!validation.Success || validation.ClaimValue == null)
+            {
+                return BadRequest(validation.Response);
+            }
+
+            var result = await _fechaLimiteRespuestaService.SolicitaFechaLimiteRespuesta(idTipoTramite, validation.ClaimValue);
+
+            if (!result.success)
+            {
+                return BadRequest(result);
+            }
 
             return Ok(result);
         }
