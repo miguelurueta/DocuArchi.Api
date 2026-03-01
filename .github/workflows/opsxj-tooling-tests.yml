@@ -1,0 +1,40 @@
+name: opsxj-tooling-tests
+
+on:
+  push:
+    branches:
+      - main
+      - scrum-*
+    paths:
+      - "Tools/jira-open/**"
+      - ".github/workflows/opsxj-tooling-tests.yml"
+  pull_request:
+    paths:
+      - "Tools/jira-open/**"
+      - ".github/workflows/opsxj-tooling-tests.yml"
+
+jobs:
+  opsxj-tests:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ./Tools/jira-open
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run opsxj:test-pr
+        run: npm run opsxj:test-pr
+
+      - name: Run opsxj:test-archive
+        run: npm run opsxj:test-archive
+
+      - name: Run opsxj:test-stability
+        run: npm run opsxj:test-stability
