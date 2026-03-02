@@ -1,0 +1,2695 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "DocuArchi.Api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/accout/SolicitaEstructuraEmpresa": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaEmpresaDTOListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaEmpresaDTOListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaEmpresaDTOListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accout/ValidaUserAplicacion": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaAutenticacionDTOAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaAutenticacionDTOAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaAutenticacionDTOAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accout/SolicitaModulosEmpresa": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmpresaGestionDocumentalDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmpresaGestionDocumentalDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmpresaGestionDocumentalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModuloDTOListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModuloDTOListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModuloDTOListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accout/VerificarSegundoFactor": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificarSegundoFactorDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificarSegundoFactorDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificarSegundoFactorDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaAutenticacionDTOListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaAutenticacionDTOListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaAutenticacionDTOListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accout/recovery/start": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecuperarPasswordRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecuperarPasswordRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecuperarPasswordRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecuperarPasswordResponseDTOListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecuperarPasswordResponseDTOListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecuperarPasswordResponseDTOListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accout/recovery/verify-otp": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptRecoveryPaswReguestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptRecoveryPaswReguestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptRecoveryPaswReguestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptRecoveryPaswResponseDTOListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptRecoveryPaswResponseDTOListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptRecoveryPaswResponseDTOListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accout/recovery/reset-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaswordResetDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaswordResetDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaswordResetDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/debug/sesion/html": {
+      "get": {
+        "tags": [
+          "Debug"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Home/Home": {
+      "get": {
+        "tags": [
+          "Home"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Home/ServiceSolicitaEstructuraMenuPrincipals": {
+      "get": {
+        "tags": [
+          "Home"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Home/ServiceSolicitaCaraterizacionUsuarioLogueado": {
+      "post": {
+        "tags": [
+          "Home"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Home/KeepAlive": {
+      "post": {
+        "tags": [
+          "Home"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Home/TiempoRestante": {
+      "post": {
+        "tags": [
+          "Home"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Home/ServiceIsSessionTimedOut": {
+      "post": {
+        "tags": [
+          "Home"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Home/ServiceCerrarSesion": {
+      "post": {
+        "tags": [
+          "Home"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Menu/inicioMenu": {
+      "post": {
+        "tags": [
+          "Menu"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaMenuPrincipalDtoListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaMenuPrincipalDtoListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaMenuPrincipalDtoListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/seguridad/TestUserClaim": {
+      "post": {
+        "tags": [
+          "PermissionTest"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestPermisosRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestPermisosRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestPermisosRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlantillaRadicado/listaPlantilla": {
+      "get": {
+        "tags": [
+          "PlantillaRadicacion"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Class_config_general_serviceListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Class_config_general_serviceListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Class_config_general_serviceListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlantillaRadicado/autoCompleteTercero": {
+      "post": {
+        "tags": [
+          "PlantillaRadicacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParameterDropDonws"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParameterDropDonws"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParameterDropDonws"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/rowTomSelectListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rowTomSelectListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rowTomSelectListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlantillaRadicado/caracterizacionDestinatario": {
+      "post": {
+        "tags": [
+          "PlantillaRadicacion"
+        ],
+        "parameters": [
+          {
+            "name": "idRemitDestInterno",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioCaracterizacionDtoListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioCaracterizacionDtoListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioCaracterizacionDtoListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlantillaRadicado/solicitaAutoCompleteDestinatarioRestriccion": {
+      "post": {
+        "tags": [
+          "PlantillaRadicacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/parameterRestricionDestinatario"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/parameterRestricionDestinatario"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/parameterRestricionDestinatario"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/rowTomSelectListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rowTomSelectListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rowTomSelectListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlantillaRadicado/solicitaAutoCompleteCampos": {
+      "post": {
+        "tags": [
+          "PlantillaRadicacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParameterAutoComplete"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParameterAutoComplete"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParameterAutoComplete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAutoCompleteListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAutoCompleteListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAutoCompleteListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tramite/tramites/empsolicitaListaflujosRelacionadosTramite": {
+      "get": {
+        "tags": [
+          "Tramite"
+        ],
+        "parameters": [
+          {
+            "name": "idTipoDocEntrante",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/serviceIlistdrowListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/serviceIlistdrowListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/serviceIlistdrowListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tramite/tramites/solicitaEstructuraRelacionTipoRestriccion": {
+      "get": {
+        "tags": [
+          "Tramite"
+        ],
+        "parameters": [
+          {
+            "name": "idTipoTramite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CDeRelacionEstadoRetriccionDtoAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CDeRelacionEstadoRetriccionDtoAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CDeRelacionEstadoRetriccionDtoAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tramite/tramites/solicitaTotalDiasVencimientoTramite": {
+      "get": {
+        "tags": [
+          "Tramite"
+        ],
+        "parameters": [
+          {
+            "name": "idPlantilla",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "idTipoTramite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Int32AppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Int32AppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Int32AppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tramite/tramites/solicitaListaDiasFeriados": {
+      "get": {
+        "tags": [
+          "Tramite"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringListAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringListAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringListAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tramite/tramites/solicitaFechaLimiteRespuesta": {
+      "get": {
+        "tags": [
+          "Tramite"
+        ],
+        "parameters": [
+          {
+            "name": "idTipoTramite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FechaLimiteRespuestaDtoAppResponses"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FechaLimiteRespuestaDtoAppResponses"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FechaLimiteRespuestaDtoAppResponses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/WeatherForecast": {
+      "get": {
+        "tags": [
+          "WeatherForecast"
+        ],
+        "operationId": "GetWeatherForecast",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppMeta": {
+        "type": "object",
+        "properties": {
+          "Total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CDCamposUpdateIndiceBach": {
+        "type": "object",
+        "properties": {
+          "NombreCampo": {
+            "type": "string",
+            "nullable": true
+          },
+          "TipoCampo": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValorCampo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CDeRelacionEstadoRetriccionDto": {
+        "type": "object",
+        "properties": {
+          "IdRestriTipoDestInterno": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IdTipoRestriccion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "DescripcionTipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "MoluloRadicacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ModuloRadicacionSimple": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ModuloRadicacionInterna": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CDeRelacionEstadoRetriccionDtoAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/CDeRelacionEstadoRetriccionDto"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CamposTomList": {
+        "type": "object",
+        "properties": {
+          "NameCampo": {
+            "type": "string",
+            "nullable": true
+          },
+          "NombreCampoTomList": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CamposTomSelect": {
+        "type": "object",
+        "properties": {
+          "NombreCampoTomSlect": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClaimDTOs": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Class_config_general_atributes_awsome": {
+        "type": "object",
+        "properties": {
+          "name_atribute": {
+            "type": "string",
+            "nullable": true
+          },
+          "value_atribute": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Class_config_general_event_element": {
+        "type": "object",
+        "properties": {
+          "name_event_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_function_event_control": {
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Class_config_general_service": {
+        "type": "object",
+        "properties": {
+          "Tupcae_label": {
+            "type": "string",
+            "nullable": true
+          },
+          "label_input_class_font": {
+            "type": "string",
+            "nullable": true
+          },
+          "Place_Holder": {
+            "type": "string",
+            "nullable": true
+          },
+          "control_input_class": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_campo": {
+            "type": "string",
+            "nullable": true
+          },
+          "atrib_campo_n": {
+            "type": "string",
+            "nullable": true
+          },
+          "aleas_campo": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "value_campo": {
+            "type": "string",
+            "nullable": true
+          },
+          "value_campo_old": {
+            "type": "string",
+            "nullable": true
+          },
+          "texto_campo": {
+            "type": "string",
+            "nullable": true
+          },
+          "value_campo_beetwen": {
+            "type": "string",
+            "nullable": true
+          },
+          "texto_campo_beetwen": {
+            "type": "string",
+            "nullable": true
+          },
+          "campo_beetwen": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "max_leng_campo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "obligatorio_campo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "disable_campo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name_space_campo": {
+            "type": "string",
+            "nullable": true
+          },
+          "alow_null": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "alow_tipo_value": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "campo_tip": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "control_tip_correo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tipo_campo": {
+            "type": "string",
+            "nullable": true
+          },
+          "error_gestion": {
+            "type": "string",
+            "nullable": true
+          },
+          "dbms_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "tbl_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "dms_id_registro": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name_campo_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "clas_service_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "service_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "result_service_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "atrib_chek": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "campo_unico": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "valida_capital_text": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name_clase_general": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_tab_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_control": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Class_config_general_event_element"
+            },
+            "nullable": true
+          },
+          "onChangeAction": {
+            "type": "string",
+            "nullable": true
+          },
+          "ilist_row_drowlist": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/serviceIlistdrow"
+            },
+            "nullable": true
+          },
+          "config_service_drowlis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Class_config_general_service_drowlist"
+            },
+            "nullable": true
+          },
+          "config_service_drowlis_destino": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Class_config_general_service_drowlist"
+            },
+            "nullable": true
+          },
+          "config_service_boton_atributes_awsome": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Class_config_general_service_boton_atributes_awsome"
+            },
+            "nullable": true
+          },
+          "config_service_controls_error": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/class_service_control_error"
+            },
+            "nullable": true
+          },
+          "drow_name_controls_destino": {
+            "type": "string",
+            "nullable": true
+          },
+          "drow_name_padre_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "drow_name_control_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "title_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "type_cells_alow_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "tooltipAyuda": {
+            "type": "string",
+            "nullable": true
+          },
+          "Tipo_script": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_escript": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name_plantilla_validacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_plantilla": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "campo_nombre_plantilla_val": {
+            "type": "string",
+            "nullable": true
+          },
+          "campo_primary_plantilla_val": {
+            "type": "string",
+            "nullable": true
+          },
+          "url_class_service_control_plantilla": {
+            "type": "string",
+            "nullable": true
+          },
+          "service_control_plantilla": {
+            "type": "string",
+            "nullable": true
+          },
+          "Tom_alow": {
+            "type": "string",
+            "nullable": true
+          },
+          "Tom_option": {
+            "type": "string",
+            "nullable": true
+          },
+          "Tom_item": {
+            "type": "string",
+            "nullable": true
+          },
+          "Item_Tom_Select": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/class_config_gneral_service_row_tom"
+            },
+            "nullable": true
+          },
+          "Item_Tom_row": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/rowTomSelect"
+            },
+            "nullable": true
+          },
+          "TomPParameterTomSelelect": {
+            "$ref": "#/components/schemas/ParameterTomSelelect"
+          },
+          "serviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "apiMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "case_Option": {
+            "type": "string",
+            "nullable": true
+          },
+          "case_Item": {
+            "type": "string",
+            "nullable": true
+          },
+          "placeholder": {
+            "type": "string",
+            "nullable": true
+          },
+          "CamposUpdateIndiceBach": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CDCamposUpdateIndiceBach"
+            },
+            "nullable": true
+          },
+          "TagSesion": {
+            "type": "string",
+            "nullable": true
+          },
+          "ComportamientoCampo": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataClear": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Class_config_general_serviceListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Class_config_general_service"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Class_config_general_service_boton_atributes_awsome": {
+        "type": "object",
+        "properties": {
+          "Element_i_name_atribute_color_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_i_name_atribute_fas_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_i_name_atribute_boton_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_i_name_atribute_dimension_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_name_atribute_color_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_name_atribute_fas_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_name_atribute_boton_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_name_atribute_dimension_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_name_atribute_onclclick_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_name_atribute_title_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_name_atribute_tip_event_awsome": {
+            "type": "string",
+            "nullable": true
+          },
+          "Element_a_atribute_atributes_boton_awsome": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Class_config_general_atributes_awsome"
+            },
+            "nullable": true
+          },
+          "Element_a_atribute_atributes_row_awsome": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Class_config_general_atributes_awsome"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Class_config_general_service_drowlist": {
+        "type": "object",
+        "properties": {
+          "defaultAlias": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_dbs_auto": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_table_auto": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_campo_value": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_campo_condicion": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_campo_orden": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo_orden": {
+            "type": "string",
+            "nullable": true
+          },
+          "value_condicion": {
+            "type": "string",
+            "nullable": true
+          },
+          "value_default": {
+            "type": "string",
+            "nullable": true
+          },
+          "limit_rows": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name_campo_primary": {
+            "type": "string",
+            "nullable": true
+          },
+          "addd_seleccion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "value_seleccion": {
+            "type": "string",
+            "nullable": true
+          },
+          "campo_estado_auto_lista": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmpresaGestionDocumentalDto": {
+        "type": "object",
+        "properties": {
+          "IdEmpresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "NitEmpresa": {
+            "type": "string",
+            "nullable": true
+          },
+          "RazonSocialEmpresa": {
+            "type": "string",
+            "nullable": true
+          },
+          "DireccionEmpresa": {
+            "type": "string",
+            "nullable": true
+          },
+          "ReplegalEmpresa": {
+            "type": "string",
+            "nullable": true
+          },
+          "CodigoOrganicoActivo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "FechaCreacion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "TelefonosEmpresa": {
+            "type": "string",
+            "nullable": true
+          },
+          "EstadoEmpresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "CodigoCamara": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValidaVisorExpres": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FechaLimiteRespuestaDto": {
+        "type": "object",
+        "properties": {
+          "IdTipoTramite": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IdPlantilla": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "DiasVencimiento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "FechaLimiteRespuesta": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FechaLimiteRespuestaDtoAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/FechaLimiteRespuestaDto"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Int32AppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ListaEmpresaDTO": {
+        "required": [
+          "RazonSocialEmpresa"
+        ],
+        "type": "object",
+        "properties": {
+          "IdEmpresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "RazonSocialEmpresa": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ListaEmpresaDTOListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListaEmpresaDTO"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequestDTO": {
+        "type": "object",
+        "properties": {
+          "IdEmpresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IdModulo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "User": {
+            "type": "string",
+            "nullable": true
+          },
+          "Password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModuloDTO": {
+        "type": "object",
+        "properties": {
+          "IdModulo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "NombreModulo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModuloDTOListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuloDTO"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ObjectAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OptRecoveryPaswReguestDTO": {
+        "type": "object",
+        "properties": {
+          "ChallengeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OptRecoveryPaswResponseDTO": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiracion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "idModule": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioAutenticadoDTO"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OptRecoveryPaswResponseDTOListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OptRecoveryPaswResponseDTO"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ParameterAutoComplete": {
+        "type": "object",
+        "properties": {
+          "TextoBuscado": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultDbAlias": {
+            "type": "string",
+            "nullable": true
+          },
+          "tbl_control": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_campo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ParameterDropDonws": {
+        "type": "object",
+        "properties": {
+          "idScript": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombreCampo": {
+            "type": "string",
+            "nullable": true
+          },
+          "valueCampo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ParameterTomSelelect": {
+        "type": "object",
+        "properties": {
+          "defaultDbAlias": {
+            "type": "string",
+            "nullable": true
+          },
+          "NombrePlantillaValidacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "NombreCampo": {
+            "type": "string",
+            "nullable": true
+          },
+          "NameCampoPrimary": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValueAuto": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_escript": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "CamposTomSelect": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CamposTomSelect"
+            },
+            "nullable": true
+          },
+          "CamposTomList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CamposTomList"
+            },
+            "nullable": true
+          },
+          "onItemAddAction": {
+            "type": "string",
+            "nullable": true
+          },
+          "onItemRemoveAction": {
+            "type": "string",
+            "nullable": true
+          },
+          "IdTipoRestriccion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IdRestriccion": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaswordResetDTO": {
+        "type": "object",
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmNewPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idModule": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RaMenuPrincipalDto": {
+        "type": "object",
+        "properties": {
+          "IdMenuPrincipal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "NombreModulo": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValueNode": {
+            "type": "string",
+            "nullable": true
+          },
+          "ToltipNode": {
+            "type": "string",
+            "nullable": true
+          },
+          "UrlNode": {
+            "type": "string",
+            "nullable": true
+          },
+          "PageName": {
+            "type": "string",
+            "nullable": true
+          },
+          "VisibleNode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "NodoPlantillaRadicado": {
+            "type": "string",
+            "nullable": true
+          },
+          "TipoPlantilla": {
+            "type": "string",
+            "nullable": true
+          },
+          "IdPlantilla": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "UrlExterna": {
+            "type": "string",
+            "nullable": true
+          },
+          "UrlContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValueContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValueCard": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValueCardConten": {
+            "type": "string",
+            "nullable": true
+          },
+          "TIpoModulo": {
+            "type": "string",
+            "nullable": true
+          },
+          "AcesoDirecto": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IdPadre": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Orden": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Icono": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RaMenuPrincipalDtoListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RaMenuPrincipalDto"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecuperarPasswordRequestDTO": {
+        "type": "object",
+        "properties": {
+          "User": {
+            "type": "string",
+            "nullable": true
+          },
+          "IdModule": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IdEmpresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecuperarPasswordResponseDTO": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "destinoEnmascarado": {
+            "type": "string",
+            "nullable": true
+          },
+          "tiempoExpira": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idModule": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RecuperarPasswordResponseDTOListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecuperarPasswordResponseDTO"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RespuestaAutenticacionDTO": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiracion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioAutenticadoDTO"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RespuestaAutenticacionDTOAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/RespuestaAutenticacionDTO"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RespuestaAutenticacionDTOListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RespuestaAutenticacionDTO"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReturnAutoComplete": {
+        "type": "object",
+        "properties": {
+          "idValue": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "texValue": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReturnAutoCompleteListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReturnAutoComplete"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StringListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestPermisosRequestDTO": {
+        "type": "object",
+        "properties": {
+          "IdRemitDestInterno": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "IdModulo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "DefaultDbAlias": {
+            "type": "string",
+            "nullable": true
+          },
+          "ValidationToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "StrictQa": {
+            "type": "boolean"
+          },
+          "ExportCsv": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UsuarioAutenticadoDTO": {
+        "type": "object",
+        "properties": {
+          "usuarioId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "login": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "activo": {
+            "type": "boolean"
+          },
+          "defaulalias": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaulaliaswf": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaLimiteAcceso": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClaimDTOs"
+            },
+            "nullable": true
+          },
+          "permisos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UsuarioCaracterizacionDto": {
+        "required": [
+          "CargoRemite",
+          "CorreoElectronico",
+          "DescripcionArea",
+          "Identificacion",
+          "NombreArea",
+          "NombreRemitente",
+          "TelefonoUsuario"
+        ],
+        "type": "object",
+        "properties": {
+          "IdRemitente": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "NombreRemitente": {
+            "type": "string",
+            "nullable": true
+          },
+          "CargoRemite": {
+            "type": "string",
+            "nullable": true
+          },
+          "CorreoElectronico": {
+            "type": "string",
+            "nullable": true
+          },
+          "TelefonoUsuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "Identificacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "Direccion": {
+            "type": "string",
+            "nullable": true
+          },
+          "NombreArea": {
+            "type": "string",
+            "nullable": true
+          },
+          "DescripcionArea": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UsuarioCaracterizacionDtoListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsuarioCaracterizacionDto"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VerificarSegundoFactorDTO": {
+        "type": "object",
+        "properties": {
+          "ChallengeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "Code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeatherForecast": {
+        "type": "object",
+        "properties": {
+          "Date": {
+            "type": "string",
+            "format": "date"
+          },
+          "TemperatureC": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "TemperatureF": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "Summary": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "class_config_gneral_service_row_tom": {
+        "type": "object",
+        "properties": {
+          "row_tom": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/rowTomSelect"
+            },
+            "nullable": true
+          },
+          "error_gestion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "class_service_control_error": {
+        "type": "object",
+        "properties": {
+          "id_name_campo": {
+            "type": "string",
+            "nullable": true
+          },
+          "name_espace": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "parameterRestricionDestinatario": {
+        "required": [
+          "CDeRelacionEstadoRetriccionDto"
+        ],
+        "type": "object",
+        "properties": {
+          "ValueAuto": {
+            "type": "string",
+            "nullable": true
+          },
+          "CDeRelacionEstadoRetriccionDto": {
+            "$ref": "#/components/schemas/CDeRelacionEstadoRetriccionDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "rowTomSelect": {
+        "type": "object",
+        "properties": {
+          "idValue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "texValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "textValueDescritipo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "rowTomSelectListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/rowTomSelect"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "serviceIlistdrow": {
+        "required": [
+          "Value"
+        ],
+        "type": "object",
+        "properties": {
+          "idValue": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Value": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "serviceIlistdrowListAppResponses": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/serviceIlistdrow"
+            },
+            "nullable": true
+          },
+          "meta": {
+            "$ref": "#/components/schemas/AppMeta"
+          },
+          "errors": {
+            "type": "array",
+            "items": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Account"
+    },
+    {
+      "name": "Debug"
+    },
+    {
+      "name": "Home"
+    },
+    {
+      "name": "Menu"
+    },
+    {
+      "name": "PermissionTest"
+    },
+    {
+      "name": "PlantillaRadicacion"
+    },
+    {
+      "name": "Tramite"
+    },
+    {
+      "name": "WeatherForecast"
+    }
+  ]
+}

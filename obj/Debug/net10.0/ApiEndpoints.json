@@ -1,0 +1,568 @@
+[
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.AccountController",
+    "Method": "RecoveryResetPassword",
+    "RelativePath": "api/accout/recovery/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "MiApp.DTOs.DTOs.Password.PaswordResetDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.AccountController",
+    "Method": "RecoveryStart",
+    "RelativePath": "api/accout/recovery/start",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "MiApp.DTOs.DTOs.Autenticacion.RecuperarPasswordRequestDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.Autenticacion.RecuperarPasswordResponseDTO, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.AccountController",
+    "Method": "RecoveryVerifyOtp",
+    "RelativePath": "api/accout/recovery/verify-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "MiApp.DTOs.DTOs.Autenticacion.OptRecoveryPaswReguestDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.Autenticacion.OptRecoveryPaswResponseDTO, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.AccountController",
+    "Method": "SolicitaEstructuraEmpresaGet",
+    "RelativePath": "api/accout/SolicitaEstructuraEmpresa",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.Account.ListaEmpresaDTO, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.AccountController",
+    "Method": "SolicitaModulosEmpresa",
+    "RelativePath": "api/accout/SolicitaModulosEmpresa",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "MiApp.DTOs.Account.EmpresaGestionDocumentalDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.Account.ModuloDTO, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.AccountController",
+    "Method": "ValidaUserAplicacion",
+    "RelativePath": "api/accout/ValidaUserAplicacion",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "MiApp.DTOs.DTOs.Autenticacion.LoginRequestDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[MiApp.DTOs.DTOs.Autenticacion.RespuestaAutenticacionDTO, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.AccountController",
+    "Method": "VerificarSegundoFactor",
+    "RelativePath": "api/accout/VerificarSegundoFactor",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "MiApp.DTOs.DTOs.Autenticacion.VerificarSegundoFactorDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.Autenticacion.RespuestaAutenticacionDTO, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.MenuController",
+    "Method": "ServiceSolicitaEstructuraMenuPrincipal",
+    "RelativePath": "api/Menu/inicioMenu",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.Home.Menu.RaMenuPrincipalDto, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "SolicitaDatosAutoCompleteTerceroPlantillaController",
+    "RelativePath": "api/PlantillaRadicado/autoCompleteTercero",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "parameterDropDonws",
+        "Type": "MiApp.DTOs.DTOs.General.ParameterDropDonws",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.rowTomSelect, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "GetCaracterizacionUsuarios",
+    "RelativePath": "api/PlantillaRadicado/caracterizacionDestinatario",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idRemitDestInterno",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.GestorDocumental.usuario.UsuarioCaracterizacionDto, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "SolicitaEstructuraCamposRadicacion",
+    "RelativePath": "api/PlantillaRadicado/listaPlantilla",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.Class_config_general_service, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "EmpsolicitaAutoCompleteDestinatarioRestriccion",
+    "RelativePath": "api/PlantillaRadicado/solicitaAutoCompleteCampos",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "parameterAutoComplete",
+        "Type": "MiApp.DTOs.DTOs.General.ParameterAutoComplete",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.ReturnAutoComplete, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado.PlantillaRadicacionController",
+    "Method": "EmpsolicitaAutoCompleteDestinatarioRestriccion",
+    "RelativePath": "api/PlantillaRadicado/solicitaAutoCompleteDestinatarioRestriccion",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "param",
+        "Type": "MiApp.DTOs.DTOs.Radicacion.Tramite.parameterRestricionDestinatario",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.rowTomSelect, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Account.PermissionTestController",
+    "Method": "TestUserClaim",
+    "RelativePath": "api/seguridad/TestUserClaim",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "MiApp.DTOs.DTOs.Autenticacion.TestClaim.TestPermisosRequestDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "EmpsolicitaListaflujosRelacionadosTramite",
+    "RelativePath": "api/tramite/tramites/empsolicitaListaflujosRelacionadosTramite",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idTipoDocEntrante",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[MiApp.DTOs.DTOs.General.serviceIlistdrow, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "EmpsolicitaEstructuraRelacionTipoRestriccion",
+    "RelativePath": "api/tramite/tramites/solicitaEstructuraRelacionTipoRestriccion",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idTipoTramite",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[MiApp.DTOs.DTOs.Radicacion.Tramite.CDeRelacionEstadoRetriccionDto, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "SolicitaFechaLimiteRespuesta",
+    "RelativePath": "api/tramite/tramites/solicitaFechaLimiteRespuesta",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idTipoTramite",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[MiApp.DTOs.DTOs.Radicacion.Tramite.FechaLimiteRespuestaDto, MiApp.DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "SolicitaListaDiasFeriados",
+    "RelativePath": "api/tramite/tramites/solicitaListaDiasFeriados",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.Radicacion.Tramite.TramiteController",
+    "Method": "SolicitaTotalDiasVencimientoTramite",
+    "RelativePath": "api/tramite/tramites/solicitaTotalDiasVencimientoTramite",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idPlantilla",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "idTipoTramite",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MiApp.DTOs.DTOs.Utilidades.AppResponses\u00601[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "MiApp.Web.Controllers.DebugController",
+    "Method": "SesionHtml",
+    "RelativePath": "debug/sesion/html",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HomeController",
+    "Method": "Home",
+    "RelativePath": "Home/Home",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HomeController",
+    "Method": "KeepAlive",
+    "RelativePath": "Home/KeepAlive",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HomeController",
+    "Method": "ServiceCerrarSesion",
+    "RelativePath": "Home/ServiceCerrarSesion",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HomeController",
+    "Method": "ServiceIsSessionTimedOut",
+    "RelativePath": "Home/ServiceIsSessionTimedOut",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HomeController",
+    "Method": "ServiceSolicitaCaraterizacionUsuarioLogueado",
+    "RelativePath": "Home/ServiceSolicitaCaraterizacionUsuarioLogueado",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HomeController",
+    "Method": "ServiceSolicitaEstructuraMenuPrincipals",
+    "RelativePath": "Home/ServiceSolicitaEstructuraMenuPrincipals",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HomeController",
+    "Method": "TiempoRestante",
+    "RelativePath": "Home/TiempoRestante",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DocuArchi.Api.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[DocuArchi.Api.WeatherForecast, DocuArchi.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ],
+    "EndpointName": "GetWeatherForecast"
+  }
+]
