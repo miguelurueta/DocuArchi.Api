@@ -1,9 +1,9 @@
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [ValidateSet("new", "archive", "jira-done")]
+    [ValidateSet("new", "archive", "jira-done", "doctor")]
     [string]$Command,
 
-    [Parameter(Mandatory = $true, Position = 1)]
+    [Parameter(Position = 1)]
     [string]$IssueOrChange,
 
     [switch]$SkipJira,
@@ -620,18 +620,7 @@ function Ensure-ArchiveWorkingBranch {
         if (-not [string]::IsNullOrWhiteSpace($dirtyOutput)) {
             $dirtyLines = @($dirtyOutput -split "`r?`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
         }
-        $effectiveDirty = @(
-            $dirtyLines | Where-Object {
-                $line = $_.Trim()
-                -not ($line -match "openspec[\\/]+logs[\\/].+\.lock$")
-            } | Where-Object {
-                $line = $_.Trim()
-                -not ($line -match "^\?\?\s+openspec[\\/]+logs[\\/].+\.jsonl$")
-            } | Where-Object {
-                $line = $_.Trim()
-                -not ($line -match "^\?\?\s+openspec[\\/]+logs[\\/]?$")
-            }
-        )
+        $effectiveDirty = Get-EffectiveDirtyLines -DirtyLines $dirtyLines
         if ($effectiveDirty.Count -gt 0) {
             $dirtyPreview = ($effectiveDirty -join "; ")
             throw "Cannot switch from '$currentBranch' to '$ChangeName' because working tree has local changes. [$dirtyPreview]"
@@ -658,6 +647,49 @@ function Assert-ToolAvailable {
     }
 }
 
+function Get-EffectiveDirtyLines {
+    param([string[]]$DirtyLines)
+
+    if ($null -eq $DirtyLines) {
+        return @()
+    }
+
+    return @(
+        $DirtyLines | Where-Object {
+            $line = $_.Trim()
+            -not ($line -match "openspec[\\/]+logs[\\/].+\.lock$")
+        } | Where-Object {
+            $line = $_.Trim()
+            -not ($line -match "^\?\?\s+openspec[\\/]+logs[\\/].+\.jsonl$")
+        } | Where-Object {
+            $line = $_.Trim()
+            -not ($line -match "^\?\?\s+openspec[\\/]+logs[\\/]?$")
+        } | Where-Object {
+            $line = $_.Trim()
+            -not ($line -match "^\?\?\s+openspec[\\/]?$")
+        } | Where-Object {
+            $line = $_.Trim()
+            -not ($line -match "^\?\?\s+openspec[\\/]+changes[\\/].+[\\/]\.opsxj-pr-url\.txt$")
+        }
+    )
+}
+
+function Assert-CleanWorkingTree {
+    param([string]$Reason)
+
+    $dirtyOutput = Invoke-Git -CliArgs @("status", "--porcelain")
+    $dirtyLines = @()
+    if (-not [string]::IsNullOrWhiteSpace($dirtyOutput)) {
+        $dirtyLines = @($dirtyOutput -split "`r?`n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    }
+
+    $effectiveDirty = Get-EffectiveDirtyLines -DirtyLines $dirtyLines
+    if ($effectiveDirty.Count -gt 0) {
+        $preview = ($effectiveDirty -join "; ")
+        throw "Working tree must be clean for $Reason. [$preview]"
+    }
+}
+
 function Invoke-Preflight {
     param(
         [string]$RepoRoot,
@@ -670,7 +702,7 @@ function Invoke-Preflight {
     }
 
     Assert-ToolAvailable -ToolName "git"
-    if ($CommandName -in @("new", "archive")) {
+    if ($CommandName -in @("new", "archive", "doctor")) {
         Assert-ToolAvailable -ToolName "openspec.cmd"
     }
 
@@ -692,13 +724,148 @@ function Invoke-Preflight {
         }
     }
 
-    if ($CommandName -eq "new" -and $IssueOrChange -notmatch "^[A-Za-z]+-\d+$") {
-        throw "Issue key must match format ABC-123."
+    if ($CommandName -in @("new", "archive")) {
+        Assert-CleanWorkingTree -Reason ("opsxj:{0}" -f $CommandName)
+    }
+
+    if ($CommandName -eq "new") {
+        if ([string]::IsNullOrWhiteSpace($IssueOrChange)) {
+            throw "Issue key is required for new."
+        }
+        if ($IssueOrChange -notmatch "^[A-Za-z]+-\d+$") {
+            throw "Issue key must match format ABC-123."
+        }
+    }
+
+    if ($CommandName -eq "jira-done") {
+        if ([string]::IsNullOrWhiteSpace($IssueOrChange)) {
+            throw "Issue key is required for jira-done."
+        }
+        if ($IssueOrChange -notmatch "^[A-Za-z]+-\d+$") {
+            throw "Issue key must match format ABC-123."
+        }
     }
 
     if ($CommandName -eq "archive" -and [string]::IsNullOrWhiteSpace($IssueOrChange)) {
         throw "Issue key or change name is required for archive."
     }
+}
+
+function Invoke-Doctor {
+    param(
+        [string]$RepoRoot,
+        [string]$IssueOrChange
+    )
+
+    $results = New-Object System.Collections.Generic.List[object]
+
+    function Add-DoctorResult {
+        param(
+            [string]$Name,
+            [scriptblock]$Check
+        )
+
+        try {
+            & $Check
+            $results.Add([pscustomobject]@{
+                    check = $Name
+                    status = "ok"
+                    detail = ""
+                })
+        }
+        catch {
+            $results.Add([pscustomobject]@{
+                    check = $Name
+                    status = "fail"
+                    detail = $_.Exception.Message
+                })
+        }
+    }
+
+    Add-DoctorResult -Name "git_available" -Check {
+        Assert-ToolAvailable -ToolName "git"
+    }
+    Add-DoctorResult -Name "openspec_available" -Check {
+        Assert-ToolAvailable -ToolName "openspec.cmd"
+    }
+    Add-DoctorResult -Name "inside_git_repo" -Check {
+        $insideWorkTree = Invoke-Git -CliArgs @("rev-parse", "--is-inside-work-tree")
+        if ($insideWorkTree -ne "true") {
+            throw "Current path is not inside a git repository."
+        }
+    }
+    Add-DoctorResult -Name "working_tree_clean" -Check {
+        Assert-CleanWorkingTree -Reason "opsxj commands"
+    }
+
+    $toolConfig = Get-ToolConfig
+    $remoteName = [string]$toolConfig.gitRemoteName
+    if ([string]::IsNullOrWhiteSpace($remoteName)) {
+        $remoteName = "origin"
+    }
+
+    Add-DoctorResult -Name "jira_config" -Check {
+        if ([string]::IsNullOrWhiteSpace([string]$toolConfig.jiraBaseUrl) -or
+            [string]::IsNullOrWhiteSpace([string]$toolConfig.jiraEmail) -or
+            [string]::IsNullOrWhiteSpace([string]$toolConfig.jiraApiToken)) {
+            throw "Missing Jira configuration. Set JIRA_BASE_URL, JIRA_EMAIL and JIRA_API_TOKEN."
+        }
+    }
+    Add-DoctorResult -Name "github_token" -Check {
+        if ([string]::IsNullOrWhiteSpace([string]$toolConfig.githubToken)) {
+            throw "Missing GITHUB_TOKEN. Token-based GitHub connection is required."
+        }
+    }
+    Add-DoctorResult -Name "git_remote" -Check {
+        $originUrl = Invoke-Git -CliArgs @("remote", "get-url", $remoteName) -IgnoreExitCode
+        if ([string]::IsNullOrWhiteSpace($originUrl)) {
+            throw "Git remote '$remoteName' is not configured."
+        }
+    }
+    Add-DoctorResult -Name "base_branch_resolves" -Check {
+        $baseBranch = Get-DefaultBaseBranch -RemoteName $remoteName -ConfiguredBaseBranch ([string]$toolConfig.gitBaseBranch)
+        if ([string]::IsNullOrWhiteSpace($baseBranch)) {
+            throw "Could not resolve base branch."
+        }
+        Invoke-Git -CliArgs @("show-ref", "--verify", "--quiet", "refs/remotes/$remoteName/$baseBranch") -IgnoreExitCode | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Invoke-Git -CliArgs @("show-ref", "--verify", "--quiet", "refs/heads/$baseBranch") -IgnoreExitCode | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                throw "Resolved base branch '$baseBranch' does not exist locally or in '$remoteName'."
+            }
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($IssueOrChange)) {
+        Add-DoctorResult -Name "issue_format" -Check {
+            if ($IssueOrChange -notmatch "^[A-Za-z]+-\d+$") {
+                throw "Issue key must match format ABC-123."
+            }
+        }
+        if ($IssueOrChange -match "^[A-Za-z]+-\d+$") {
+            $issueKey = $IssueOrChange.ToUpperInvariant()
+            Add-DoctorResult -Name "jira_issue_exists" -Check {
+                $null = Get-JiraIssueData -IssueKey $issueKey
+            }
+        }
+    }
+
+    Write-Output "opsxj doctor report:"
+    foreach ($item in $results) {
+        if ($item.status -eq "ok") {
+            Write-Output ("[ok]   {0}" -f $item.check)
+        }
+        else {
+            Write-Output ("[fail] {0} :: {1}" -f $item.check, $item.detail)
+        }
+    }
+
+    $failed = @($results | Where-Object { $_.status -eq "fail" })
+    if ($failed.Count -gt 0) {
+        throw "Doctor found $($failed.Count) failing check(s)."
+    }
+
+    Write-Output "Doctor passed. Environment is ready for opsxj:new / opsxj:archive."
 }
 
 function Invoke-GitHubApi {
@@ -1851,14 +2018,19 @@ function Invoke-JiraDone {
 
 $repoRoot = Get-RepoRoot
 $lockIssueKey = $null
-if ($IssueOrChange -match "^[A-Za-z]+-\d+$") {
+if (-not [string]::IsNullOrWhiteSpace($IssueOrChange) -and $IssueOrChange -match "^[A-Za-z]+-\d+$") {
     $lockIssueKey = $IssueOrChange.ToUpperInvariant()
 }
-elseif ($Command -eq "archive") {
+elseif ($Command -eq "archive" -and -not [string]::IsNullOrWhiteSpace($IssueOrChange)) {
     $lockIssueKey = Get-IssueKeyFromChangeName -ChangeName $IssueOrChange
 }
 if ([string]::IsNullOrWhiteSpace($lockIssueKey)) {
-    $lockIssueKey = "OPSXJ-" + (($IssueOrChange -replace "[^A-Za-z0-9]+", "-").Trim("-")).ToUpperInvariant()
+    if ([string]::IsNullOrWhiteSpace($IssueOrChange)) {
+        $lockIssueKey = "OPSXJ-DOCTOR"
+    }
+    else {
+        $lockIssueKey = "OPSXJ-" + (($IssueOrChange -replace "[^A-Za-z0-9]+", "-").Trim("-")).ToUpperInvariant()
+    }
 }
 
 Acquire-IssueLock -RepoRoot $repoRoot -IssueKey $lockIssueKey
@@ -1876,6 +2048,9 @@ try {
     }
     elseif ($Command -eq "jira-done") {
         Invoke-JiraDone -IssueKey $IssueOrChange
+    }
+    elseif ($Command -eq "doctor") {
+        Invoke-Doctor -RepoRoot $repoRoot -IssueOrChange $IssueOrChange
     }
 }
 finally {

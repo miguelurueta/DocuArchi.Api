@@ -8,6 +8,7 @@
     "opsxj:test-archive": "powershell -NoProfile -ExecutionPolicy Bypass -File ./test-opsxj-archive-flow.ps1",
     "opsxj:test-stability": "powershell -NoProfile -ExecutionPolicy Bypass -File ./test-opsxj-stability-flow.ps1",
     "opsxj:branch-audit": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj-branch-audit.ps1",
+    "opsxj:doctor": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj.ps1 doctor",
     "opsxj:new": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj.ps1 new",
     "opsxj:archive": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj.ps1 archive",
     "opsxj:jira-done": "powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj.ps1 jira-done"
