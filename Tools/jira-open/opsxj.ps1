@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [ValidateSet("new", "archive", "jira-done", "doctor")]
+    [ValidateSet("new", "archive", "jira-done", "doctor", "jira-pending")]
     [string]$Command,
 
     [Parameter(Position = 1)]
@@ -152,6 +152,7 @@ function Get-ToolConfig {
         jiraBaseUrl = Get-ConfigValue -Key "JIRA_BASE_URL" -ConfigPath $configPath
         jiraEmail = Get-ConfigValue -Key "JIRA_EMAIL" -ConfigPath $configPath
         jiraApiToken = Get-ConfigValue -Key "JIRA_API_TOKEN" -ConfigPath $configPath
+        jiraProjectKey = Get-ConfigValue -Key "JIRA_PROJECT_KEY" -ConfigPath $configPath
         gitRemoteName = Get-ConfigValue -Key "GIT_REMOTE_NAME" -ConfigPath $configPath -DefaultValue "origin"
         gitBaseBranch = Get-ConfigValue -Key "GIT_BASE_BRANCH" -ConfigPath $configPath
         githubToken = Get-FirstConfigValue -Keys @("GITHUB_TOKEN") -ConfigPath $configPath
@@ -1999,6 +2000,79 @@ function Invoke-Archive {
     }
 }
 
+function Get-JiraPendingJql {
+    param(
+        [string]$Scope
+    )
+
+    $trimmed = [string]$Scope
+    if ($null -eq $trimmed) { $trimmed = "" }
+    $trimmed = $trimmed.Trim()
+
+    if ($trimmed -like "jql:*") {
+        $rawJql = $trimmed.Substring(4).Trim()
+        if ([string]::IsNullOrWhiteSpace($rawJql)) {
+            throw "Custom JQL cannot be empty. Use 'jql:<query>'."
+        }
+        return $rawJql
+    }
+
+    $projectKey = ""
+    if ($trimmed -match "^[A-Za-z]+-\d+$") {
+        $projectKey = ($trimmed.Split("-")[0]).ToUpperInvariant()
+    }
+    elseif ($trimmed -match "^[A-Za-z][A-Za-z0-9_]*$") {
+        $projectKey = $trimmed.ToUpperInvariant()
+    }
+    else {
+        $toolConfig = Get-ToolConfig
+        $projectKey = [string]$toolConfig.jiraProjectKey
+    }
+
+    if ([string]::IsNullOrWhiteSpace($projectKey)) {
+        throw "Project key is required. Pass <PROJECT_KEY>, <ISSUE-KEY>, or set JIRA_PROJECT_KEY."
+    }
+
+    return "project = $projectKey AND statusCategory != Done ORDER BY updated DESC"
+}
+
+function Invoke-JiraPending {
+    param(
+        [string]$Scope
+    )
+
+    $ctx = Get-JiraAuthContext
+    $jql = Get-JiraPendingJql -Scope $Scope
+    $encodedJql = [System.Uri]::EscapeDataString($jql)
+    $fields = [System.Uri]::EscapeDataString("summary,status,assignee,updated")
+    $uri = "$($ctx.baseUrl)/rest/api/3/search?jql=$encodedJql&fields=$fields&maxResults=50"
+
+    $response = Invoke-JiraRestMethod -Method "Get" -Uri $uri -Headers $ctx.headers -Body ""
+    $issues = @($response.issues)
+
+    Write-Output ("Pending Jira issues: {0}" -f $issues.Count)
+    if ($issues.Count -eq 0) {
+        Write-Output "No pending issues found for the selected scope."
+        return
+    }
+
+    foreach ($issue in $issues) {
+        $key = [string]$issue.key
+        $status = [string]$issue.fields.status.name
+        $summary = [string]$issue.fields.summary
+        $assignee = ""
+        if ($issue.fields.assignee -and $issue.fields.assignee.displayName) {
+            $assignee = [string]$issue.fields.assignee.displayName
+        }
+        if ([string]::IsNullOrWhiteSpace($assignee)) {
+            $assignee = "unassigned"
+        }
+        $updated = [string]$issue.fields.updated
+
+        Write-Output ("- {0} | {1} | {2} | assignee: {3} | updated: {4}" -f $key, $status, $summary, $assignee, $updated)
+    }
+}
+
 function Invoke-JiraDone {
     param(
         [string]$IssueKey
@@ -2048,6 +2122,9 @@ try {
     }
     elseif ($Command -eq "jira-done") {
         Invoke-JiraDone -IssueKey $IssueOrChange
+    }
+    elseif ($Command -eq "jira-pending") {
+        Invoke-JiraPending -Scope $IssueOrChange
     }
     elseif ($Command -eq "doctor") {
         Invoke-Doctor -RepoRoot $repoRoot -IssueOrChange $IssueOrChange

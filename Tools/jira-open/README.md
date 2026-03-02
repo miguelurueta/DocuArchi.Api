@@ -93,11 +93,18 @@ Transition Jira issue to done state (without local archive operations):
 npm.cmd --prefix Tools/jira-open run opsxj:jira-done -- <ISSUE-KEY>
 ```
 
+List pending Jira tickets (read-only):
+
+```powershell
+npm.cmd --prefix Tools/jira-open run opsxj:jira-pending -- [PROJECT-KEY|ISSUE-KEY|jql:<QUERY>]
+```
+
 ## Notes
 
 - `opsxj:new` creates/updates `openspec/changes/<change-name>/` artifacts (including `sync.md` impact matrix), runs `openspec.cmd validate`, creates/pushes a branch, and opens a GitHub PR.
 - `opsxj:new` requires a valid Jira issue. If Jira lookup fails, the command stops and does not create artifacts.
 - `opsxj:doctor` validates tooling, clean working tree, Jira/GitHub token configuration, git remote/base branch, and optional Jira issue lookup.
+- `opsxj:jira-pending` lists pending Jira tickets (`statusCategory != Done`) for a project or custom JQL without changing Jira/Git/GitHub state.
 - `opsxj:new -SelectRepos` asks interactively which repositories are impacted and pre-fills `sync.md` (`yes/no`, `pending/n/a`).
 - `opsxj:new` now includes backend update baseline rules in generated artifacts via `openspec/context/OPSXJ_BACKEND_RULES.md`.
 - PR title is based on Jira ticket `summary`.
