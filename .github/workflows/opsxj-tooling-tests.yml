@@ -24,6 +24,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Guard opsxj tooling changes
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File ./opsxj-tooling-guard.ps1
 
       - name: Setup Node
         uses: actions/setup-node@v4

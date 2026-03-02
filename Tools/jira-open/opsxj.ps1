@@ -750,6 +750,12 @@ function Invoke-Preflight {
     if ($CommandName -eq "archive" -and [string]::IsNullOrWhiteSpace($IssueOrChange)) {
         throw "Issue key or change name is required for archive."
     }
+
+    if ($CommandName -eq "jira-pending") {
+        if ([string]::IsNullOrWhiteSpace($IssueOrChange) -and [string]::IsNullOrWhiteSpace([string]$toolConfig.jiraProjectKey)) {
+            throw "Project key is required. Pass <PROJECT_KEY>, <ISSUE-KEY>, or set JIRA_PROJECT_KEY."
+        }
+    }
 }
 
 function Invoke-Doctor {
@@ -2045,7 +2051,7 @@ function Invoke-JiraPending {
     $jql = Get-JiraPendingJql -Scope $Scope
     $encodedJql = [System.Uri]::EscapeDataString($jql)
     $fields = [System.Uri]::EscapeDataString("summary,status,assignee,updated")
-    $uri = "$($ctx.baseUrl)/rest/api/3/search?jql=$encodedJql&fields=$fields&maxResults=50"
+    $uri = "$($ctx.baseUrl)/rest/api/3/search/jql?jql=$encodedJql&fields=$fields&maxResults=50"
 
     $response = Invoke-JiraRestMethod -Method "Get" -Uri $uri -Headers $ctx.headers -Body ""
     $issues = @($response.issues)
