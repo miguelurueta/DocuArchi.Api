@@ -139,6 +139,7 @@ builder.Services.AddScoped<IFlujosRelacionadosTramiteRepository, FlujosRelaciona
 builder.Services.AddScoped<IRaRestriRelacionTramiteR, RaRestriRelacionTramiteR>();
 builder.Services.AddScoped<ITotalDiasVencimientoTramiteRepository, TotalDiasVencimientoTramiteRepository>();
 builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriadosTramiteRepository>();
+builder.Services.AddScoped<IListaRadicadosPendientesRepository, ListaRadicadosPendientesRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
 
@@ -178,6 +179,7 @@ builder.Services.AddScoped<IListaDiasFeriadosTramiteService, ListaDiasFeriadosTr
 builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoCompleteDestinatarioRestriccionService>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
 builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
+builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -277,6 +279,7 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 
 app.Run();
+
 
 
 

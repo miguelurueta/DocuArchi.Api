@@ -1,10 +1,10 @@
-using MiApp.DTOs.DTOs.General;
+﻿using MiApp.DTOs.DTOs.General;
 using MiApp.DTOs.DTOs.Radicacion.Tramite;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.Tramite;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security;
 
 namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 {
@@ -19,6 +19,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         private readonly ITotalDiasVencimientoTramiteService _totalDiasVencimientoTramiteService;
         private readonly IListaDiasFeriadosTramiteService _listaDiasFeriadosTramiteService;
         private readonly IFechaLimiteRespuestaService _fechaLimiteRespuestaService;
+        private readonly IListaRadicadosPendientesService _listaRadicadosPendientesService;
 
         public TramiteController(
             IClaimValidationService claimValidationService,
@@ -26,7 +27,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
             IRelacionTipoRestriccionService relacionTipoRestriccionService,
             ITotalDiasVencimientoTramiteService totalDiasVencimientoTramiteService,
             IListaDiasFeriadosTramiteService listaDiasFeriadosTramiteService,
-            IFechaLimiteRespuestaService fechaLimiteRespuestaService)
+            IFechaLimiteRespuestaService fechaLimiteRespuestaService,
+            IListaRadicadosPendientesService listaRadicadosPendientesService)
         {
             _claimValidationService = claimValidationService;
             _flujosRelacionadosTramiteService = flujosRelacionadosTramiteService;
@@ -34,6 +36,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
             _totalDiasVencimientoTramiteService = totalDiasVencimientoTramiteService;
             _listaDiasFeriadosTramiteService = listaDiasFeriadosTramiteService;
             _fechaLimiteRespuestaService = fechaLimiteRespuestaService;
+            _listaRadicadosPendientesService = listaRadicadosPendientesService;
         }
 
         [HttpGet("tramites/empsolicitaListaflujosRelacionadosTramite")]
@@ -123,5 +126,59 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 
             return Ok(result);
         }
+
+        [HttpGet("tramites/apListaRadicadosPendientes")]
+        public async Task<ActionResult<AppResponses<List<ListaRadicadosPendientesDto>>>> ApListaRadicadosPendientes()
+        {
+            try
+            {
+                //var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                //if (!validation.Success || validation.ClaimValue == null)
+                //{
+                //    return BadRequest(validation.Response);
+                //}
+
+                //var defaultDbAlias = validation.ClaimValue;
+
+                //var validationUsuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+                //if (!validationUsuario.Success || validationUsuario.ClaimValue == null)
+                //{
+                //    return BadRequest(validationUsuario.Response);
+                //}
+
+                //if (!int.TryParse(validationUsuario.ClaimValue, out var idUsuarioGestion))
+                //{
+                //    throw new SecurityException("Claim invalido: usuarioid");
+                //}
+
+                var result = await _listaRadicadosPendientesService.SolicitaListaRadicadosPendientes(141, "DA");
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AppResponses<List<ListaRadicadosPendientesDto>>
+                    {
+                        success = false,
+                        message = "Error inesperado al consultar radicados pendientes",
+                        errors =
+                        [
+                            new
+                            {
+                                Type = "Exception",
+                                Field = "usuarioid",
+                                Message = ex.Message
+                            }
+                        ],
+                        data = []
+                    });
+            }
+        }
     }
 }
+
