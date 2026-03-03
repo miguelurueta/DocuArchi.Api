@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DocuArchiCore.Abstractions.Security;
 using DocuArchiCore.Infrastructure.Security;
 using MiApp.DTOs.DTOs.Account;
@@ -16,6 +16,7 @@ using MiApp.Repository.Repositorio.Radicador.PlantillaRadicado;
 using MiApp.Repository.Repositorio.Radicador.PlantillaValidacion;
 using MiApp.Repository.Repositorio.Radicador.Tramite;
 using MiApp.Repository.Repositorio.Radicador.Usuario;
+using MiApp.Repository.Repositorio.UI.MuiTable;
 using MiApp.Repository.Repositorio.Workflow.Eventos;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
 using MiApp.Repository.Repositorio.Workflow.usuario;
@@ -45,6 +46,7 @@ using MiApp.Services.Service.Seguridad.Autorizacion.Extensiones;
 using MiApp.Services.Service.Seguridad.Autorizacion.Test;
 using MiApp.Services.Service.Seguridad.PasswordPolice;
 using MiApp.Services.Service.SessionHelper;
+using MiApp.Services.Service.UI.MuiTable;
 using MiApp.Services.Service.Usuario;
 using MiApp.Services.Service.Workflow.Inicio;
 using MiApp.Services.Service.Workflow.Usuario;
@@ -142,6 +144,7 @@ builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriado
 builder.Services.AddScoped<IListaRadicadosPendientesRepository, ListaRadicadosPendientesRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
+builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
 
 
 
@@ -180,6 +183,9 @@ builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoComp
 builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
 builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
 builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
+builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
+builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
+builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -279,16 +285,3 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 
 app.Run();
-
-
-
-
-
-
-
-
-
-
-
-
-
