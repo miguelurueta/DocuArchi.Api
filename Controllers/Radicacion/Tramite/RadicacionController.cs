@@ -10,7 +10,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 {
     [Route("api/radicacion")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public sealed class RadicacionController : ControllerBase
     {
         private readonly IClaimValidationService _claimValidationService;
@@ -51,7 +51,10 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                 throw new SecurityException("Claim invalido: usuarioid");
             }
 
-            var result = await _registrarService.RegistrarRadicacionEntranteAsync(request, idUsuarioGestion, aliasValidation.ClaimValue);
+            var result = await _registrarService.RegistrarRadicacionEntranteAsync(
+                request,
+                idUsuarioGestion,
+                aliasValidation.ClaimValue);
             if (!result.success)
             {
                 return BadRequest(result);
