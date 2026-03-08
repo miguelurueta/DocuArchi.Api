@@ -2,6 +2,7 @@
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.Tramite;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
+using MiApp.Services.Service.SessionHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security;
@@ -17,44 +18,48 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         private readonly IRegistrarRadicacionEntranteService _registrarService;
         private readonly IValidarRadicacionEntranteService _validarService;
         private readonly IFlujoInicialRadicacionService _flujoInicialService;
+        private readonly IIpHelper _ipHelper;
 
         public RadicacionController(
             IClaimValidationService claimValidationService,
             IRegistrarRadicacionEntranteService registrarService,
             IValidarRadicacionEntranteService validarService,
-            IFlujoInicialRadicacionService flujoInicialService)
+            IFlujoInicialRadicacionService flujoInicialService,
+            IIpHelper ipHelper)
         {
             _claimValidationService = claimValidationService;
             _registrarService = registrarService;
             _validarService = validarService;
             _flujoInicialService = flujoInicialService;
+            _ipHelper = ipHelper;
         }
 
         [HttpPost("registrar-entrante")]
         public async Task<ActionResult<AppResponses<RegistrarRadicacionEntranteResponseDto>>> RegistrarEntrante(
             [FromBody] RegistrarRadicacionEntranteRequestDto request)
         {
-            var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
-            if (!aliasValidation.Success || aliasValidation.ClaimValue == null)
-            {
-                return BadRequest(aliasValidation.Response);
-            }
+            //var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            //if (!aliasValidation.Success || aliasValidation.ClaimValue == null)
+            //{
+            //    return BadRequest(aliasValidation.Response);
+            //}
 
-            var userValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
-            if (!userValidation.Success || userValidation.ClaimValue == null)
-            {
-                return BadRequest(userValidation.Response);
-            }
+            //var userValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
+            //if (!userValidation.Success || userValidation.ClaimValue == null)
+            //{
+            //    return BadRequest(userValidation.Response);
+            //}
 
-            if (!int.TryParse(userValidation.ClaimValue, out var idUsuarioGestion))
-            {
-                throw new SecurityException("Claim invalido: usuarioid");
-            }
+            //if (!int.TryParse(userValidation.ClaimValue, out var idUsuarioGestion))
+            //{
+            //    throw new SecurityException("Claim invalido: usuarioid");
+            //}
 
             var result = await _registrarService.RegistrarRadicacionEntranteAsync(
                 request,
-                idUsuarioGestion,
-                aliasValidation.ClaimValue);
+                141,
+                "DA",
+                _ipHelper.ObtenerDireccionIP(HttpContext));
             if (!result.success)
             {
                 return BadRequest(result);
