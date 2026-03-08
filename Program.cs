@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using DocuArchiCore.Abstractions.Security;
 using DocuArchiCore.Infrastructure.Security;
 using MiApp.DTOs.DTOs.Account;
@@ -10,6 +10,7 @@ using MiApp.Repository.Repositorio.Autenticacion.Recovery;
 using MiApp.Repository.Repositorio.DataAccess;
 using MiApp.Repository.Repositorio.Docuarchi.Grupo;
 using MiApp.Repository.Repositorio.Docuarchi.Usuario;
+using MiApp.Repository.Repositorio.GestorDocumental.Sede;
 using MiApp.Repository.Repositorio.GestorDocumental.usuario;
 using MiApp.Repository.Repositorio.Home.Menu;
 using MiApp.Repository.Repositorio.Radicador.PlantillaRadicado;
@@ -51,8 +52,10 @@ using MiApp.Services.Service.Usuario;
 using MiApp.Services.Service.Workflow.Inicio;
 using MiApp.Services.Service.Workflow.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -131,6 +134,7 @@ builder.Services.AddScoped<IPermisosPlantillaR, PermisosPlantillaR>();
 builder.Services.AddScoped<ITipoDocEntranteR, TipoDocEntranteR>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ILogUsuarioDR, LogUsuarioDR>();
+builder.Services.AddScoped<ISedeEmpresaR, SedeEmpresaR>();
 builder.Services.AddScoped<IRaValoresCamposSeleccionPlantillaRadicadoR, RaValoresCamposSeleccionPlantillaRadicadoR>();
 builder.Services.AddScoped<ISecondFactorChallengeRepository, SecondFactorChallengeRepository>();
 builder.Services.AddScoped<IRecoverTokenConsumedRepository, RecoverTokenConsumedRepository>();
@@ -142,6 +146,7 @@ builder.Services.AddScoped<IRaRestriRelacionTramiteR, RaRestriRelacionTramiteR>(
 builder.Services.AddScoped<ITotalDiasVencimientoTramiteRepository, TotalDiasVencimientoTramiteRepository>();
 builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriadosTramiteRepository>();
 builder.Services.AddScoped<IListaRadicadosPendientesRepository, ListaRadicadosPendientesRepository>();
+builder.Services.AddScoped<IRegistroPlantillaBuilder, RegistroPlantillaBuilder>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteRepository, RegistrarRadicacionEntranteRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
@@ -184,7 +189,9 @@ builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoComp
 builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
 builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
 builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
+builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicadoService>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicacionEntranteService>();
+builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
 builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
 builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacionService>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
@@ -216,6 +223,13 @@ var sessionConfig = new SessionConfigDTO();
 builder.Configuration.GetSection("SessionConfig").Bind(sessionConfig);
 if (sessionConfig.IdleTimeoutMinutes <= 0)
     sessionConfig.IdleTimeoutMinutes = 20;
+
+var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, ".tmp", "dataprotection-keys");
+Directory.CreateDirectory(dataProtectionKeysPath);
+builder.Services
+    .AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+    .SetApplicationName("DocuArchi.Api");
 
 builder.Services.AddSingleton(sessionConfig);
 builder.Services.AddDistributedMemoryCache();
@@ -289,3 +303,4 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 
 app.Run();
+
