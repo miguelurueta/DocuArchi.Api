@@ -148,6 +148,7 @@ builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriado
 builder.Services.AddScoped<IListaRadicadosPendientesRepository, ListaRadicadosPendientesRepository>();
 builder.Services.AddScoped<IRegistroPlantillaBuilder, RegistroPlantillaBuilder>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteRepository, RegistrarRadicacionEntranteRepository>();
+builder.Services.AddScoped<IValidaDimensionCamposRepository, ValidaDimensionCamposRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
 builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
@@ -193,6 +194,7 @@ builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicad
 builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicacionEntranteService>();
 builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
 builder.Services.AddScoped<IValidaCamposObligatoriosService, ValidaCamposObligatoriosService>();
+builder.Services.AddScoped<IValidaDimensionCamposService, ValidaDimensionCamposService>();
 builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
 builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacionService>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
