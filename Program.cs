@@ -192,6 +192,7 @@ builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendi
 builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicadoService>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicacionEntranteService>();
 builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
+builder.Services.AddScoped<IValidaCamposObligatoriosService, ValidaCamposObligatoriosService>();
 builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
 builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacionService>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
