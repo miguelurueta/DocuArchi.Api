@@ -34,38 +34,66 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
             _ipHelper = ipHelper;
         }
 
+        /// <summary>
+        /// Registra una radicacion entrante validando claims de sesion y devolviendo AppResponses estandarizado.
+        /// </summary>
+        /// <param name="request">Payload de radicacion entrante recibido desde frontend.</param>
+        /// <returns>Resultado del registro con estado, mensaje, data y errores.</returns>
         [HttpPost("registrar-entrante")]
         public async Task<ActionResult<AppResponses<RegistrarRadicacionEntranteResponseDto>>> RegistrarEntrante(
             [FromBody] RegistrarRadicacionEntranteRequestDto request)
         {
-            //var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
-            //if (!aliasValidation.Success || aliasValidation.ClaimValue == null)
-            //{
-            //    return BadRequest(aliasValidation.Response);
-            //}
-
-            //var userValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
-            //if (!userValidation.Success || userValidation.ClaimValue == null)
-            //{
-            //    return BadRequest(userValidation.Response);
-            //}
-
-            //if (!int.TryParse(userValidation.ClaimValue, out var idUsuarioGestion))
-            //{
-            //    throw new SecurityException("Claim invalido: usuarioid");
-            //}
-
-            var result = await _registrarService.RegistrarRadicacionEntranteAsync(
-                request,
-                141,
-                "DA",
-                _ipHelper.ObtenerDireccionIP(HttpContext));
-            if (!result.success)
+            try
             {
-                return BadRequest(result);
-            }
+                var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!aliasValidation.Success || aliasValidation.ClaimValue == null)
+                {
+                    return BadRequest(aliasValidation.Response);
+                }
 
-            return Ok(result);
+                var userValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
+                if (!userValidation.Success || userValidation.ClaimValue == null)
+                {
+                    return BadRequest(userValidation.Response);
+                }
+
+                if (!int.TryParse(userValidation.ClaimValue, out var idUsuarioGestion))
+                {
+                    throw new SecurityException("Claim invalido: usuarioid");
+                }
+
+                var result = await _registrarService.RegistrarRadicacionEntranteAsync(
+                    request,
+                    idUsuarioGestion,
+                    aliasValidation.ClaimValue,
+                    _ipHelper.ObtenerDireccionIP(HttpContext));
+
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AppResponses<RegistrarRadicacionEntranteResponseDto>
+                    {
+                        success = false,
+                        message = "Error inesperado al registrar radicacion entrante",
+                        errors =
+                        [
+                            new
+                            {
+                                Type = "Exception",
+                                Field = "usuarioid",
+                                Message = ex.Message
+                            }
+                        ],
+                        data = null!
+                    });
+            }
         }
 
         [HttpPost("validar-entrante")]
