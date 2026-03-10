@@ -149,6 +149,7 @@ builder.Services.AddScoped<IListaRadicadosPendientesRepository, ListaRadicadosPe
 builder.Services.AddScoped<IRegistroPlantillaBuilder, RegistroPlantillaBuilder>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteRepository, RegistrarRadicacionEntranteRepository>();
 builder.Services.AddScoped<IValidaDimensionCamposRepository, ValidaDimensionCamposRepository>();
+builder.Services.AddScoped<IValidaTipoCamposRepository, ValidaTipoCamposRepository>();
 builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionRepository, ValidaCamposDinamicosUnicosRadicacionRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
@@ -196,6 +197,7 @@ builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicac
 builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
 builder.Services.AddScoped<IValidaCamposObligatoriosService, ValidaCamposObligatoriosService>();
 builder.Services.AddScoped<IValidaDimensionCamposService, ValidaDimensionCamposService>();
+builder.Services.AddScoped<IValidaTipoCamposService, ValidaTipoCamposService>();
 builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionService, ValidaCamposDinamicosUnicosRadicacionService>();
 builder.Services.AddScoped<IValidaCamposRadicacionService, ValidaCamposRadicacionService>();
 builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
