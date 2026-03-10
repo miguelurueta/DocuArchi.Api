@@ -197,6 +197,7 @@ builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametr
 builder.Services.AddScoped<IValidaCamposObligatoriosService, ValidaCamposObligatoriosService>();
 builder.Services.AddScoped<IValidaDimensionCamposService, ValidaDimensionCamposService>();
 builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionService, ValidaCamposDinamicosUnicosRadicacionService>();
+builder.Services.AddScoped<IValidaCamposRadicacionService, ValidaCamposRadicacionService>();
 builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
 builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacionService>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
