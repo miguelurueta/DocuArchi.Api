@@ -33,7 +33,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         private readonly IAutoCompleteDestinatarioRestriccionService _autoCompleteDestinatarioRestriccionService;
         private readonly ICamposDinamicosPlantillaService _camposDinamicosPlantillaService;
         private readonly ISolicitaAutoCompleteTokenRadicadoService _solicitaAutoCompleteTokenRadicadoService;
-        public PlantillaRadicacionController(ICurrentUserService iCurrentUserService, IPlantillaRadicacionL iPlantillaRadicacionL, IClaimValidationService claimValidationService, IPlantillaValidacionR iPlantillaValidacionR, IPlantillaValidacionL plantillaValidacionL, IUsuarioCaracterizacionService usuarioCaracterizacionService, IAutoCompleteDestinatarioRestriccionService autoCompleteDestinatarioRestriccionService, ICamposDinamicosPlantillaService camposDinamicosPlantillaService, ISolicitaAutoCompleteTokenRadicadoService solicitaAutoCompleteTokenRadicadoService)
+        private readonly ISolicitaAutoCompleteTokenExpedienteRadicadoService _solicitaAutoCompleteTokenExpedienteRadicadoService;
+        public PlantillaRadicacionController(ICurrentUserService iCurrentUserService, IPlantillaRadicacionL iPlantillaRadicacionL, IClaimValidationService claimValidationService, IPlantillaValidacionR iPlantillaValidacionR, IPlantillaValidacionL plantillaValidacionL, IUsuarioCaracterizacionService usuarioCaracterizacionService, IAutoCompleteDestinatarioRestriccionService autoCompleteDestinatarioRestriccionService, ICamposDinamicosPlantillaService camposDinamicosPlantillaService, ISolicitaAutoCompleteTokenRadicadoService solicitaAutoCompleteTokenRadicadoService, ISolicitaAutoCompleteTokenExpedienteRadicadoService solicitaAutoCompleteTokenExpedienteRadicadoService)
         {
             _ICurrentUserService = iCurrentUserService;
             _IPlantillaRadicacionL = iPlantillaRadicacionL;
@@ -44,6 +45,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             _autoCompleteDestinatarioRestriccionService = autoCompleteDestinatarioRestriccionService;
             _camposDinamicosPlantillaService = camposDinamicosPlantillaService;
             _solicitaAutoCompleteTokenRadicadoService = solicitaAutoCompleteTokenRadicadoService;
+            _solicitaAutoCompleteTokenExpedienteRadicadoService = solicitaAutoCompleteTokenExpedienteRadicadoService;
         }
 
         [HttpGet("listaPlantilla")]
@@ -272,6 +274,57 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                             {
                                 Type = "Technical",
                                 Field = "SolicitaAutoCompleteTokenRadicado",
+                                Message = ex.Message
+                            }
+                        }
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Busca coincidencias de token de expediente sobre la tabla expediente_archivo.
+        /// </summary>
+        /// <param name="parameterAutoComplete">Texto y metadatos del autocomplete enviados por frontend.</param>
+        /// <returns>Resultado AppResponses con lista de rowTomSelect.</returns>
+        [HttpPost("solicitaAutoCompleteTokenExpedienteRadicado")]
+        public async Task<ActionResult<AppResponses<List<rowTomSelect>>>> SolicitaAutoCompleteTokenExpedienteRadicado(
+            [FromBody] ParameterAutoComplete parameterAutoComplete)
+        {
+            try
+            {
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || validation.ClaimValue == null)
+                {
+                    return BadRequest(validation.Response);
+                }
+
+                parameterAutoComplete ??= new ParameterAutoComplete();
+                parameterAutoComplete.defaultDbAlias = validation.ClaimValue;
+
+                var result = await _solicitaAutoCompleteTokenExpedienteRadicadoService
+                    .ServiceSolicitaAutoCompleteTokenExpedienteRadicadoAsync(parameterAutoComplete, validation.ClaimValue);
+
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AppResponses<List<rowTomSelect>>
+                    {
+                        success = false,
+                        message = "Error inesperado al consultar token expediente radicado",
+                        data = [],
+                        errors = new[]
+                        {
+                            new AppError
+                            {
+                                Type = "Technical",
+                                Field = "SolicitaAutoCompleteTokenExpedienteRadicado",
                                 Message = ex.Message
                             }
                         }
