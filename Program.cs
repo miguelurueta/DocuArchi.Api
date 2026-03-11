@@ -153,6 +153,7 @@ builder.Services.AddScoped<IValidaTipoCamposRepository, ValidaTipoCamposReposito
 builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionRepository, ValidaCamposDinamicosUnicosRadicacionRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
+builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoRepository, SolicitaAutoCompleteTokenRadicadoRepository>();
 builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
 
 
@@ -190,6 +191,7 @@ builder.Services.AddScoped<ITotalDiasVencimientoTramiteService, TotalDiasVencimi
 builder.Services.AddScoped<IListaDiasFeriadosTramiteService, ListaDiasFeriadosTramiteService>();
 builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoCompleteDestinatarioRestriccionService>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
+builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoService, SolicitaAutoCompleteTokenRadicadoService>();
 builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
 builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
 builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicadoService>();

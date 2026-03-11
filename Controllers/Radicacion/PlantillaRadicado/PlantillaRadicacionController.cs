@@ -32,7 +32,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         private readonly IUsuarioCaracterizacionService _usuarioCaracterizacionService;
         private readonly IAutoCompleteDestinatarioRestriccionService _autoCompleteDestinatarioRestriccionService;
         private readonly ICamposDinamicosPlantillaService _camposDinamicosPlantillaService;
-        public PlantillaRadicacionController(ICurrentUserService iCurrentUserService, IPlantillaRadicacionL iPlantillaRadicacionL, IClaimValidationService claimValidationService, IPlantillaValidacionR iPlantillaValidacionR, IPlantillaValidacionL plantillaValidacionL, IUsuarioCaracterizacionService usuarioCaracterizacionService, IAutoCompleteDestinatarioRestriccionService autoCompleteDestinatarioRestriccionService, ICamposDinamicosPlantillaService camposDinamicosPlantillaService)
+        private readonly ISolicitaAutoCompleteTokenRadicadoService _solicitaAutoCompleteTokenRadicadoService;
+        public PlantillaRadicacionController(ICurrentUserService iCurrentUserService, IPlantillaRadicacionL iPlantillaRadicacionL, IClaimValidationService claimValidationService, IPlantillaValidacionR iPlantillaValidacionR, IPlantillaValidacionL plantillaValidacionL, IUsuarioCaracterizacionService usuarioCaracterizacionService, IAutoCompleteDestinatarioRestriccionService autoCompleteDestinatarioRestriccionService, ICamposDinamicosPlantillaService camposDinamicosPlantillaService, ISolicitaAutoCompleteTokenRadicadoService solicitaAutoCompleteTokenRadicadoService)
         {
             _ICurrentUserService = iCurrentUserService;
             _IPlantillaRadicacionL = iPlantillaRadicacionL;
@@ -42,6 +43,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             _usuarioCaracterizacionService = usuarioCaracterizacionService;
             _autoCompleteDestinatarioRestriccionService = autoCompleteDestinatarioRestriccionService;
             _camposDinamicosPlantillaService = camposDinamicosPlantillaService;
+            _solicitaAutoCompleteTokenRadicadoService = solicitaAutoCompleteTokenRadicadoService;
         }
 
         [HttpGet("listaPlantilla")]
@@ -224,6 +226,57 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                 return BadRequest(result);
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Busca coincidencias de token de radicado sobre el campo consecutivo_rad de la plantilla por defecto.
+        /// </summary>
+        /// <param name="parameterAutoComplete">Texto y metadatos del autocomplete enviados por frontend.</param>
+        /// <returns>Resultado AppResponses con lista de rowTomSelect.</returns>
+        [HttpPost("solicitaAutoCompleteTokenRadicado")]
+        public async Task<ActionResult<AppResponses<List<rowTomSelect>>>> SolicitaAutoCompleteTokenRadicado(
+            [FromBody] ParameterAutoComplete parameterAutoComplete)
+        {
+            try
+            {
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || validation.ClaimValue == null)
+                {
+                    return BadRequest(validation.Response);
+                }
+
+                parameterAutoComplete ??= new ParameterAutoComplete();
+                parameterAutoComplete.defaultDbAlias = validation.ClaimValue;
+
+                var result = await _solicitaAutoCompleteTokenRadicadoService
+                    .ServiceSolicitaAutoCompleteTokenRadicadoAsync(parameterAutoComplete, parameterAutoComplete.defaultDbAlias);
+
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AppResponses<List<rowTomSelect>>
+                    {
+                        success = false,
+                        message = "Error inesperado al consultar token radicado",
+                        data = [],
+                        errors = new[]
+                        {
+                            new AppError
+                            {
+                                Type = "Technical",
+                                Field = "SolicitaAutoCompleteTokenRadicado",
+                                Message = ex.Message
+                            }
+                        }
+                    });
+            }
         }
 
 
