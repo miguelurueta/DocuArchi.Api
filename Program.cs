@@ -15,6 +15,7 @@ using MiApp.Repository.Repositorio.GestorDocumental.usuario;
 using MiApp.Repository.Repositorio.Home.Menu;
 using MiApp.Repository.Repositorio.Radicador.PlantillaRadicado;
 using MiApp.Repository.Repositorio.Radicador.PlantillaValidacion;
+using MiApp.Repository.Repositorio.Radicador.Configuracion;
 using MiApp.Repository.Repositorio.Radicador.Tramite;
 using MiApp.Repository.Repositorio.Radicador.Usuario;
 using MiApp.Repository.Repositorio.UI.MuiTable;
@@ -38,6 +39,7 @@ using MiApp.Services.Service.Home.Menu;
 using MiApp.Services.Service.Mapping;
 using MiApp.Services.Service.Mapping.Home.Menu;
 using MiApp.Services.Service.Radicacion.Inicio;
+using MiApp.Services.Service.Radicacion.Configuracion;
 using MiApp.Services.Service.Radicacion.PlantillaRadicado;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.Tramite;
@@ -156,6 +158,7 @@ builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosP
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoRepository, SolicitaAutoCompleteTokenRadicadoRepository>();
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoRepository, SolicitaAutoCompleteTokenExpedienteRadicadoRepository>();
 builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
+builder.Services.AddScoped<IConfiguracionPlantillaRepository, ConfiguracionPlantillaRepository>();
 
 
 
@@ -209,6 +212,7 @@ builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacio
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
 builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
 builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
+builder.Services.AddScoped<IConfiguracionPlantillaService, ConfiguracionPlantillaService>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -315,4 +319,5 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 
 app.Run();
+
 
