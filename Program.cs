@@ -159,6 +159,7 @@ builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoRepository, Solicit
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoRepository, SolicitaAutoCompleteTokenExpedienteRadicadoRepository>();
 builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
 builder.Services.AddScoped<IConfiguracionPlantillaRepository, ConfiguracionPlantillaRepository>();
+builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCamposRutaWorklflowRepository>();
 
 
 
@@ -213,6 +214,7 @@ builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
 builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
 builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
 builder.Services.AddScoped<IConfiguracionPlantillaService, ConfiguracionPlantillaService>();
+builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRutaWorklflowService>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -317,7 +319,4 @@ app.UseAuthentication();         // JWT
 app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
-
 app.Run();
-
-
