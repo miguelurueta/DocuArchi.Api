@@ -15,11 +15,13 @@ using MiApp.Repository.Repositorio.GestorDocumental.usuario;
 using MiApp.Repository.Repositorio.Home.Menu;
 using MiApp.Repository.Repositorio.Radicador.PlantillaRadicado;
 using MiApp.Repository.Repositorio.Radicador.PlantillaValidacion;
+using MiApp.Repository.Repositorio.Radicador.Configuracion;
 using MiApp.Repository.Repositorio.Radicador.Tramite;
 using MiApp.Repository.Repositorio.Radicador.Usuario;
 using MiApp.Repository.Repositorio.UI.MuiTable;
 using MiApp.Repository.Repositorio.Workflow.Eventos;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
+using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
 using MiApp.Repository.Repositorio.Workflow.usuario;
 using MiApp.Repository.Repositorio.Workflow.Usuario;
 using MiApp.Services.Service.Account;
@@ -38,6 +40,7 @@ using MiApp.Services.Service.Home.Menu;
 using MiApp.Services.Service.Mapping;
 using MiApp.Services.Service.Mapping.Home.Menu;
 using MiApp.Services.Service.Radicacion.Inicio;
+using MiApp.Services.Service.Radicacion.Configuracion;
 using MiApp.Services.Service.Radicacion.PlantillaRadicado;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.Tramite;
@@ -50,6 +53,7 @@ using MiApp.Services.Service.SessionHelper;
 using MiApp.Services.Service.UI.MuiTable;
 using MiApp.Services.Service.Usuario;
 using MiApp.Services.Service.Workflow.Inicio;
+using MiApp.Services.Service.Workflow.RutaTrabajo;
 using MiApp.Services.Service.Workflow.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -156,6 +160,9 @@ builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosP
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoRepository, SolicitaAutoCompleteTokenRadicadoRepository>();
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoRepository, SolicitaAutoCompleteTokenExpedienteRadicadoRepository>();
 builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
+builder.Services.AddScoped<IConfiguracionPlantillaRepository, ConfiguracionPlantillaRepository>();
+builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCamposRutaWorklflowRepository>();
+builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, SolicitaExistenciaRadicadoRutaWorkflowRepository>();
 
 
 
@@ -209,6 +216,9 @@ builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacio
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
 builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
 builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
+builder.Services.AddScoped<IConfiguracionPlantillaService, ConfiguracionPlantillaService>();
+builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRutaWorklflowService>();
+builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -313,6 +323,4 @@ app.UseAuthentication();         // JWT
 app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
-
 app.Run();
-
