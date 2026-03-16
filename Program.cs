@@ -164,6 +164,7 @@ builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
 builder.Services.AddScoped<IConfiguracionPlantillaRepository, ConfiguracionPlantillaRepository>();
 builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCamposRutaWorklflowRepository>();
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, SolicitaExistenciaRadicadoRutaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 
 
 
@@ -222,6 +223,7 @@ builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>
 builder.Services.AddScoped<IConfiguracionPlantillaService, ConfiguracionPlantillaService>();
 builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRutaWorklflowService>();
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
+builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
