@@ -215,6 +215,7 @@ builder.Services.AddScoped<IValidaCamposRadicacionService, ValidaCamposRadicacio
 builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
 builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacionService>();
 builder.Services.AddScoped<IAsingacionValoresDatosRadicadoRutaWorklflow, AsingacionValoresDatosRadicadoRutaWorklflow>();
+builder.Services.AddScoped<IValidaDatosRadicacionTareaWorkflowService, ValidaDatosRadicacionTareaWorkflowService>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
 builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
 builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
