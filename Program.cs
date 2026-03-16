@@ -40,6 +40,7 @@ using MiApp.Services.Service.Home.Menu;
 using MiApp.Services.Service.Mapping;
 using MiApp.Services.Service.Mapping.Home.Menu;
 using MiApp.Services.Service.Radicacion.Inicio;
+using MiApp.Services.Service.Radicacion.RelacionCamposRutaWorklflow;
 using MiApp.Services.Service.Radicacion.Configuracion;
 using MiApp.Services.Service.Radicacion.PlantillaRadicado;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
@@ -213,6 +214,7 @@ builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionService, Valida
 builder.Services.AddScoped<IValidaCamposRadicacionService, ValidaCamposRadicacionService>();
 builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
 builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacionService>();
+builder.Services.AddScoped<IAsingacionValoresDatosRadicadoRutaWorklflow, AsingacionValoresDatosRadicadoRutaWorklflow>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
 builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
 builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
