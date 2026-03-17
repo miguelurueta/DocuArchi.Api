@@ -1,5 +1,6 @@
 ﻿using MiApp.DTOs.DTOs.General;
 using MiApp.DTOs.DTOs.Radicacion.Tramite;
+using MiApp.DTOs.DTOs.UI.MuiTable;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.Tramite;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
@@ -128,7 +129,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         }
 
         [HttpGet("tramites/apListaRadicadosPendientes")]
-        public async Task<ActionResult<AppResponses<List<ListaRadicadosPendientesDto>>>> ApListaRadicadosPendientes()
+        public async Task<ActionResult<AppResponses<DynamicUiTableDto>>> ApListaRadicadosPendientes()
         {
             try
             {
@@ -137,8 +138,6 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                 //{
                 //    return BadRequest(validation.Response);
                 //}
-
-                //var defaultDbAlias = validation.ClaimValue;
 
                 //var validationUsuario = _claimValidationService.ValidateClaim<string>("usuarioid");
                 //if (!validationUsuario.Success || validationUsuario.ClaimValue == null)
@@ -151,7 +150,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                 //    throw new SecurityException("Claim invalido: usuarioid");
                 //}
 
-                var result = await _listaRadicadosPendientesService.SolicitaListaRadicadosPendientes(141, "DA");
+                var result = await _listaRadicadosPendientesService
+                    .SolicitaListaRadicadosPendientes(141, "DA");
                 if (!result.success)
                 {
                     return BadRequest(result);
@@ -162,7 +162,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new AppResponses<List<ListaRadicadosPendientesDto>>
+                    new AppResponses<DynamicUiTableDto>
                     {
                         success = false,
                         message = "Error inesperado al consultar radicados pendientes",
@@ -175,7 +175,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                                 Message = ex.Message
                             }
                         ],
-                        data = []
+                        data = null!
                     });
             }
         }
