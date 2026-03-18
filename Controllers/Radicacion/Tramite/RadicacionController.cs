@@ -38,10 +38,12 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         /// Registra una radicacion entrante validando claims de sesion y devolviendo AppResponses estandarizado.
         /// </summary>
         /// <param name="request">Payload de radicacion entrante recibido desde frontend.</param>
+        /// <param name="tipoModuloRadicacion">Tipo de modulo de radicacion enviado por query string. El valor por defecto es 1.</param>
         /// <returns>Resultado del registro con estado, mensaje, data y errores.</returns>
         [HttpPost("registrar-entrante")]
         public async Task<ActionResult<AppResponses<RegistrarRadicacionEntranteResponseDto>>> RegistrarEntrante(
-            [FromBody] RegistrarRadicacionEntranteRequestDto request)
+            [FromBody] RegistrarRadicacionEntranteRequestDto request,
+            [FromQuery] int tipoModuloRadicacion = 1)
         {
             try
             {
@@ -66,7 +68,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                     request,
                     idUsuarioGestion,
                     aliasValidation.ClaimValue,
-                    _ipHelper.ObtenerDireccionIP(HttpContext));
+                    _ipHelper.ObtenerDireccionIP(HttpContext),
+                    tipoModuloRadicacion);
 
                 if (!result.success)
                 {
