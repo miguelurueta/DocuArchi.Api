@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using DocuArchi.Api.Infrastructure.Security;
 using DocuArchiCore.Abstractions.Security;
-using DocuArchiCore.Infrastructure.Security;
 using MiApp.DTOs.DTOs.Account;
 using MiApp.Repositorio.Account;
 using MiApp.Repository.DataAccess;

@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DocuArchiCore.Abstractions\DocuArchiCore.Abstractions.csproj" />
-    <ProjectReference Include="..\DocuArchiCore\DocuArchiCore.csproj" />
     <ProjectReference Include="..\MiApp.DTOs\MiApp.DTOs.csproj" />
     <ProjectReference Include="..\MiApp.Models\MiApp.Models.csproj" />
     <ProjectReference Include="..\MiApp.Services\MiApp.Services.csproj" />
