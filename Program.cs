@@ -158,6 +158,7 @@ builder.Services.AddScoped<IValidaTipoCamposRepository, ValidaTipoCamposReposito
 builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionRepository, ValidaCamposDinamicosUnicosRadicacionRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
+builder.Services.AddScoped<ISolicitaListaEstructuraConfiguracionPlantillaRadicacionRepository, SolicitaListaEstructuraConfiguracionPlantillaRadicacionRepository>();
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoRepository, SolicitaAutoCompleteTokenRadicadoRepository>();
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoRepository, SolicitaAutoCompleteTokenExpedienteRadicadoRepository>();
 builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
