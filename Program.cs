@@ -21,6 +21,7 @@ using MiApp.Repository.Repositorio.Radicador.Tramite;
 using MiApp.Repository.Repositorio.Radicador.Usuario;
 using MiApp.Repository.Repositorio.UI.MuiTable;
 using MiApp.Repository.Repositorio.Workflow.Eventos;
+using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
 using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
 using MiApp.Repository.Repositorio.Workflow.usuario;
@@ -169,6 +170,7 @@ builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, So
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<IRegistroRadicadoTareaWorkflowRepository, RegistroRadicadoTareaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaDatosActividadInicioFlujoRepository, SolicitaDatosActividadInicioFlujoRepository>();
 
 
 
