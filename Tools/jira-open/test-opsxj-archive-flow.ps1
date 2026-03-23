@@ -47,6 +47,13 @@ try {
 
     Set-Content -Path (Join-Path $repoRoot "README.md") -Value "archive test repo" -NoNewline
     Set-Content -Path (Join-Path $repoRoot "openspec/changes/$changeName/.openspec.yaml") -Value "schema: spec-driven`ncreated: 2026-02-27" -NoNewline
+    Set-Content -Path (Join-Path $repoRoot "openspec/changes/$changeName/sync.md") -Value @'
+## Repo Impact Plan
+
+| Repo | Impacta? | Motivo | opsxj:new | PR | opsxj:archive | Estado |
+|---|---|---|---|---|---|---|
+| `MiApp.Services` | `$(yes)` | `<service rules/interfaces>` | `done` | `$(https://github.com/example/repo/pull/321)` | `pending` | `review` |
+'@ -NoNewline
 
     Run-Git -RepoRoot $repoRoot -CliArgs @("init")
     Run-Git -RepoRoot $repoRoot -CliArgs @("config", "user.email", "opsxj-test@example.com")
@@ -75,6 +82,7 @@ try {
     $env:OPSXJ_TEST_SKIP_REMOTE_FETCH = "1"
 
     $script:TransitionedToDone = $false
+    $script:PullRequestMerged = $false
     function global:Invoke-RestMethod {
         param(
             [string]$Method,
@@ -82,6 +90,15 @@ try {
             [hashtable]$Headers,
             [string]$Body
         )
+
+        if ($Method -ieq "Get" -and $Uri -like "https://api.github.com/repos/*/pulls/*") {
+            return @{
+                merged = $script:PullRequestMerged
+                merged_at = if ($script:PullRequestMerged) { "2026-03-01T00:00:00Z" } else { $null }
+                state = if ($script:PullRequestMerged) { "closed" } else { "open" }
+                html_url = "https://github.com/example/repo/pull/321"
+            }
+        }
 
         if ($Method -ieq "Get" -and $Uri -like "*/rest/api/3/issue/*?fields=summary,description") {
             return @{
@@ -124,7 +141,171 @@ try {
     Push-Location $repoRoot
     try {
         $scriptPath = Join-Path $toolDir "opsxj.ps1"
-        $output = (& $scriptPath archive OPSXJ-321 -Yes -SkipSpecs 2>&1 | Out-String)
+        $pendingWrapperPath = Join-Path $tempRoot "archive-pending-wrapper.ps1"
+        $pendingStdoutPath = Join-Path $tempRoot "archive-pending.stdout.txt"
+        $pendingStderrPath = Join-Path $tempRoot "archive-pending.stderr.txt"
+        Set-Content -Path $pendingWrapperPath -Value @"
+`$ErrorActionPreference = 'Stop'
+function global:Invoke-RestMethod {
+    param(
+        [string]`$Method,
+        [string]`$Uri,
+        [hashtable]`$Headers,
+        [string]`$Body
+    )
+
+    if (`$Method -ieq 'Get' -and `$Uri -like 'https://api.github.com/repos/*/pulls/*') {
+        return @{
+            merged = `$false
+            merged_at = `$null
+            state = 'open'
+            html_url = 'https://github.com/example/repo/pull/321'
+        }
+    }
+
+    if (`$Method -ieq 'Get' -and `$Uri -like '*/rest/api/3/issue/*?fields=summary,description') {
+        return @{
+            fields = @{
+                summary = 'Archive test issue'
+                description = @{
+                    type = 'doc'
+                    content = @(
+                        @{
+                            type = 'paragraph'
+                            content = @(
+                                @{ type = 'text'; text = 'Test description' }
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    if (`$Method -ieq 'Get' -and `$Uri -like '*/rest/api/3/issue/*/transitions') {
+        return @{
+            transitions = @(
+                @{
+                    id = '31'
+                    to = @{ name = 'Done' }
+                }
+            )
+        }
+    }
+
+    if (`$Method -ieq 'Post' -and `$Uri -like '*/rest/api/3/issue/*/transitions') {
+        throw 'Jira transition should not run while PRs are pending.'
+    }
+
+    throw \"Unexpected Invoke-RestMethod call: `$Method `$Uri\"
+}
+
+Set-Location '$repoRoot'
+try {
+    & '$scriptPath' archive OPSXJ-321 -Yes -SkipSpecs
+}
+catch {
+    Write-Output `$_.Exception.Message
+}
+"@ -NoNewline
+        $pendingProcess = Start-Process -FilePath "powershell" `
+            -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $pendingWrapperPath) `
+            -RedirectStandardOutput $pendingStdoutPath `
+            -RedirectStandardError $pendingStderrPath `
+            -NoNewWindow `
+            -Wait `
+            -PassThru
+        $pendingOutput = ""
+        if (Test-Path $pendingStdoutPath) {
+            $pendingOutput += (Get-Content -Path $pendingStdoutPath -Raw)
+        }
+        if (Test-Path $pendingStderrPath) {
+            $pendingOutput += (Get-Content -Path $pendingStderrPath -Raw)
+        }
+        Assert-Contains -Value $pendingOutput -Expected "No se puede archivar: existen PRs sin merge"
+        if ($pendingOutput.Contains("Jira issue transitioned:")) {
+            throw "Jira transition should not run while PRs are pending."
+        }
+
+        $mergedWrapperPath = Join-Path $tempRoot "archive-merged-wrapper.ps1"
+        $mergedStdoutPath = Join-Path $tempRoot "archive-merged.stdout.txt"
+        $mergedStderrPath = Join-Path $tempRoot "archive-merged.stderr.txt"
+        Set-Content -Path $mergedWrapperPath -Value @"
+`$ErrorActionPreference = 'Stop'
+function global:Invoke-RestMethod {
+    param(
+        [string]`$Method,
+        [string]`$Uri,
+        [hashtable]`$Headers,
+        [string]`$Body
+    )
+
+    if (`$Method -ieq 'Get' -and `$Uri -like 'https://api.github.com/repos/*/pulls/*') {
+        return @{
+            merged = `$true
+            merged_at = '2026-03-01T00:00:00Z'
+            state = 'closed'
+            html_url = 'https://github.com/example/repo/pull/321'
+        }
+    }
+
+    if (`$Method -ieq 'Get' -and `$Uri -like '*/rest/api/3/issue/*?fields=summary,description') {
+        return @{
+            fields = @{
+                summary = 'Archive test issue'
+                description = @{
+                    type = 'doc'
+                    content = @(
+                        @{
+                            type = 'paragraph'
+                            content = @(
+                                @{ type = 'text'; text = 'Test description' }
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    if (`$Method -ieq 'Get' -and `$Uri -like '*/rest/api/3/issue/*/transitions') {
+        return @{
+            transitions = @(
+                @{
+                    id = '31'
+                    to = @{ name = 'Done' }
+                }
+            )
+        }
+    }
+
+    if (`$Method -ieq 'Post' -and `$Uri -like '*/rest/api/3/issue/*/transitions') {
+        return @{}
+    }
+
+    throw \"Unexpected Invoke-RestMethod call: `$Method `$Uri\"
+}
+
+Set-Location '$repoRoot'
+& '$scriptPath' archive OPSXJ-321 -Yes -SkipSpecs
+"@ -NoNewline
+        $mergedProcess = Start-Process -FilePath "powershell" `
+            -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $mergedWrapperPath) `
+            -RedirectStandardOutput $mergedStdoutPath `
+            -RedirectStandardError $mergedStderrPath `
+            -NoNewWindow `
+            -Wait `
+            -PassThru
+        $output = ""
+        if (Test-Path $mergedStdoutPath) {
+            $output += (Get-Content -Path $mergedStdoutPath -Raw)
+        }
+        if (Test-Path $mergedStderrPath) {
+            $output += (Get-Content -Path $mergedStderrPath -Raw)
+        }
+        if ($mergedProcess.ExitCode -ne 0) {
+            throw "Expected merged archive wrapper to succeed. Output: $output"
+        }
         Assert-Contains -Value $output -Expected "Git merge validation passed"
         Assert-Contains -Value $output -Expected "Archived change: $changeName"
         Assert-Contains -Value $output -Expected "Jira issue transitioned: OPSXJ-321 -> Done"
