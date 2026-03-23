@@ -1,0 +1,21 @@
+## Context
+
+- Jira issue key: SCRUM-84
+- Jira summary: IMPLEMENTACION-SolicitaDatosActividadInicioFlujoAsync
+- Jira URL: https://contasoftcompany.atlassian.net/browse/SCRUM-84
+
+## Context Reference
+
+- openspec/context/multi-repo-context.md
+- openspec/context/OPSXJ_BACKEND_RULES.md
+
+## Problem Statement
+
+PROMPT ARQUITECTÓNICO — Implementacion funcion  Implementación de SolicitaDatosActividadInicioFlujoAsync en RegistrarRadicacionEntranteAsync Rol esperado: Arquitecto de software senior y desarrollador backend .NET OBJETIVO Integrar la consulta SolicitaDatosActividadInicioFlujoAsync dentro del flujo de RegistrarRadicacionEntranteAsync cuando exista tipo de flujo workflow. La implementación debe respetar la arquitectura actual del proyecto, el patrón Service → Repository y el uso de AppResponses como wrapper estándar. ALCANCE La actualización debe incluir, según aplique por impacto real: funciónes: RegistrarRadicacionEntranteAsync interfaz y clase de repositorio relacionadas servicio que consume el repositorio modelos de MiApp.Models relacionados. DTOs de entrada/salida relacionados con esta funcionalidad pruebas unitarias pruebas de integración CONDICIONES La ejecución de SolicitaDatosActividadInicioFlujoAsync debe ocurrir antes de continuar con la lógica principal dentro de RegistrarRadicacionEntranteAsync La ejecución esta condicionada por request.FlujoTrabajoRadicacionDto.id_tipo_flujo_workflow !=0 sI la función SolicitaDatosActividadInicioFlujoAsync no trae datos se detiene la ejecución de la funcion principal. La solución debe: Revisar la estructura real de la tabla. Ajustar los DTOs impactados. Ajustar la lógica del repositorio y del servicio si es necesario. Mantener compatibilidad con la arquitectura existente. No introducir cambios innecesarios fuera del alcance. CRITERIOS TÉCNICOS Mantener patrón Service → Repository. Mantener AppResponses<T> como wrapper estándar de respuesta. Toda función modificada debe quedar envuelta en try/catch. No usar SQL concatenado manualmente. Toda consulta debe ser parametrizada para evitar SQL Injection. Mantener consistencia con DapperCrudEngine y QueryOptions si ya forman parte del patrón actual del proyecto. Agregar o actualizar comentarios XML en todas las funciones impactadas. Si la estructura real de la tabla difiere del modelo actual, actualizar el modelo y el mapeo según corresponda. Si los DTOs actuales no representan correctamente la información devuelta por la tabla, corregirlos. Si no existen registros, retornar respuesta controlada con success=true y mensaje funcional coherente. En caso de excepción, retornar success=false con el detalle técnico controlado según el estándar actual del proyecto. VALIDACIONES FUNCIONALES La actualización debe validar: respuesta exitosa con datos válidos respuesta exitosa sin resultados manejo de excepción controlada coherencia entre modelo, DTO y datos reales de la tabla compatibilidad con el consumo actual desde capas superiores DOCUMENTACIÓN TÉCNICA Ubicación: /Docs/Radicacion/RegistroRadicado PRUEBAS PRUEBAS UNITARIAS Incluir pruebas para: respuesta exitosa con datos respuesta exitosa sin resultados excepción controlada mocks de repositorio, servicio o dependencias según corresponda PRUEBAS DE INTEGRACIÓN Usar: MySQL Testcontainers / Docker Validar: lectura real de la tabla correspondencia correcta del mapeo comportamiento con registros válidos comportamiento sin registros compatibilidad con la consulta actualizada ENTREGABLES Funciones RegistrarRadicacionEntranteAsync actualizada Modelos impactados actualizados DTOs impactados actualizados Repositorio y servicio ajustados según corresponda Comentarios XML completos Pruebas unitarias Pruebas de integración RESTRICCIONES No romper la arquitectura actual del proyecto. No usar SQL concatenado manualmente. Mantener consistencia con los patrones existentes. Usar AppResponses como wrapper estándar. No modificar contratos no impactados sin justificación técnica.
+
+## Approach
+
+- Convertir requerimientos del issue en deltas OpenSpec claros y testeables.
+- Aplicar restricciones de repositorio, arquitectura y pruebas de OPSXJ_BACKEND_RULES.
+- Definir alcance y no-alcance antes de implementar.
+- Validar con openspec.cmd validate scrum-84-implementacion-solicitadatosactividadini.
