@@ -23,6 +23,7 @@ using MiApp.Repository.Repositorio.UI.MuiTable;
 using MiApp.Repository.Repositorio.Workflow.Eventos;
 using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
+using MiApp.Repository.Repositorio.Workflow.BandejaCorrespondencia;
 using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
 using MiApp.Repository.Repositorio.Workflow.usuario;
 using MiApp.Repository.Repositorio.Workflow.Usuario;
