@@ -56,6 +56,7 @@ using MiApp.Services.Service.Seguridad.PasswordPolice;
 using MiApp.Services.Service.SessionHelper;
 using MiApp.Services.Service.UI.MuiTable;
 using MiApp.Services.Service.Usuario;
+using MiApp.Services.Service.Workflow.BandejaCorrespondencia;
 using MiApp.Services.Service.Workflow.Inicio;
 using MiApp.Services.Service.Workflow.RutaTrabajo;
 using MiApp.Services.Service.Workflow.Usuario;
@@ -226,6 +227,7 @@ builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacio
 builder.Services.AddScoped<IAsingacionValoresDatosRadicadoRutaWorklflow, AsingacionValoresDatosRadicadoRutaWorklflow>();
 builder.Services.AddScoped<IValidaDatosRadicacionTareaWorkflowService, ValidaDatosRadicacionTareaWorkflowService>();
 builder.Services.AddScoped<IValidaPreRegistroWorkflowService, ValidaPreRegistroWorkflowService>();
+builder.Services.AddScoped<IWorkflowDynamicUiColumnBuilder, WorkflowDynamicUiColumnBuilder>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
 builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
 builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
