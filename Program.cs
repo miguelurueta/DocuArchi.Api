@@ -20,6 +20,7 @@ using MiApp.Repository.Repositorio.Radicador.Configuracion;
 using MiApp.Repository.Repositorio.Radicador.Tramite;
 using MiApp.Repository.Repositorio.Radicador.Usuario;
 using MiApp.Repository.Repositorio.UI.MuiTable;
+using MiApp.Repository.Repositorio.Workflow.BandejaCorrespondencia;
 using MiApp.Repository.Repositorio.Workflow.Eventos;
 using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
@@ -171,6 +172,7 @@ builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, So
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
+builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
 builder.Services.AddScoped<IWorkflowInboxContextResolverService, WorkflowInboxContextResolverService>();
 builder.Services.AddScoped<IWorkflowInboxQueryBuilder, WorkflowInboxQueryBuilder>();
 builder.Services.AddScoped<IRegistroRadicadoTareaWorkflowRepository, RegistroRadicadoTareaWorkflowRepository>();
@@ -228,6 +230,8 @@ builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacio
 builder.Services.AddScoped<IAsingacionValoresDatosRadicadoRutaWorklflow, AsingacionValoresDatosRadicadoRutaWorklflow>();
 builder.Services.AddScoped<IValidaDatosRadicacionTareaWorkflowService, ValidaDatosRadicacionTareaWorkflowService>();
 builder.Services.AddScoped<IValidaPreRegistroWorkflowService, ValidaPreRegistroWorkflowService>();
+builder.Services.AddScoped<IWorkflowInboxRepository, WorkflowInboxRepository>();
+builder.Services.AddScoped<IWorkflowInboxService, WorkflowInboxService>();
 builder.Services.AddScoped<IWorkflowDynamicUiColumnBuilder, WorkflowDynamicUiColumnBuilder>();
 builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
 builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
