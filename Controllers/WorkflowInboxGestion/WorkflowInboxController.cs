@@ -27,7 +27,7 @@ namespace DocuArchi.Api.Controllers.WorkflowInboxGestion
 
         [HttpPost("inboxgestion")]
         public async Task<ActionResult<AppResponses<DynamicUiTableDto>>> SolicitaBandejaWorkflow(
-            [FromBody] WorkflowInboxDynamicTableRequestDto request)
+            [FromBody] WorkflowInboxApiRequestDto request)
         {
             var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
             if (!validation.Success || validation.ClaimValue == null)
