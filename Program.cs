@@ -176,6 +176,7 @@ builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteCo
 builder.Services.AddScoped<IWorkflowInboxContextResolverService, WorkflowInboxContextResolverService>();
 builder.Services.AddScoped<IWorkflowInboxQueryBuilder, WorkflowInboxQueryBuilder>();
 builder.Services.AddScoped<IRegistroRadicadoTareaWorkflowRepository, RegistroRadicadoTareaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaConfiguracionListaUsuarioWorkflowRepository, SolicitaConfiguracionListaUsuarioWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaDatosActividadInicioFlujoRepository, SolicitaDatosActividadInicioFlujoRepository>();
 
 
