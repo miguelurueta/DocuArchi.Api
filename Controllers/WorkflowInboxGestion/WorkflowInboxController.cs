@@ -50,7 +50,6 @@ namespace DocuArchi.Api.Controllers.WorkflowInboxGestion
                 request,
                 idUsuarioGestion,
                 validation.ClaimValue);
-
             if (!result.success)
             {
                 return BadRequest(result);
