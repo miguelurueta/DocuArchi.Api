@@ -57,5 +57,42 @@ namespace DocuArchi.Api.Controllers.WorkflowInboxGestion
 
             return Ok(result);
         }
+
+        [HttpPost("/api/AppTable/export")]
+        public async Task<ActionResult> ExportaBandejaWorkflowCsv(
+            [FromBody] WorkflowInboxExportRequestDto request)
+        {
+            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!validation.Success || validation.ClaimValue == null)
+            {
+                return BadRequest(validation.Response);
+            }
+
+            var validationUsuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+            if (!validationUsuario.Success || validationUsuario.ClaimValue == null)
+            {
+                return BadRequest(validationUsuario.Response);
+            }
+
+            if (!int.TryParse(validationUsuario.ClaimValue, out var idUsuarioGestion))
+            {
+                throw new SecurityException("Claim invalido: usuarioid");
+            }
+
+            var result = await _workflowInboxService.ExportBandejaWorkflowCsvAsync(
+                request,
+                idUsuarioGestion,
+                validation.ClaimValue);
+
+            if (!result.success || result.data == null)
+            {
+                return BadRequest(result);
+            }
+
+            return File(
+                result.data.FileBytes,
+                result.data.ContentType,
+                result.data.FileName);
+        }
     }
 }
