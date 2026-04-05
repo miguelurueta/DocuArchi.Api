@@ -59,7 +59,7 @@ namespace DocuArchi.Api.Controllers.WorkflowInboxGestion
         }
 
         [HttpPost("/api/AppTable/export")]
-        public async Task<ActionResult> ExportaBandejaWorkflowCsv(
+        public async Task<ActionResult> ExportaBandejaWorkflow(
             [FromBody] WorkflowInboxExportRequestDto request)
         {
             var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
@@ -79,7 +79,7 @@ namespace DocuArchi.Api.Controllers.WorkflowInboxGestion
                 throw new SecurityException("Claim invalido: usuarioid");
             }
 
-            var result = await _workflowInboxService.ExportBandejaWorkflowCsvAsync(
+            var result = await _workflowInboxService.ExportBandejaWorkflowAsync(
                 request,
                 idUsuarioGestion,
                 validation.ClaimValue);
