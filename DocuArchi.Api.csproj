@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.1.0" />
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="EntityFramework" Version="6.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
@@ -19,6 +19,7 @@
     <ProjectReference Include="..\DocuArchiCore.Abstractions\DocuArchiCore.Abstractions.csproj" />
     <ProjectReference Include="..\MiApp.DTOs\MiApp.DTOs.csproj" />
     <ProjectReference Include="..\MiApp.Models\MiApp.Models.csproj" />
+    <ProjectReference Include="..\MiApp.Repository\MiApp.Repository.csproj" />
     <ProjectReference Include="..\MiApp.Services\MiApp.Services.csproj" />
   </ItemGroup>
 
