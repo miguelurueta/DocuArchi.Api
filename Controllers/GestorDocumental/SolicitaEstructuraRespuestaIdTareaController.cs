@@ -1,0 +1,62 @@
+﻿using MiApp.DTOs.DTOs.Errors;
+using MiApp.DTOs.DTOs.Utilidades;
+using MiApp.Models.Models.GestionCorrespondencia;
+using MiApp.Services.Service.GestorDocumental;
+using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
+using Microsoft.AspNetCore.Mvc;
+
+namespace DocuArchi.Api.Controllers.GestorDocumental
+{
+    [Route("api/gestor-documental")]
+    [ApiController]
+    public sealed class SolicitaEstructuraRespuestaIdTareaController : ControllerBase
+    {
+        private readonly IClaimValidationService _claimValidationService;
+        private readonly IServiceSolicitaEstructuraRespuesta _service;
+
+        public SolicitaEstructuraRespuestaIdTareaController(
+            IClaimValidationService claimValidationService,
+            IServiceSolicitaEstructuraRespuesta service)
+        {
+            _claimValidationService = claimValidationService;
+            _service = service;
+        }
+
+        [HttpGet("solicita-estructura-respuesta-id-tarea")]
+        public async Task<ActionResult<AppResponses<List<RaRespuestaRadicado>>>> SolicitaEstructuraRespuestaIdTarea([FromQuery] long idTareaWf)
+        {
+            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!validation.Success || validation.ClaimValue == null)
+            {
+                return BadRequest(validation.Response);
+            }
+
+            if (idTareaWf <= 0)
+            {
+                return BadRequest(new AppResponses<List<RaRespuestaRadicado>>
+                {
+                    success = false,
+                    message = "IdTareaWf requerido",
+                    data = [],
+                    errors =
+                    [
+                        new AppError
+                        {
+                            Type = "Validation",
+                            Field = "idTareaWf",
+                            Message = "IdTareaWf requerido"
+                        }
+                    ]
+                });
+            }
+
+            var result = await _service.SolicitaEstructuraRespuestaIdTareaAsync(idTareaWf, validation.ClaimValue);
+            if (!result.success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+    }
+}
