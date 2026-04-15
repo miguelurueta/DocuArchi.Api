@@ -25,6 +25,7 @@ using MiApp.Repository.Repositorio.Workflow.Eventos;
 using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
 using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
+using MiApp.Repository.Repositorio.GestionCorrespondencia;
 using MiApp.Repository.Repositorio.Workflow.usuario;
 using MiApp.Repository.Repositorio.Workflow.Usuario;
 using MiApp.Services.Service.Account;
@@ -59,6 +60,7 @@ using MiApp.Services.Service.Usuario;
 using MiApp.Services.Service.Workflow.BandejaCorrespondencia;
 using MiApp.Services.Service.Workflow.Inicio;
 using MiApp.Services.Service.Workflow.RutaTrabajo;
+using MiApp.Services.Service.GestorDocumental;
 using MiApp.Services.Service.Workflow.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -170,6 +172,7 @@ builder.Services.AddScoped<IConfiguracionPlantillaRepository, ConfiguracionPlant
 builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCamposRutaWorklflowRepository>();
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, SolicitaExistenciaRadicadoRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
 builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
@@ -241,6 +244,7 @@ builder.Services.AddScoped<IConfiguracionPlantillaService, ConfiguracionPlantill
 builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRutaWorklflowService>();
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
+builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -346,3 +350,4 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
