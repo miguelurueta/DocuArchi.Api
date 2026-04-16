@@ -183,6 +183,7 @@ builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, Solici
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
 builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
 builder.Services.AddScoped<IGuardaEditorImageRepository, GuardaEditorImageRepository>();
+builder.Services.AddScoped<ISincronizaEditorDocumentImagesRepository, SincronizaEditorDocumentImagesRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
 builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
@@ -258,6 +259,7 @@ builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaE
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 builder.Services.AddScoped<IServiceGuardaEditorImage, ServiceGuardaEditorImage>();
+builder.Services.AddScoped<IServiceSincronizaEditorDocumentImages, ServiceSincronizaEditorDocumentImages>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
