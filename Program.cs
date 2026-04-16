@@ -1,10 +1,10 @@
-﻿using MiApp.Services.Service.GestorDocumental.Editor;
-using MiApp.Repository.Repositorio.GestorDocumental.Editor;
+﻿using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.Models.Models.GestorDocumental.Editor;
-using MiApp.DTOs.DTOs.GestorDocumental.Editor;
-using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
-using MiApp.Services.Service.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
+using MiApp.Repository.Repositorio.GestorDocumental.Editor;
+using MiApp.Services.Service.GestorDocumental.ConfiguracionUpload;
+using MiApp.Services.Service.GestorDocumental.Editor;
+using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
 using AutoMapper;
 using DocuArchi.Api.Infrastructure.Security;
 using DocuArchiCore.Abstractions.Security;
