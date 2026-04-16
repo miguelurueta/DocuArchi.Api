@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocuArchi.Api.Controllers.GestionCorrespondencia
 {
-    [Route("api/gestor-documental")]
+    [Route("api/GestionCorrespondencia")]
     [ApiController]
     public sealed class SolicitaEstructuraRespuestaIdTareaController : ControllerBase
     {
