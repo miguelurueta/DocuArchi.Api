@@ -182,8 +182,6 @@ builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEs
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
 builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
-builder.Services.AddScoped<IGuardaEditorImageRepository, GuardaEditorImageRepository>();
-builder.Services.AddScoped<ISincronizaEditorDocumentImagesRepository, SincronizaEditorDocumentImagesRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
 builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
@@ -258,8 +256,6 @@ builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstru
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
-builder.Services.AddScoped<IServiceGuardaEditorImage, ServiceGuardaEditorImage>();
-builder.Services.AddScoped<IServiceSincronizaEditorDocumentImages, ServiceSincronizaEditorDocumentImages>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -365,7 +361,6 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
-
 
 
 
