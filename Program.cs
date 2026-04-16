@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
+using AutoMapper;
 using DocuArchi.Api.Infrastructure.Security;
 using DocuArchiCore.Abstractions.Security;
 using MiApp.DTOs.DTOs.Account;
@@ -173,6 +174,7 @@ builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCampo
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, SolicitaExistenciaRadicadoRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
+builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
 builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
@@ -350,4 +352,5 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
