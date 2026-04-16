@@ -22,9 +22,16 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
             _service = service;
         }
 
+        
+        public sealed class GuardaEditorImageForm
+        {
+            public IFormFile File { get; set; } = default!;
+        }
+
+
         [HttpPost("guardar-imagen")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<AppResponses<GuardaEditorImageResponseDto?>>> GuardarImagen([FromForm] IFormFile file)
+        public async Task<ActionResult<AppResponses<GuardaEditorImageResponseDto?>>> GuardarImagen([FromForm] GuardaEditorImageForm form)
         {
             var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
             if (!validation.Success || validation.ClaimValue == null)
@@ -32,6 +39,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
                 return BadRequest(validation.Response);
             }
 
+
+            var file = form.File;
             if (file == null || file.Length <= 0)
             {
                 return BadRequest(new AppResponses<GuardaEditorImageResponseDto?>
@@ -70,3 +79,4 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
         }
     }
 }
+
