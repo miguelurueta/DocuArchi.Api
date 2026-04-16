@@ -247,6 +247,7 @@ builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRu
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
+builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
