@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\GestorDocumental\" />
+    <Folder Include="Controllers\GestionCorrespondencia\" />
   </ItemGroup>
 
 </Project>
