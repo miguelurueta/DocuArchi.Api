@@ -1,4 +1,8 @@
-﻿using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
+﻿using MiApp.Services.Service.GestorDocumental.Editor;
+using MiApp.Repository.Repositorio.GestorDocumental.Editor;
+using MiApp.Models.Models.GestorDocumental.Editor;
+using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
 using MiApp.Services.Service.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using AutoMapper;
@@ -177,6 +181,7 @@ builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, So
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
+builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
 builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
@@ -250,6 +255,7 @@ builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, Solic
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
+builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -355,6 +361,7 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
 
