@@ -1,6 +1,4 @@
-﻿using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
-using MiApp.Services.Service.GestorDocumental.ConfiguracionUpload;
-using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
+﻿using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using AutoMapper;
 using DocuArchi.Api.Infrastructure.Security;
 using DocuArchiCore.Abstractions.Security;
@@ -355,6 +353,5 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
-
 
 
