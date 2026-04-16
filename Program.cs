@@ -1,4 +1,6 @@
-﻿using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
+﻿using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
+using MiApp.Services.Service.GestorDocumental.ConfiguracionUpload;
+using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using AutoMapper;
 using DocuArchi.Api.Infrastructure.Security;
 using DocuArchiCore.Abstractions.Security;
@@ -247,6 +249,7 @@ builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRu
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
+builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 // ===================================================
 // Infrastructure (Security + Session)
 // ===================================================
@@ -352,5 +355,6 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
