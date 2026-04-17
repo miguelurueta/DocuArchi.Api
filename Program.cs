@@ -18,6 +18,7 @@ using MiApp.Repository.Repositorio.DataAccess;
 using MiApp.Repository.Repositorio.Docuarchi.Grupo;
 using MiApp.Repository.Repositorio.Docuarchi.Usuario;
 using MiApp.Repository.Repositorio.GestorDocumental.Sede;
+using MiApp.Repository.Repositorio.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.usuario;
 using MiApp.Repository.Repositorio.Home.Menu;
 using MiApp.Repository.Repositorio.Configuracion;
@@ -78,8 +79,10 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Controllers + JSON
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 
@@ -87,14 +90,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // AutoMapper
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<RaMenuPrincipalProfile>());
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // CORS para React y otros clientes
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 
 builder.Services.AddCors(options =>
@@ -117,15 +124,19 @@ builder.Services.AddCors(options =>
     });
 });
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // data Access
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddScoped<IDapperCrudEngine, DapperCrudEngine>();
 builder.Services.AddScoped<IEntidadBuilder, EntidadBuilder>();
 builder.Services.AddScoped<IDbConnectionFactory, DbConnectionFactoryImpl>();
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Repositories (R)
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddScoped<IEmpresaGestionDocumentalR, EmpresaGestionDocumentalR>();
 builder.Services.AddScoped<IGestorModuloR, GestorModuloR>();
 builder.Services.AddScoped<IMenuR, MenuR>();
@@ -195,8 +206,10 @@ builder.Services.AddScoped<ISolicitaDatosActividadInicioFlujoRepository, Solicit
 
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Services (L)
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddScoped<IInicioSesionL, InicioSesionL>();
 builder.Services.AddScoped<IGenerycService, GenerycService>();
 builder.Services.AddScoped<ICryptoHelper, CryptoHelper>();
@@ -257,8 +270,10 @@ builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaE
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Infrastructure (Security + Session)
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.Configure<PermissionTestSettings>(
 builder.Configuration.GetSection("PermissionTest"));
 builder.Services.AddScoped<ITokenIssuer, TokenIssuer>();
@@ -276,8 +291,10 @@ builder.Services.AddScoped<ISesionRadicacion>(sp => sp.GetRequiredService<Sesion
 builder.Services.AddScoped<ISesionWorkflow>(sp => sp.GetRequiredService<SesionActual>());
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // ASP.NET Session
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 var sessionConfig = new SessionConfigDTO();
 builder.Configuration.GetSection("SessionConfig").Bind(sessionConfig);
 if (sessionConfig.IdleTimeoutMinutes <= 0)
@@ -300,8 +317,10 @@ builder.Services.AddSession(o =>
     o.Cookie.SameSite = SameSiteMode.Lax;
 });
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // ASP.NET JWT Authentication
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -338,6 +357,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 // ===================================================
+builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
+builder.Services.AddScoped<ISincronizaEditorDocumentImagesRepository, SincronizaEditorDocumentImagesRepository>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Editor.ISolicitaEditorDocumentByIdRepository, MiApp.Repository.Repositorio.GestorDocumental.Editor.SolicitaEditorDocumentByIdRepository>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceSolicitaEditorDocumentById, MiApp.Services.Service.GestorDocumental.Editor.ServiceSolicitaEditorDocumentById>();
 // Build pipeline
 // ===================================================
 var app = builder.Build();
@@ -362,6 +386,9 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 app.Run();
 
+<<<<<<< Updated upstream
 
 
 
+=======
+>>>>>>> Stashed changes
