@@ -386,9 +386,5 @@ app.UseAuthorization();          // Authorization policies
 app.MapControllers();
 app.Run();
 
-<<<<<<< Updated upstream
 
 
-
-=======
->>>>>>> Stashed changes
