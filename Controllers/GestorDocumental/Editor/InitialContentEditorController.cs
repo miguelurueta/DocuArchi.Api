@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/gestor-documental/editor")]
     public sealed class InitialContentEditorController : ControllerBase
@@ -29,13 +29,15 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
         public async Task<ActionResult<AppResponses<EditorInitialContentResponseDto?>>> GetInitialContent(
             [FromQuery] long idTareaWf,
             [FromQuery] string contextCode,
-            [FromQuery] long entityId)
+            [FromQuery] long entityId,
+            [FromQuery] long? templateDefinitionId = null,
+            [FromQuery] string? templateCode = null)
         {
-            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
-            if (!validation.Success || validation.ClaimValue == null)
-            {
-                return BadRequest(validation.Response);
-            }
+            //var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            //if (!validation.Success || validation.ClaimValue == null)
+            //{
+            //    return BadRequest(validation.Response);
+            //}
 
             if (idTareaWf <= 0)
             {
@@ -52,7 +54,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
                 return BadRequest(Validation("entityId", "EntityId requerido"));
             }
 
-            var result = await _service.GetInitialContentAsync(idTareaWf, contextCode, entityId, validation.ClaimValue);
+            var result = await _service.GetInitialContentAsync(idTareaWf, contextCode, entityId, "DA", templateDefinitionId, templateCode);
             if (!result.success)
             {
                 return BadRequest(result);
