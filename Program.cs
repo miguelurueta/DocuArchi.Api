@@ -370,6 +370,7 @@ builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Editor.
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceSolicitaEditorDocumentById, MiApp.Services.Service.GestorDocumental.Editor.ServiceSolicitaEditorDocumentById>();
 builder.Services.AddScoped<ITemplateDefinitionsRepository, TemplateDefinitionsRepository>();
 builder.Services.AddScoped<IServiceTemplateDefinitions, ServiceTemplateDefinitions>();
+builder.Services.AddScoped<IServiceInitialContentEditor, ServiceInitialContentEditor>();
 builder.Services.AddScoped<ISolicitaEditorDocumentByContextRepository, SolicitaEditorDocumentByContextRepository>();
 builder.Services.AddScoped<IServiceSolicitaEditorDocumentByContext, ServiceSolicitaEditorDocumentByContext>();
 // Build pipeline
