@@ -369,6 +369,8 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServi
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Editor.ISolicitaEditorDocumentByIdRepository, MiApp.Repository.Repositorio.GestorDocumental.Editor.SolicitaEditorDocumentByIdRepository>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceSolicitaEditorDocumentById, MiApp.Services.Service.GestorDocumental.Editor.ServiceSolicitaEditorDocumentById>();
 builder.Services.AddScoped<ITemplateDefinitionsRepository, TemplateDefinitionsRepository>();
+builder.Services.AddScoped<ITemplateTokensRepository, TemplateTokensRepository>();
+builder.Services.AddScoped<ITemplateContextRulesRepository, TemplateContextRulesRepository>();
 builder.Services.AddScoped<IServiceTemplateDefinitions, ServiceTemplateDefinitions>();
 builder.Services.AddScoped<IServiceInitialContentEditor, ServiceInitialContentEditor>();
 builder.Services.AddScoped<ISolicitaEditorDocumentByContextRepository, SolicitaEditorDocumentByContextRepository>();
