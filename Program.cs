@@ -193,6 +193,9 @@ builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEs
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
 builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
+builder.Services.AddScoped<ISolicitaEditorContextDefinitionRepository, SolicitaEditorContextDefinitionRepository>();
+builder.Services.AddScoped<IGuardaEditorDocumentContextRepository, GuardaEditorDocumentContextRepository>();
+builder.Services.AddScoped<IServiceGuardaEditorDocumentContext, ServiceGuardaEditorDocumentContext>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
 builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
@@ -358,6 +361,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 // ===================================================
 builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
+builder.Services.AddScoped<ISolicitaEditorContextDefinitionRepository, SolicitaEditorContextDefinitionRepository>();
+builder.Services.AddScoped<IGuardaEditorDocumentContextRepository, GuardaEditorDocumentContextRepository>();
+builder.Services.AddScoped<IServiceGuardaEditorDocumentContext, ServiceGuardaEditorDocumentContext>();
 builder.Services.AddScoped<ISincronizaEditorDocumentImagesRepository, SincronizaEditorDocumentImagesRepository>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Editor.ISolicitaEditorDocumentByIdRepository, MiApp.Repository.Repositorio.GestorDocumental.Editor.SolicitaEditorDocumentByIdRepository>();
