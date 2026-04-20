@@ -374,7 +374,7 @@ builder.Services.AddScoped<ITemplateContextRulesRepository, TemplateContextRules
 builder.Services.AddScoped<IServiceTemplateDefinitions, ServiceTemplateDefinitions>();
 builder.Services.AddScoped<IServiceInitialContentEditor, ServiceInitialContentEditor>();
 builder.Services.AddScoped<ISolicitaEditorDocumentByContextRepository, SolicitaEditorDocumentByContextRepository>();
-builder.Services.AddScoped<IServiceSolicitaEditorDocumentByContext, ServiceSolicitaEditorDocumentByContext>();
+builder.Services.AddScoped<IServiceSolicitaEditorDocumentByContext, ServiceSolicitaEditorDocumentByContext>();\r\nbuilder.Services.AddScoped<IServiceResolveEditorDocument, ServiceResolveEditorDocument>();
 // Build pipeline
 // ===================================================
 var app = builder.Build();
