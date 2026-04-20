@@ -69,7 +69,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
             if (!result.success)
             {
                 var hasConflict = result.errors != null
-+                    && result.errors.OfType<AppError>().Any(e => e.Type == "Conflict");
+                    && result.errors.OfType<AppError>().Any(e => e.Type == "Conflict");
 
                 if (hasConflict)
                 {
