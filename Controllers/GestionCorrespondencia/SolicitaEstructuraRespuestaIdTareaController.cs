@@ -3,24 +3,31 @@ using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Models.Models.GestionCorrespondencia;
 using MiApp.Services.Service.GestorDocumental;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MySqlX.XDevAPI.Common;
 
 namespace DocuArchi.Api.Controllers.GestionCorrespondencia
 {
+    [Authorize]
     [Route("api/GestionCorrespondencia")]
     [ApiController]
     public sealed class SolicitaEstructuraRespuestaIdTareaController : ControllerBase
     {
         private readonly IClaimValidationService _claimValidationService;
         private readonly IServiceSolicitaEstructuraRespuesta _service;
+        private readonly ILogger<SolicitaEstructuraRespuestaIdTareaController> _logger;
 
         public SolicitaEstructuraRespuestaIdTareaController(
-            IClaimValidationService claimValidationService,
-            IServiceSolicitaEstructuraRespuesta service)
-        {
-            _claimValidationService = claimValidationService;
-            _service = service;
-        }
+    IClaimValidationService claimValidationService,
+    IServiceSolicitaEstructuraRespuesta service,
+    ILogger<SolicitaEstructuraRespuestaIdTareaController> logger)
+{
+    _claimValidationService = claimValidationService;
+    _service = service;
+    _logger = logger;
+}
 
         [HttpGet("solicita-estructura-respuesta-id-tarea")]
         public async Task<ActionResult<AppResponses<List<RaRespuestaRadicado>>>> SolicitaEstructuraRespuestaIdTarea([FromQuery] long idTareaWf)
@@ -49,6 +56,16 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia
                     ]
                 });
             }
+            
+            var requestId = HttpContext.TraceIdentifier;
+            var xRequestId = Request.Headers["X-Request-Id"].ToString();
+            _logger.LogInformation(
+                "SolicitaEstructuraRespuestaIdTarea: idTareaWf={IdTareaWf} alias={Alias} requestId={RequestId} xRequestId={XRequestId}",
+                idTareaWf,
+                validation.ClaimValue,
+                requestId,
+                xRequestId
+            );
 
             var result = await _service.SolicitaEstructuraRespuestaIdTareaAsync(idTareaWf, validation.ClaimValue);
             if (!result.success)
@@ -60,3 +77,4 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia
         }
     }
 }
+
