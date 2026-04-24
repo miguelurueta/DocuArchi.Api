@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DocuArchi.Api.Controllers.GestionCorrespondencia.PlantillaValidacion
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/GestionCorrespondencia/PlantillaValidacion")]
     [ApiController]
     public sealed class SolicitaCorreoElectronicoRemitenteController : ControllerBase
@@ -32,11 +32,11 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.PlantillaValidacion
             [FromQuery] long idPlantillaRadicado,
             [FromQuery] long idDestinatarioExterno)
         {
-            //var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
-            //if (!validation.Success || validation.ClaimValue == null)
-            //{
-            //    return BadRequest(validation.Response);
-            //}
+            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!validation.Success || validation.ClaimValue == null)
+            {
+                return BadRequest(validation.Response);
+            }
 
             if (idPlantillaRadicado <= 0)
             {
@@ -51,19 +51,19 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.PlantillaValidacion
             var requestId = HttpContext.TraceIdentifier;
             var xRequestId = Request.Headers["X-Request-Id"].ToString();
 
-            //_logger.LogInformation(
-            //    "SolicitaCorreoElectronicoRemitente: idPlantillaRadicado={IdPlantillaRadicado} idDestinatarioExterno={IdDestinatarioExterno} alias={Alias} requestId={RequestId} xRequestId={XRequestId}",
-            //    idPlantillaRadicado,
-            //    idDestinatarioExterno,
-            //    validation.ClaimValue,
-            //    requestId,
-            //    xRequestId
-            //);
+            _logger.LogInformation(
+                "SolicitaCorreoElectronicoRemitente: idPlantillaRadicado={IdPlantillaRadicado} idDestinatarioExterno={IdDestinatarioExterno} alias={Alias} requestId={RequestId} xRequestId={XRequestId}",
+                idPlantillaRadicado,
+                idDestinatarioExterno,
+                validation.ClaimValue,
+                requestId,
+                xRequestId
+            );
 
             var result = await _service.SolicitaCorreoElectronicoRemitenteAsync(
                 idPlantillaRadicado,
                 idDestinatarioExterno,
-                "DA");
+                validation.ClaimValue);
 
             if (!result.success)
             {
@@ -94,4 +94,3 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.PlantillaValidacion
         }
     }
 }
-
