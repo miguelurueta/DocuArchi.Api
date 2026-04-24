@@ -34,6 +34,7 @@ using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
 using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
 using MiApp.Repository.Repositorio.GestionCorrespondencia;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.PlantillaValidacion.SolicitaCorreoElectronicoRemitente;
 using MiApp.Repository.Repositorio.Workflow.usuario;
 using MiApp.Repository.Repositorio.Workflow.Usuario;
 using MiApp.Services.Service.Account;
@@ -57,6 +58,7 @@ using MiApp.Services.Service.Radicacion.Configuracion;
 using MiApp.Services.Service.Radicacion.PlantillaRadicado;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.Tramite;
+using MiApp.Services.Service.GestionCorrespondencia.PlantillaValidacion.SolicitaCorreoElectronicoRemitente;
 using MiApp.Services.Service.Seguridad.Autorizacion.Configuracion;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using MiApp.Services.Service.Seguridad.Autorizacion.Extensiones;
@@ -191,6 +193,7 @@ builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCampo
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, SolicitaExistenciaRadicadoRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
+builder.Services.AddScoped<ISolicitaCorreoElectronicoRemitenteRepository, SolicitaCorreoElectronicoRemitenteRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
 builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
 builder.Services.AddScoped<ISolicitaEditorContextDefinitionRepository, SolicitaEditorContextDefinitionRepository>();
@@ -270,6 +273,7 @@ builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRu
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
+builder.Services.AddScoped<IServiceSolicitaCorreoElectronicoRemitente, ServiceSolicitaCorreoElectronicoRemitente>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 // ===================================================
