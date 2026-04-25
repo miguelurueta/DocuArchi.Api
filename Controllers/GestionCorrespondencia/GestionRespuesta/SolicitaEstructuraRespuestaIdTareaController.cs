@@ -1,14 +1,14 @@
 ﻿using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Models.Models.GestionCorrespondencia;
-using MiApp.Services.Service.GestorDocumental;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySqlX.XDevAPI.Common;
 
-namespace DocuArchi.Api.Controllers.GestionCorrespondencia
+namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta
 {
     [Authorize]
     [Route("api/GestionCorrespondencia")]
@@ -77,4 +77,5 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia
         }
     }
 }
+
 
