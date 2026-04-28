@@ -60,6 +60,7 @@ using MiApp.Services.Service.Radicacion.PlantillaRadicado;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.Tramite;
 using MiApp.Services.Service.GestionCorrespondencia.PlantillaValidacion.SolicitaCorreoElectronicoRemitente;
+using MiApp.Services.Service.GestionCorrespondencia.Firmas;
 using MiApp.Services.Service.Seguridad.Autorizacion.Configuracion;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using MiApp.Services.Service.Seguridad.Autorizacion.Extensiones;
@@ -276,6 +277,7 @@ builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, Solic
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaCorreoElectronicoRemitente, ServiceSolicitaCorreoElectronicoRemitente>();
+builder.Services.AddScoped<IServiceSolicitaUsuarioPrincipalRespuesta, ServiceSolicitaUsuarioPrincipalRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 // ===================================================
