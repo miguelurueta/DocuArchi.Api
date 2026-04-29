@@ -1,4 +1,4 @@
-﻿using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.Models.Models.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.Editor;
@@ -281,6 +281,8 @@ builder.Services.AddScoped<IServiceSolicitaCorreoElectronicoRemitente, ServiceSo
 builder.Services.AddScoped<IServiceSolicitaUsuarioPrincipalRespuesta, ServiceSolicitaUsuarioPrincipalRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaListaFirmasPermitidasSolicitudAprobacion, ServiceSolicitaListaFirmasPermitidasSolicitudAprobacion>();
 builder.Services.AddScoped<ISolicitaListaFirmasPermitidasSolicitudAprobacionRepository, SolicitaListaFirmasPermitidasSolicitudAprobacionRepository>();
+builder.Services.AddScoped<IServiceSolicitaListaFirmasAutorizadasDocumento, ServiceSolicitaListaFirmasAutorizadasDocumento>();
+builder.Services.AddScoped<ISolicitaListaFirmasAutorizadasDocumentoRepository, SolicitaListaFirmasAutorizadasDocumentoRepository>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 // ===================================================
@@ -410,6 +412,7 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
 
