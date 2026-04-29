@@ -25,7 +25,9 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.Firmas
         }
 
         [HttpGet("documento-respuesta-orquestado")]
-        public async Task<ActionResult<AppResponses<List<ResponseDropdownDto>>>> Get([FromQuery] int idUsuarioGestion)
+        public async Task<ActionResult<AppResponses<List<ResponseDropdownDto>>>> Get(
+            [FromQuery] int idUsuarioGestion,
+            [FromQuery] long idSolicitudAprobacion)
         {
             var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
             if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
@@ -49,8 +51,14 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.Firmas
                 return BadRequest(Validation("idUsuarioGestion", "IdUsuarioGestion requerido"));
             }
 
+            if (idSolicitudAprobacion <= 0)
+            {
+                return BadRequest(Validation("idSolicitudAprobacion", "IdSolicitudAprobacion requerido"));
+            }
+
             var result = await _service.SolicitaFirmasDocumentoRespuestaOrquestadoAsync(
                 idUsuarioGestion,
+                idSolicitudAprobacion,
                 usuarioId,
                 aliasValidation.ClaimValue.Trim());
 
