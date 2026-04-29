@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocuArchi.Api.Controllers.GestionCorrespondencia.Firmas
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/gestion-correspondencia/firmas")]
     [ApiController]
     public sealed class SolicitaFirmasDocumentoRespuestaOrquestadoController : ControllerBase
@@ -29,44 +29,38 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.Firmas
             [FromQuery] int idUsuarioGestion,
             [FromQuery] long idSolicitudAprobacion)
         {
-            //var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
-            //if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
-            //{
-            //    return BadRequest(aliasValidation.Response);
-            //}
+            var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
+            {
+                return BadRequest(aliasValidation.Response);
+            }
 
-            //var usuarioValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
-            //if (!usuarioValidation.Success || string.IsNullOrWhiteSpace(usuarioValidation.ClaimValue))
-            //{
-            //    return BadRequest(usuarioValidation.Response);
-            //}
+            var usuarioValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
+            if (!usuarioValidation.Success || string.IsNullOrWhiteSpace(usuarioValidation.ClaimValue))
+            {
+                return BadRequest(usuarioValidation.Response);
+            }
 
-            //if (!int.TryParse(usuarioValidation.ClaimValue, out var usuarioId) || usuarioId <= 0)
-            //{
-            //    return BadRequest(Validation("usuarioid", "Claim invalido: usuarioid"));
-            //}
+            if (!int.TryParse(usuarioValidation.ClaimValue, out var usuarioId) || usuarioId <= 0)
+            {
+                return BadRequest(Validation("usuarioid", "Claim invalido: usuarioid"));
+            }
 
-            //if (idUsuarioGestion <= 0)
-            //{
-            //    return BadRequest(Validation("idUsuarioGestion", "IdUsuarioGestion requerido"));
-            //}
+            if (idUsuarioGestion <= 0)
+            {
+                return BadRequest(Validation("idUsuarioGestion", "IdUsuarioGestion requerido"));
+            }
 
-            //if (idSolicitudAprobacion <= 0)
-            //{
-            //    return BadRequest(Validation("idSolicitudAprobacion", "IdSolicitudAprobacion requerido"));
-            //}
-
-            //var result = await _service.SolicitaFirmasDocumentoRespuestaOrquestadoAsync(
-            //    idUsuarioGestion,
-            //    idSolicitudAprobacion,
-            //    usuarioId,
-            //    aliasValidation.ClaimValue.Trim());
+            if (idSolicitudAprobacion <= 0)
+            {
+                return BadRequest(Validation("idSolicitudAprobacion", "IdSolicitudAprobacion requerido"));
+            }
 
             var result = await _service.SolicitaFirmasDocumentoRespuestaOrquestadoAsync(
                 idUsuarioGestion,
                 idSolicitudAprobacion,
-                136,
-                "DA");
+                usuarioId,
+                aliasValidation.ClaimValue.Trim());
 
             if (!result.success)
             {
