@@ -282,6 +282,7 @@ builder.Services.AddScoped<IServiceSolicitaUsuarioPrincipalRespuesta, ServiceSol
 builder.Services.AddScoped<IServiceSolicitaListaFirmasPermitidasSolicitudAprobacion, ServiceSolicitaListaFirmasPermitidasSolicitudAprobacion>();
 builder.Services.AddScoped<ISolicitaListaFirmasPermitidasSolicitudAprobacionRepository, SolicitaListaFirmasPermitidasSolicitudAprobacionRepository>();
 builder.Services.AddScoped<IServiceSolicitaListaFirmasAutorizadasDocumento, ServiceSolicitaListaFirmasAutorizadasDocumento>();
+builder.Services.AddScoped<IServiceSolicitaFirmasDocumentoRespuestaOrquestado, ServiceSolicitaFirmasDocumentoRespuestaOrquestado>();
 builder.Services.AddScoped<ISolicitaListaFirmasAutorizadasDocumentoRepository, SolicitaListaFirmasAutorizadasDocumentoRepository>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
@@ -412,6 +413,7 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
 
