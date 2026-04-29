@@ -20,6 +20,7 @@ using MiApp.Repository.Repositorio.Docuarchi.Usuario;
 using MiApp.Repository.Repositorio.GestorDocumental.Sede;
 using MiApp.Repository.Repositorio.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.usuario;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.Firmas;
 using MiApp.Repository.Repositorio.Home.Menu;
 using MiApp.Repository.Repositorio.Configuracion;
 using MiApp.Repository.Repositorio.Radicador.PlantillaRadicado;
@@ -278,6 +279,8 @@ builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstru
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaCorreoElectronicoRemitente, ServiceSolicitaCorreoElectronicoRemitente>();
 builder.Services.AddScoped<IServiceSolicitaUsuarioPrincipalRespuesta, ServiceSolicitaUsuarioPrincipalRespuesta>();
+builder.Services.AddScoped<IServiceSolicitaListaFirmasPermitidasSolicitudAprobacion, ServiceSolicitaListaFirmasPermitidasSolicitudAprobacion>();
+builder.Services.AddScoped<ISolicitaListaFirmasPermitidasSolicitudAprobacionRepository, SolicitaListaFirmasPermitidasSolicitudAprobacionRepository>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 // ===================================================
