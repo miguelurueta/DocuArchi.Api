@@ -29,7 +29,7 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta
         }
 
         [HttpGet("solicita-documentos-adjuntos-respuesta-radicado")]
-        public async Task<ActionResult<AppResponses<List<DocumentoAdjuntoRespuestaRadicadoDto>>>> Get([FromQuery] long idTareaWf)
+        public async Task<ActionResult<AppResponses<List<DocumentoAdjuntoRespuestaRadicadoDto>>>> Get([FromQuery] long idRespuestaRadicado)
         {
             var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
             if (!validation.Success || string.IsNullOrWhiteSpace(validation.ClaimValue))
@@ -37,36 +37,35 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta
                 return BadRequest(validation.Response);
             }
 
-            if (idTareaWf <= 0)
+            if (idRespuestaRadicado <= 0)
             {
                 return BadRequest(new AppResponses<List<DocumentoAdjuntoRespuestaRadicadoDto>>
                 {
                     success = false,
-                    message = "IdTareaWf requerido",
+                    message = "IdRespuestaRadicado requerido",
                     data = [],
                     errors =
                     [
                         new AppError
                         {
                             Type = "Validation",
-                            Field = "idTareaWf",
-                            Message = "IdTareaWf requerido"
+                            Field = "idRespuestaRadicado",
+                            Message = "IdRespuestaRadicado requerido"
                         }
                     ]
                 });
             }
 
             _logger.LogInformation(
-                "SolicitaDocumentosAdjuntosRespuestaRadicado: idTareaWf={IdTareaWf} alias={Alias}",
-                idTareaWf,
+                "SolicitaDocumentosAdjuntosRespuestaRadicado: idRespuestaRadicado={IdRespuestaRadicado} alias={Alias}",
+                idRespuestaRadicado,
                 validation.ClaimValue);
 
-            var result = await _service.SolicitaDocumentosAdjuntosRespuestaRadicadoAsync(idTareaWf, validation.ClaimValue.Trim());
+            var result = await _service.SolicitaDocumentosAdjuntosRespuestaRadicadoAsync(idRespuestaRadicado, validation.ClaimValue.Trim());
             if (!result.success)
             {
                 return BadRequest(result);
             }
-
             return Ok(result);
         }
     }
