@@ -256,6 +256,7 @@ builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendi
 builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicadoService>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicacionEntranteService>();
 builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
+builder.Services.AddScoped<ISolicitaEstructuraTipoDocEntranteService, SolicitaEstructuraTipoDocEntranteService>();
 builder.Services.AddScoped<IValidaCamposObligatoriosService, ValidaCamposObligatoriosService>();
 builder.Services.AddScoped<IValidaDimensionCamposService, ValidaDimensionCamposService>();
 builder.Services.AddScoped<IValidaTipoCamposService, ValidaTipoCamposService>();
