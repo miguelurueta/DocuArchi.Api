@@ -1,5 +1,5 @@
-using MiApp.DTOs.DTOs.Radicacion.Tramite;
 using MiApp.DTOs.DTOs.Utilidades;
+using MiApp.Models.Models.Radicacion.TipoTramite;
 using MiApp.Services.Service.Radicacion.Tramite;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +22,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         }
 
         [HttpGet("tipo-doc-entrante/{idTipoDocEntrante:int}")]
-        public async Task<ActionResult<AppResponses<TipoDocEntranteParametroDto>>> SolicitaEstructuraTipoDocEntrante(
+        public async Task<ActionResult<AppResponses<TipoDocEntrante>>> SolicitaEstructuraTipoDocEntrante(
             [FromRoute] int idTipoDocEntrante)
         {
             var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
