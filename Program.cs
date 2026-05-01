@@ -1,4 +1,4 @@
-﻿using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.Models.Models.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.Editor;
@@ -284,6 +284,8 @@ builder.Services.AddScoped<IServiceSolicitaListaFirmasPermitidasSolicitudAprobac
 builder.Services.AddScoped<ISolicitaListaFirmasPermitidasSolicitudAprobacionRepository, SolicitaListaFirmasPermitidasSolicitudAprobacionRepository>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.IAlmacenarDocumentoUseCase, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.AlmacenarDocumentoUseCase>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.IDocumentStorageOrchestrator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.DocumentStorageOrchestrator>();
 // ===================================================
   builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Infrastructure (Security + Session)

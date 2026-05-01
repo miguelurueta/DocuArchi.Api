@@ -11,7 +11,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 {
     [Route("api/tramite")]
     [ApiController]
-    //[Authorize] // 👈 OBLIGATORIO
+    [Microsoft.AspNetCore.Authorization.Authorize] // 👈 OBLIGATORIO
     public class TramiteController : Controller
     {
         private readonly IClaimValidationService _claimValidationService;
@@ -133,25 +133,25 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         {
             try
             {
-                //var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
-                //if (!validation.Success || validation.ClaimValue == null)
-                //{
-                //    return BadRequest(validation.Response);
-                //}
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || validation.ClaimValue == null)
+                {
+                    return BadRequest(validation.Response);
+                }
 
-                //var validationUsuario = _claimValidationService.ValidateClaim<string>("usuarioid");
-                //if (!validationUsuario.Success || validationUsuario.ClaimValue == null)
-                //{
-                //    return BadRequest(validationUsuario.Response);
-                //}
+                var validationUsuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+                if (!validationUsuario.Success || validationUsuario.ClaimValue == null)
+                {
+                    return BadRequest(validationUsuario.Response);
+                }
 
-                //if (!int.TryParse(validationUsuario.ClaimValue, out var idUsuarioGestion))
-                //{
-                //    throw new SecurityException("Claim invalido: usuarioid");
-                //}
+                if (!int.TryParse(validationUsuario.ClaimValue, out var idUsuarioGestion))
+                {
+                    throw new SecurityException("Claim invalido: usuarioid");
+                }
 
                 var result = await _listaRadicadosPendientesService
-                    .SolicitaListaRadicadosPendientes(141, "DA");
+                    .SolicitaListaRadicadosPendientes(idUsuarioGestion, validation.ClaimValue);
                 if (!result.success)
                 {
                     return BadRequest(result);
