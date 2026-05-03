@@ -333,6 +333,7 @@ builder.Services.AddScoped<ITokenIssuer, TokenIssuer>();
 builder.Services.AddScoped<IIpHelper, IpHelperL>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();  //CAMBIADO:     Retorna el sistema de autenticación actual (JWT o ASP.NET Session) según el contexto
 builder.Services.AddScoped<IClaimValidationService, ClaimValidationService>();
+builder.Services.AddScoped<DocuArchi.Api.Infrastructure.Features.IFeatureToggleService, DocuArchi.Api.Infrastructure.Features.FeatureToggleService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SesionActual>();
 
