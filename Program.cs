@@ -333,6 +333,10 @@ builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Almacen
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Workflow.IWorkflowStorageLogRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Workflow.WorkflowStorageLogRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.SystemStorage.ISystemStorageRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.SystemStorage.SystemStorageRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Disk.IStorageDiskQuotaRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Disk.StorageDiskQuotaRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.GabineteMetadata.IStorageGabineteMetadataRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.GabineteMetadata.StorageGabineteMetadataRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.IStorageExtensionRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.StorageExtensionRepository>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.IStorageExtensionResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.StorageExtensionResolver>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.IStorageNamingService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.StorageNamingService>();
 // ===================================================
   builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Infrastructure (Security + Session)
