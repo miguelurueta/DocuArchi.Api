@@ -1,4 +1,4 @@
-using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+﻿using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.Models.Models.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.Editor;
@@ -311,6 +311,9 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Almacenamient
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Preindex.IStoragePreindexReader, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Preindex.StoragePreindexReader>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Preindex.IStoragePreindexIntegrator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Preindex.StoragePreindexIntegrator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.IStorageGabineteMetadataProvider, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.StorageGabineteMetadataProvider>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.IStorageDocumentMetadataAnalyzer, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.StorageDocumentMetadataAnalyzer>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.IStoragePageCountReader, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.StoragePageCountReader>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.IStorageSizeFormatter, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Metadata.StorageSizeFormatter>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Options.IStorageOptionsResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Options.StorageOptionsResolver>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Identity.IStorageIdentityAllocator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Identity.StorageIdentityAllocator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Identity.IStorageIdentityPolicy, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Identity.StorageIdentityPolicy>();
@@ -469,6 +472,7 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
 
