@@ -7,6 +7,7 @@ using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.GestorDocumental.AlmacenamientoDocumental;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental;
+using MiApp.Services.Service.SessionHelper;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,17 +26,20 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         private readonly IClaimValidationService _claimValidationService;
         private readonly IAlmacenarDocumentoUseCase _useCase;
         private readonly IFeatureToggleService _featureToggleService;
+        private readonly IIpHelper _ipHelper;
         private readonly ILogger<AlmacenamientoDocumentalController> _logger;
 
         public AlmacenamientoDocumentalController(
             IClaimValidationService claimValidationService,
             IAlmacenarDocumentoUseCase useCase,
             IFeatureToggleService featureToggleService,
+            IIpHelper ipHelper,
             ILogger<AlmacenamientoDocumentalController> logger)
         {
             _claimValidationService = claimValidationService;
             _useCase = useCase;
             _featureToggleService = featureToggleService;
+            _ipHelper = ipHelper;
             _logger = logger;
         }
 
@@ -83,6 +87,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                 }
 
                 var usuario = ResolveUsuario();
+                var ipTrans = ResolveIpTrans();
                 _logger.LogInformation(
                     "Storage API request received. usuarioId={UsuarioId}",
                     usuarioId);
@@ -91,7 +96,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                     request,
                     aliasValidation.ClaimValue,
                     usuario,
-                    usuarioId);
+                    usuarioId,
+                    ipTrans);
 
                 if (!result.success)
                 {
@@ -170,6 +176,12 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             }
 
             return "usuario_autenticado";
+        }
+
+        private string ResolveIpTrans()
+        {
+            var ip = _ipHelper.ObtenerDireccionIP(HttpContext);
+            return ip.StartsWith("#", StringComparison.Ordinal) ? string.Empty : ip;
         }
     }
 }
