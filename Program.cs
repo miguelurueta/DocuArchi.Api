@@ -1,4 +1,4 @@
-﻿using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.Models.Models.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.Editor;
@@ -482,12 +482,6 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
-
-
-
-
-
-
 
 
 
