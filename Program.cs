@@ -1,4 +1,4 @@
-using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+﻿using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.Models.Models.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.Editor;
@@ -322,6 +322,9 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Almacenamient
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Expediente.IIndiceElectronicoBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Expediente.IndiceElectronicoBuilder>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Expediente.IExpedienteUnidadLegacyBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Expediente.ExpedienteUnidadLegacyBuilder>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Expediente.IExpedienteUnidadLegacyService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Expediente.ExpedienteUnidadLegacyService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.IExpedienteIndiceXmlBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.ExpedienteIndiceXmlBuilder>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.IExpedienteIndiceXmlWriter, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.ExpedienteIndiceXmlWriter>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.IExpedienteIndiceXmlService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.ExpedienteIndiceXmlService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Inventario.IInventarioDocumentalBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Inventario.InventarioDocumentalBuilder>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Builders.IStoragePlanBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Builders.StoragePlanBuilder>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Builders.IStorageXmlBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Builders.StorageXmlBuilder>();
@@ -339,6 +342,7 @@ builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Almacen
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Expediente.IExpedienteLegacyRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Expediente.ExpedienteLegacyRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Expediente.IUnidadConservacionLegacyRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Expediente.UnidadConservacionLegacyRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Expediente.IClaseDocumentoLegacyRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Expediente.ClaseDocumentoLegacyRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.IExpedienteIndiceXmlRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.ExpedienteXml.ExpedienteIndiceXmlRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.UnidadConservacion.IUnidadConservacionRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.UnidadConservacion.UnidadConservacionRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.IndiceElectronico.IIndiceElectronicoRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.IndiceElectronico.IndiceElectronicoRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Workflow.IWorkflowStorageLogRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Workflow.WorkflowStorageLogRepository>();
@@ -478,6 +482,7 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
 
