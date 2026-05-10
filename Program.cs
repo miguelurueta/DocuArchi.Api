@@ -86,6 +86,10 @@ using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.StoragePathOptions>(builder.Configuration.GetSection("StoragePaths"));
+builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadOptions>(builder.Configuration.GetSection("StorageUpload"));
+
+
 // ===================================================
   builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Controllers + JSON
@@ -357,6 +361,11 @@ builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Almacen
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.IStorageExtensionRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.StorageExtensionRepository>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.IStorageExtensionResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.StorageExtensionResolver>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.IStorageNamingService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.StorageNamingService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadPathResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadPathResolver>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadSessionStore, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadSessionStore>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadPolicy, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadPolicy>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageLargeUploadService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageLargeUploadService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadCleanupService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadCleanupService>();
 // ===================================================
   builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Infrastructure (Security + Session)
@@ -485,6 +494,7 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
 
