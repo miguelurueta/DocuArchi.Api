@@ -55,7 +55,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                //var usuarioId = ResolveUsuarioId();
+                var usuarioId = 141;
                 var result = await _uploadService.InitAsync(request, usuarioId);
                 return Ok(new AppResponses<StorageUploadInitResponseDto?>
                 {
@@ -88,6 +89,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             try
             {
                 var usuarioId = ResolveUsuarioId();
+                //var usuarioId = 141;
 
                 if (!Request.ContentLength.HasValue || Request.ContentLength.Value <= 0)
                 {
@@ -133,6 +135,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             try
             {
                 var usuarioId = ResolveUsuarioId();
+                //var usuarioId = 141;
                 var status = await _uploadService.GetStatusAsync(rutaTemporalId, archivoTemporalId, usuarioId);
                 return Ok(new AppResponses<StorageUploadStatusResponseDto?>
                 {
@@ -163,6 +166,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             try
             {
                 var usuarioId = ResolveUsuarioId();
+                //var usuarioId = 141;
                 await _uploadService.CompleteAsync(rutaTemporalId, archivoTemporalId, usuarioId);
 
                 return Ok(new AppResponses<object?>
@@ -188,6 +192,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             try
             {
                 var usuarioId = ResolveUsuarioId();
+                //var usuarioId = 141;
                 await _uploadService.CancelAsync(rutaTemporalId, archivoTemporalId, usuarioId);
 
                 return Ok(new AppResponses<object?>
@@ -265,7 +270,17 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                 {
                     return BadRequest(result);
                 }
+                //var result = await _useCase.ExecuteAsync(
+               //     request,
+               //     "DA",
+               //     "LUZ.AGUILERA",
+               //     141,
+                //    ipTrans);
 
+               // if (!result.success)
+               // {
+               //     return BadRequest(result);
+               // }
                 return Ok(result);
             }
             catch (SecurityException ex)
