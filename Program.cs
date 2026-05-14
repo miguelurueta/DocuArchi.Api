@@ -255,6 +255,7 @@ builder.Services.AddScoped<IInicioModuloGestorL, InicioModuloGestorL>();
 builder.Services.AddScoped<IIncioModuloWorkflowL, IncioModuloWorkflowL>();
 builder.Services.AddScoped<IMenuL, MenuL>();
 builder.Services.AddScoped<IUsuarioWorkflowL, UsuarioWorkflowL>();
+builder.Services.AddScoped<IServiceFirmaTemporalUsuarioWorkflow, ServiceFirmaTemporalUsuarioWorkflow>();
 builder.Services.AddScoped<IPlantillaRadicacionL, PlantillaRadicacionL>();
 builder.Services.AddScoped<IRemitDestInternoL, RemitDestInternoL>();
 builder.Services.AddScoped<ISesionActualCleaner, SesionActualCleaner>();
@@ -321,7 +322,6 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Almacenamient
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.RequestStructureValidator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.DocumentoValidator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.CamposValidator>();
-builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.TechnicalExtensionValidator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.TipoAlmacenamientoValidator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.ReglasBasicasValidator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.PreindexValidator>();
@@ -376,7 +376,9 @@ builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Almacen
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.StorageRoute.IStorageRouteRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.StorageRoute.StorageRouteRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Disk.IStorageDiskQuotaRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Disk.StorageDiskQuotaRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.GabineteMetadata.IStorageGabineteMetadataRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.GabineteMetadata.StorageGabineteMetadataRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Descriptors.IStorageDescriptorCatalogRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Descriptors.StorageDescriptorCatalogRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.IStorageExtensionRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.StorageExtensionRepository>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Descriptors.IStorageDescriptorResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Descriptors.StorageDescriptorResolver>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.IStorageExtensionResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.StorageExtensionResolver>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.IStorageNamingService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.StorageNamingService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadPathResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadPathResolver>();
