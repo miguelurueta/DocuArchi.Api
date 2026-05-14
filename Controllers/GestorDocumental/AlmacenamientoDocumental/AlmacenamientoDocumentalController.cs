@@ -55,8 +55,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                //var usuarioId = ResolveUsuarioId();
-                var usuarioId = 141;
+                var usuarioId = ResolveUsuarioId();
+                //var usuarioId = 141;
                 var result = await _uploadService.InitAsync(request, usuarioId);
                 return Ok(new AppResponses<StorageUploadInitResponseDto?>
                 {
@@ -252,7 +252,6 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                         ]
                     });
                 }
-
                 var usuario = ResolveUsuario();
                 var ipTrans = ResolveIpTrans();
                 _logger.LogInformation(
@@ -270,17 +269,18 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                 {
                     return BadRequest(result);
                 }
+                //var ipTrans = ResolveIpTrans();
                 //var result = await _useCase.ExecuteAsync(
-               //     request,
-               //     "DA",
-               //     "LUZ.AGUILERA",
-               //     141,
+                //    request,
+                //    "DA",
+                //    "LUZ.AGUILERA",
+                //    141,
                 //    ipTrans);
 
-               // if (!result.success)
-               // {
-               //     return BadRequest(result);
-               // }
+                //if (!result.success)
+                //{
+                //    return BadRequest(result);
+                //}
                 return Ok(result);
             }
             catch (SecurityException ex)
