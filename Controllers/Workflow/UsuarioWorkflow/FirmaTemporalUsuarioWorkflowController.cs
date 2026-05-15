@@ -26,60 +26,74 @@ namespace DocuArchi.Api.Controllers.Workflow.UsuarioWorkflow
         [HttpGet("firma-temporal")]
         public async Task<ActionResult<AppResponses<FirmaTemporalUsuarioWorkflowDto?>>> Get()
         {
-            var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulaliaswf");
-            if (!aliasValidation.Success || aliasValidation.ClaimValue == null)
+            try
             {
-                return BadRequest(aliasValidation.Response);
-            }
+                var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulaliaswf");
+                if (!aliasValidation.Success || aliasValidation.ClaimValue == null)
+                {
+                    return BadRequest(aliasValidation.Response);
+                }
 
-            var idValidation = _claimValidationService.ValidateClaim<string>("IdUsuarioWorkflow");
-            if (!idValidation.Success || idValidation.ClaimValue == null)
+                var idValidation = _claimValidationService.ValidateClaim<string>("IdUsuarioWorkflow");
+                if (!idValidation.Success || idValidation.ClaimValue == null)
+                {
+                    return BadRequest(idValidation.Response);
+                }
+
+                if (!int.TryParse(idValidation.ClaimValue, out var idUsuarioWorkflow) || idUsuarioWorkflow <= 0)
+                {
+                    return BadRequest(Validation("IdUsuarioWorkflow", "Claim invalido: IdUsuarioWorkflow"));
+                }
+
+                var result = await _service.SolicitaFirmaTemporalAsync(idUsuarioWorkflow, aliasValidation.ClaimValue);
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
-                return BadRequest(idValidation.Response);
+                return BadRequest(Validation("firmaTemporalWorkflow", ex.Message));
             }
-
-            if (!int.TryParse(idValidation.ClaimValue, out var idUsuarioWorkflow) || idUsuarioWorkflow <= 0)
-            {
-                return BadRequest(Validation("IdUsuarioWorkflow", "Claim invalido: IdUsuarioWorkflow"));
-            }
-
-            var result = await _service.SolicitaFirmaTemporalAsync(idUsuarioWorkflow, aliasValidation.ClaimValue);
-            if (!result.success)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok(result);
         }
 
         [HttpGet("firma-temporal/download/{token}")]
         public ActionResult Download(string token)
         {
-            var idValidation = _claimValidationService.ValidateClaim<string>("IdUsuarioWorkflow");
-            if (!idValidation.Success || idValidation.ClaimValue == null)
+            try
             {
-                return BadRequest(idValidation.Response);
-            }
+                var idValidation = _claimValidationService.ValidateClaim<string>("IdUsuarioWorkflow");
+                if (!idValidation.Success || idValidation.ClaimValue == null)
+                {
+                    return BadRequest(idValidation.Response);
+                }
 
-            if (!int.TryParse(idValidation.ClaimValue, out var idUsuarioWorkflow) || idUsuarioWorkflow <= 0)
+                if (!int.TryParse(idValidation.ClaimValue, out var idUsuarioWorkflow) || idUsuarioWorkflow <= 0)
+                {
+                    return BadRequest(Validation("IdUsuarioWorkflow", "Claim invalido: IdUsuarioWorkflow"));
+                }
+
+                var found = _service.TryResolveFirmaTemporal(
+                    token,
+                    idUsuarioWorkflow,
+                    out var filePath,
+                    out var contentType,
+                    out var fileName);
+
+                if (!found)
+                {
+                    return NotFound();
+                }
+
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                return File(fileBytes, contentType, fileName);
+            }
+            catch (Exception ex)
             {
-                return BadRequest(Validation("IdUsuarioWorkflow", "Claim invalido: IdUsuarioWorkflow"));
+                return BadRequest(Validation("firmaTemporalWorkflowDownload", ex.Message));
             }
-
-            var found = _service.TryResolveFirmaTemporal(
-                token,
-                idUsuarioWorkflow,
-                out var filePath,
-                out var contentType,
-                out var fileName);
-
-            if (!found)
-            {
-                return NotFound();
-            }
-
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return File(fileBytes, contentType, fileName);
         }
 
         private static AppResponses<FirmaTemporalUsuarioWorkflowDto?> Validation(string field, string message)
