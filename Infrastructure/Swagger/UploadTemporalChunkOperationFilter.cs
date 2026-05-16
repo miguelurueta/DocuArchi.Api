@@ -13,10 +13,18 @@ namespace DocuArchi.Api.Infrastructure.Swagger
             var method = context.ApiDescription.HttpMethod;
             var relativePath = context.ApiDescription.RelativePath ?? string.Empty;
 
+            var isChunkEndpointPath =
+                relativePath.Contains("/upload-temporal/", StringComparison.OrdinalIgnoreCase) &&
+                relativePath.Contains("/chunk/{chunkIndex}", StringComparison.OrdinalIgnoreCase);
+
+            var isSupportedControllerPath =
+                relativePath.Contains("api/gestor-documental/almacenamiento/", StringComparison.OrdinalIgnoreCase) ||
+                relativePath.Contains("api/gestor-documental/documentos/reemplazopdf/", StringComparison.OrdinalIgnoreCase);
+
             var isChunkUploadEndpoint =
                 string.Equals(method, "PUT", StringComparison.OrdinalIgnoreCase) &&
-                relativePath.Contains("api/gestor-documental/almacenamiento/upload-temporal/", StringComparison.OrdinalIgnoreCase) &&
-                relativePath.Contains("/chunk/{chunkIndex}", StringComparison.OrdinalIgnoreCase);
+                isChunkEndpointPath &&
+                isSupportedControllerPath;
 
             if (!isChunkUploadEndpoint)
             {
