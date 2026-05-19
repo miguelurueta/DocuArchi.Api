@@ -1,7 +1,7 @@
 ﻿using System.Security;
 using MiApp.DTOs.DTOs.GestorDocumental.Documentos.ListaDocumentosRadicados;
 using MiApp.DTOs.DTOs.Utilidades;
-using MiApp.Services.Service.GestorDocumental.Documentos;
+using MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,8 +51,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 {
                     return BadRequest(result);
                 }
-
-                return Ok(result);
+               return Ok(result);
             }
             catch (Exception ex)
             {
@@ -102,7 +101,6 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 {
                     return BadRequest(result);
                 }
-
                 return Ok(result);
             }
             catch (Exception ex)
