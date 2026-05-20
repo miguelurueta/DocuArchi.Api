@@ -218,6 +218,7 @@ builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
 builder.Services.AddScoped<IConfiguracionPlantillaRepository, ConfiguracionPlantillaRepository>();
 builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCamposRutaWorklflowRepository>();
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, SolicitaExistenciaRadicadoRutaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowRepository, SolicitaGabineteRadicadoWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
 builder.Services.AddScoped<ISolicitaListaTiposRespuestaRepository, SolicitaListaTiposRespuestaRepository>();
@@ -302,6 +303,7 @@ builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>
 builder.Services.AddScoped<IConfiguracionPlantillaService, ConfiguracionPlantillaService>();
 builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRutaWorklflowService>();
 builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
+builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowService, SolicitaGabineteRadicadoWorkflowService>();
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaListaTiposRespuesta, ServiceSolicitaListaTiposRespuesta>();
