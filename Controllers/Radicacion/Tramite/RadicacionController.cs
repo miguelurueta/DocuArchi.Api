@@ -11,7 +11,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 {
     [Route("api/radicacion")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public sealed class RadicacionController : ControllerBase
     {
         private readonly IClaimValidationService _claimValidationService;
