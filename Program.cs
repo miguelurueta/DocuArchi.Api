@@ -142,13 +142,15 @@ builder.Services.AddCors(options =>
             // Si no hay orígenes configurados, no permitimos ninguno
             p.WithOrigins(Array.Empty<string>())
              .AllowAnyHeader()
-             .AllowAnyMethod();
+             .AllowAnyMethod()
+             .AllowCredentials();
         }
         else
         {
             p.WithOrigins(allowedOrigins)
              .AllowAnyHeader()
-             .AllowAnyMethod();
+             .AllowAnyMethod()
+             .AllowCredentials();
         }
     });
 });
