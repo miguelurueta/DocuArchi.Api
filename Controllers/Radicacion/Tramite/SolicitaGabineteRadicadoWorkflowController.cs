@@ -3,12 +3,14 @@ using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.DTOs.DTOs.Workflow.RutaTrabajo;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using MiApp.Services.Service.Workflow.RutaTrabajo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 {
     [Route("api/workflow/ruta-trabajo")]
     [ApiController]
+    //[Authorize]
     public sealed class SolicitaGabineteRadicadoWorkflowController : ControllerBase
     {
         private readonly IClaimValidationService _claimValidationService;
@@ -43,7 +45,6 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                     consecutivoRadicado,
                     workflowAliasValidation.ClaimValue,
                     gestionAlias);
-
                 if (!result.success)
                 {
                     return BadRequest(result);
@@ -96,12 +97,10 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                     idTareaWorkflow,
                     workflowAliasValidation.ClaimValue,
                     gestionAlias);
-
                 if (!result.success)
                 {
                     return BadRequest(result);
                 }
-
                 return Ok(result);
             }
             catch (Exception ex)

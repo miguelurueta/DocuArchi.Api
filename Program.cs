@@ -1,4 +1,4 @@
-﻿using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.Models.Models.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
 using MiApp.Repository.Repositorio.GestorDocumental.Editor;
@@ -366,6 +366,7 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.Re
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.ITifToPdfConverterService, MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.TifToPdfConverterService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.VisualizacionDocumento.IVisualizacionDocumentoService, MiApp.Services.Service.GestorDocumental.Documentos.VisualizacionDocumento.VisualizacionDocumentoService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados.IListaDocumentosRadicadoService, MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados.ListaDocumentosRadicadoService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.FirmaElectronica.IFirmaElectronicaDocumentoService, MiApp.Services.Service.GestorDocumental.Documentos.FirmaElectronica.FirmaElectronicaDocumentoService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.PermisosVisorPdf.IPermisosVisorPdfService, MiApp.Services.Service.GestorDocumental.PermisosVisorPdf.PermisosVisorPdfService>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Gabinete.IGabineteStorageRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Gabinete.GabineteStorageRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Inventario.IInventarioDocumentalRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Inventario.InventarioDocumentalRepository>();
@@ -380,6 +381,7 @@ builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Almacen
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Common.Audit.ILogDocuarchiRepository, MiApp.Repository.Repositorio.GestorDocumental.Common.Audit.LogDocuarchiRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPdfDocumentLocationRepository, MiApp.Repository.Repositorio.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPdfDocumentLocationRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Documentos.ListaDocumentosRadicados.IListaDocumentosRadicadosRepository, MiApp.Repository.Repositorio.GestorDocumental.Documentos.ListaDocumentosRadicados.ListaDocumentosRadicadosRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Documentos.FirmaElectronica.IFirmaElectronicaDocumentoRepository, MiApp.Repository.Repositorio.GestorDocumental.Documentos.FirmaElectronica.FirmaElectronicaDocumentoRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.PermisosVisorPdf.IPermisosVisorPdfRepository, MiApp.Repository.Repositorio.GestorDocumental.PermisosVisorPdf.PermisosVisorPdfRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Compensation.IStorageDbCompensationRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Compensation.StorageDbCompensationRepository>();
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.SystemStorage.ISystemStorageRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.SystemStorage.SystemStorageRepository>();
@@ -525,6 +527,7 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
 
 
 
