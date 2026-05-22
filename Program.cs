@@ -105,6 +105,58 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    var swaggerDocs = new (string Name, string Title)[]
+    {
+        ("v1", "DocuArchi.Api (Legacy)"),
+        ("radicacion", "Radicacion"),
+        ("workflow", "Workflow"),
+        ("gestor-documental", "GestorDocumental"),
+        ("gestion-correspondencia", "GestionCorrespondencia"),
+        ("cross-cutting", "CrossCutting")
+    };
+
+    foreach (var doc in swaggerDocs)
+    {
+        c.SwaggerDoc(doc.Name, new OpenApiInfo { Title = doc.Title, Version = "v1" });
+    }
+
+    c.TagActionsBy(api =>
+    {
+        var relativePath = api.RelativePath?.ToLowerInvariant() ?? string.Empty;
+        var domain = ResolveSwaggerDomain(relativePath);
+
+        if (domain == "gestor-documental" && relativePath.StartsWith("api/gestor-documental/editor/"))
+        {
+            if (relativePath.Contains("/images/") || relativePath.EndsWith("/guardar-imagen"))
+            {
+                return new[] { "GestorDocumental.Editor.Imagenes" };
+            }
+
+            return new[] { "GestorDocumental.Editor.Documento" };
+        }
+
+        return domain switch
+        {
+            "radicacion" => new[] { "Radicacion" },
+            "workflow" => new[] { "Workflow" },
+            "gestor-documental" => new[] { "GestorDocumental" },
+            "gestion-correspondencia" => new[] { "GestionCorrespondencia" },
+            _ => new[] { "CrossCutting" }
+        };
+    });
+
+    c.DocInclusionPredicate((docName, api) =>
+    {
+        if (string.Equals(docName, "v1", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var relativePath = api.RelativePath?.ToLowerInvariant() ?? string.Empty;
+        var domain = ResolveSwaggerDomain(relativePath);
+        return string.Equals(docName, domain, StringComparison.OrdinalIgnoreCase);
+    });
+
     c.OperationFilter<UploadTemporalChunkOperationFilter>();
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -116,6 +168,34 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Ingrese: Bearer {token}"
     });
+
+    static string ResolveSwaggerDomain(string relativePath)
+    {
+        if (relativePath.StartsWith("api/gestor-documental/") || relativePath.StartsWith("api/gestordocumental/"))
+        {
+            return "gestor-documental";
+        }
+
+        if (relativePath.StartsWith("api/gestion-correspondencia/") || relativePath.StartsWith("api/gestioncorrespondencia/"))
+        {
+            return "gestion-correspondencia";
+        }
+
+        if (relativePath.StartsWith("api/workflow/") || relativePath.StartsWith("api/workflowinboxgestion/"))
+        {
+            return "workflow";
+        }
+
+        if (relativePath.StartsWith("api/radicacion/") ||
+            relativePath.StartsWith("api/tramite/") ||
+            relativePath.StartsWith("api/plantillaradicado/") ||
+            relativePath.StartsWith("api/configuracionplantilla/"))
+        {
+            return "radicacion";
+        }
+
+        return "cross-cutting";
+    }
 });
 
 // ===================================================
@@ -514,7 +594,15 @@ var app = builder.Build();
 
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocuArchi.Api v1 (Legacy)");
+    c.SwaggerEndpoint("/swagger/radicacion/swagger.json", "Radicacion");
+    c.SwaggerEndpoint("/swagger/workflow/swagger.json", "Workflow");
+    c.SwaggerEndpoint("/swagger/gestor-documental/swagger.json", "GestorDocumental");
+    c.SwaggerEndpoint("/swagger/gestion-correspondencia/swagger.json", "GestionCorrespondencia");
+    c.SwaggerEndpoint("/swagger/cross-cutting/swagger.json", "CrossCutting");
+});
 
 app.UseHttpsRedirection();
 
@@ -529,12 +617,3 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
-
-
-
-
-
-
-
-
-
