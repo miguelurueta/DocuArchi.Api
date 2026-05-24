@@ -400,6 +400,7 @@ builder.Services.AddScoped<ISolicitaListaFirmasAutorizadasDocumentoRepository, S
 builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
 builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.IAlmacenarDocumentoUseCase, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.AlmacenarDocumentoUseCase>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.IEliminarDocumentoUseCase, MiApp.Services.Service.GestorDocumental.EliminarDocumento.EliminarDocumentoUseCase>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.IDocumentStorageOrchestrator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.DocumentStorageOrchestrator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Transaction.IStorageTransactionCoordinator, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Transaction.StorageTransactionCoordinator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.IStorageValidationPipeline, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Validation.StorageValidationPipeline>();
