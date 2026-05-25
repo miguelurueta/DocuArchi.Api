@@ -6,6 +6,7 @@ using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Models.Models.GestorDocumental.EliminarDocumento;
 using MiApp.Services.Service.GestorDocumental.EliminarDocumento;
+using MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using MiApp.Services.Service.SessionHelper;
 using Microsoft.AspNetCore.Authorization;
@@ -43,7 +44,10 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
         }
 
         [HttpDelete("{idAlmacen:long}")]
-        public async Task<ActionResult<AppResponses<StorageDeleteResult?>>> EliminarDocumento([FromRoute] long idAlmacen)
+        public async Task<ActionResult<AppResponses<StorageDeleteResult?>>> EliminarDocumento(
+            [FromRoute] long idAlmacen,
+            [FromQuery] string nombreGabinete,
+            [FromQuery] string sourceModule)
         {
             var startedAt = DateTime.UtcNow;
             var requestId = ResolveRequestId();
@@ -53,6 +57,16 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                 if (idAlmacen <= 0)
                 {
                     return BadRequest(Validation("idAlmacen", "Debe ser mayor a cero"));
+                }
+
+                if (string.IsNullOrWhiteSpace(nombreGabinete))
+                {
+                    return BadRequest(Validation("nombreGabinete", "NombreGabinete requerido"));
+                }
+
+                if (!DeleteSourceModuleCatalog.TryNormalize(sourceModule, out var normalizedSourceModule))
+                {
+                    return BadRequest(Validation("sourceModule", "SourceModule invalido"));
                 }
 
                 var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
@@ -95,6 +109,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                 var request = new StorageDeleteRequest
                 {
                     IdAlmacen = idAlmacen,
+                    NombreGabinete = nombreGabinete.Trim(),
+                    SourceModule = normalizedSourceModule,
                     DefaultDbAlias = aliasValidation.ClaimValue.Trim(),
                     UsuarioId = usuarioId,
                     RequestId = requestId,
