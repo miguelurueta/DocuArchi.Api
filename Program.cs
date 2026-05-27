@@ -405,6 +405,9 @@ builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Elimina
 builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.EliminarDocumento.IStorageDeleteWriteRepository, MiApp.Repository.Repositorio.GestorDocumental.EliminarDocumento.StorageDeleteWriteRepository>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Transaction.IStorageDeleteTransactionCoordinator, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Transaction.StorageDeleteTransactionCoordinator>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Orchestrator.IStorageDeleteOrchestrator, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Orchestrator.StorageDeleteOrchestrator>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Physical.IStorageDeletePhysicalExecutor, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Physical.StorageDeletePhysicalExecutor>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Physical.IStorageDeleteCompensationService, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Physical.StorageDeleteCompensationService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Physical.IStorageDeleteAuditService, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Physical.StorageDeleteAuditService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction.IStorageDeleteRestrictionDataProvider, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction.StorageDeleteRestrictionDataProvider>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction.IStorageDeleteRestrictionPipeline, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction.StorageDeleteRestrictionPipeline>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction.IStorageDeleteRestriction, MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction.Rules.DeleteDocumentExistsRule>();
@@ -636,3 +639,4 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
