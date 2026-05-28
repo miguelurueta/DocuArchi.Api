@@ -56,17 +56,17 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
             {
                 if (idAlmacen <= 0)
                 {
-                    return BadRequest(Validation("idAlmacen", "Debe ser mayor a cero"));
+                    return BadRequest(Validation("idAlmacen", "Debe ser mayor a cero", requestId));
                 }
 
                 if (string.IsNullOrWhiteSpace(nombreGabinete))
                 {
-                    return BadRequest(Validation("nombreGabinete", "NombreGabinete requerido"));
+                    return BadRequest(Validation("nombreGabinete", "NombreGabinete requerido", requestId));
                 }
 
                 if (!DeleteSourceModuleCatalog.TryNormalize(sourceModule, out var normalizedSourceModule))
                 {
-                    return BadRequest(Validation("sourceModule", "SourceModule invalido"));
+                    return BadRequest(Validation("sourceModule", "SourceModule invalido", requestId));
                 }
 
                 var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
@@ -90,20 +90,26 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                 {
                     return BadRequest(new AppResponses<StorageDeleteResult?>
                     {
-                        success = false,
-                        message = "Delete StorageEngineV2 deshabilitado",
-                        data = null,
-                        meta = new AppMeta { Status = "feature_disabled" },
-                        errors =
-                        [
-                            new AppError
-                            {
-                                Type = "FeatureFlag",
-                                Field = DeleteStorageEngineFeatureName,
-                                Message = "DELETE_STORAGE_ENGINE_V2 = false"
-                            }
-                        ]
-                    });
+                    success = false,
+                    message = "Delete StorageEngineV2 deshabilitado",
+                    data = null,
+                    meta = new AppMeta
+                    {
+                        Status = "feature_disabled",
+                        RequestId = requestId
+                    },
+                    errors =
+                    [
+                        new AppError
+                        {
+                            Type = "FeatureFlag",
+                            Code = "DELETE_FEATURE_DISABLED",
+                            Field = DeleteStorageEngineFeatureName,
+                            Message = "DELETE_STORAGE_ENGINE_V2 = false",
+                            UserMessage = "La funcionalidad de eliminacion no esta disponible actualmente"
+                        }
+                    ]
+                });
                 }
 
                 var request = new StorageDeleteRequest
@@ -145,14 +151,20 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                     success = false,
                     message = "Error de validacion de seguridad",
                     data = null,
-                    meta = new AppMeta { Status = "validation" },
+                    meta = new AppMeta
+                    {
+                        Status = "validation",
+                        RequestId = requestId
+                    },
                     errors =
                     [
                         new AppError
                         {
                             Type = "Security",
+                            Code = "DELETE_RUNTIME_INVALID",
                             Field = "usuarioid",
-                            Message = ex.Message
+                            Message = ex.Message,
+                            UserMessage = ex.Message
                         }
                     ]
                 });
@@ -170,14 +182,20 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                     success = false,
                     message = "Error interno procesando eliminación documental",
                     data = null,
-                    meta = new AppMeta { Status = "error" },
+                    meta = new AppMeta
+                    {
+                        Status = "error",
+                        RequestId = requestId
+                    },
                     errors =
                     [
                         new AppError
                         {
                             Type = "Exception",
+                            Code = "DEL-INT-UNEXPECTED",
                             Field = "delete",
-                            Message = "Ocurrio un error no controlado en el endpoint de eliminar documento"
+                            Message = "Ocurrio un error no controlado en el endpoint de eliminar documento",
+                            UserMessage = "Ocurrio un error no controlado en el endpoint de eliminar documento"
                         }
                     ]
                 });
@@ -229,21 +247,27 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
             return ip.StartsWith("#", StringComparison.Ordinal) ? string.Empty : ip;
         }
 
-        private static AppResponses<StorageDeleteResult?> Validation(string field, string message)
+        private static AppResponses<StorageDeleteResult?> Validation(string field, string message, string requestId)
         {
             return new AppResponses<StorageDeleteResult?>
             {
                 success = false,
                 message = message,
                 data = null,
-                meta = new AppMeta { Status = "validation" },
+                meta = new AppMeta
+                {
+                    Status = "validation",
+                    RequestId = requestId
+                },
                 errors =
                 [
                     new AppError
                     {
                         Type = "Validation",
+                        Code = "DELETE_RUNTIME_INVALID",
                         Field = field,
-                        Message = message
+                        Message = message,
+                        UserMessage = message
                     }
                 ]
             };
