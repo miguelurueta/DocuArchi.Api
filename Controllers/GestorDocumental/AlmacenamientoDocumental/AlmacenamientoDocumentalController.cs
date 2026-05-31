@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using DocuArchi.Api.Infrastructure.Features;
@@ -27,6 +26,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         private const string StorageEngineFeatureName = "StorageEngineV2";
 
         private readonly IClaimValidationService _claimValidationService;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IAlmacenarDocumentoUseCase _useCase;
         private readonly IStorageLargeUploadService _uploadService;
         private readonly IFeatureToggleService _featureToggleService;
@@ -35,6 +35,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
 
         public AlmacenamientoDocumentalController(
             IClaimValidationService claimValidationService,
+            ICurrentUserService currentUserService,
             IAlmacenarDocumentoUseCase useCase,
             IStorageLargeUploadService uploadService,
             IFeatureToggleService featureToggleService,
@@ -42,6 +43,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             ILogger<AlmacenamientoDocumentalController> logger)
         {
             _claimValidationService = claimValidationService;
+            _currentUserService = currentUserService;
             _useCase = useCase;
             _uploadService = uploadService;
             _featureToggleService = featureToggleService;
@@ -55,7 +57,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 //var usuarioId = 141;
                 var result = await _uploadService.InitAsync(request, usuarioId);
                 return Ok(new AppResponses<StorageUploadInitResponseDto?>
@@ -88,7 +90,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 //var usuarioId = 141;
 
                 if (!Request.ContentLength.HasValue || Request.ContentLength.Value <= 0)
@@ -134,7 +136,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 //var usuarioId = 141;
                 var status = await _uploadService.GetStatusAsync(rutaTemporalId, archivoTemporalId, usuarioId);
                 return Ok(new AppResponses<StorageUploadStatusResponseDto?>
@@ -165,7 +167,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 //var usuarioId = 141;
                 await _uploadService.CompleteAsync(rutaTemporalId, archivoTemporalId, usuarioId);
 
@@ -191,7 +193,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 //var usuarioId = 141;
                 await _uploadService.CancelAsync(rutaTemporalId, archivoTemporalId, usuarioId);
 
@@ -222,16 +224,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                     return BadRequest(aliasValidation.Response);
                 }
 
-                var usuarioIdValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
-                if (!usuarioIdValidation.Success || string.IsNullOrWhiteSpace(usuarioIdValidation.ClaimValue))
-                {
-                    return BadRequest(usuarioIdValidation.Response);
-                }
-
-                if (!int.TryParse(usuarioIdValidation.ClaimValue, out var usuarioId) || usuarioId <= 0)
-                {
-                    throw new SecurityException("Claim invalido: usuarioid");
-                }
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
 
                 if (!await _featureToggleService.IsEnabledAsync(StorageEngineFeatureName))
                 {
@@ -252,7 +245,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                         ]
                     });
                 }
-                var usuario = ResolveUsuario();
+                var usuario = _currentUserService.ResolveLoginOrThrow();
                 var ipTrans = ResolveIpTrans();
                 _logger.LogInformation(
                     "Storage API request received. usuarioId={UsuarioId}",
@@ -326,22 +319,6 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             }
         }
 
-        private int ResolveUsuarioId()
-        {
-            var usuarioIdValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
-            if (!usuarioIdValidation.Success || string.IsNullOrWhiteSpace(usuarioIdValidation.ClaimValue))
-            {
-                throw new SecurityException("Claim invalido: usuarioid");
-            }
-
-            if (!int.TryParse(usuarioIdValidation.ClaimValue, out var usuarioId) || usuarioId <= 0)
-            {
-                throw new SecurityException("Claim invalido: usuarioid");
-            }
-
-            return usuarioId;
-        }
-
         private static AppResponses<T?> UploadError<T>(string message, string? details = null) where T : class
         {
             return new AppResponses<T?>
@@ -360,35 +337,6 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                     }
                 ]
             };
-        }
-
-        private string ResolveUsuario()
-        {
-            var fromIdentity = User?.Identity?.Name;
-            if (!string.IsNullOrWhiteSpace(fromIdentity))
-            {
-                return fromIdentity.Trim();
-            }
-
-            var fromClaim = User?.Claims?
-                .FirstOrDefault(c => string.Equals(c.Type, "usuario", StringComparison.OrdinalIgnoreCase))?
-                .Value;
-
-            if (!string.IsNullOrWhiteSpace(fromClaim))
-            {
-                return fromClaim.Trim();
-            }
-
-            var fromSubject = User?.Claims?
-                .FirstOrDefault(c => string.Equals(c.Type, "sub", StringComparison.OrdinalIgnoreCase))?
-                .Value;
-
-            if (!string.IsNullOrWhiteSpace(fromSubject))
-            {
-                return fromSubject.Trim();
-            }
-
-            return "usuario_autenticado";
         }
 
         private string ResolveIpTrans()

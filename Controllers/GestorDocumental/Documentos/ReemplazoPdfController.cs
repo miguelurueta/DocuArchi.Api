@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Security;
 using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload;
@@ -22,6 +21,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
     public sealed class ReemplazoPdfController : ControllerBase
     {
         private readonly IClaimValidationService _claimValidationService;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IReemplazoPdfService _reemplazoPdfService;
         private readonly IStorageLargeUploadService _uploadService;
         private readonly IIpHelper _ipHelper;
@@ -29,12 +29,14 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
 
         public ReemplazoPdfController(
             IClaimValidationService claimValidationService,
+            ICurrentUserService currentUserService,
             IReemplazoPdfService reemplazoPdfService,
             IStorageLargeUploadService uploadService,
             IIpHelper ipHelper,
             ILogger<ReemplazoPdfController> logger)
         {
             _claimValidationService = claimValidationService;
+            _currentUserService = currentUserService;
             _reemplazoPdfService = reemplazoPdfService;
             _uploadService = uploadService;
             _ipHelper = ipHelper;
@@ -47,7 +49,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 var result = await _uploadService.InitAsync(request, usuarioId);
                 return Ok(new AppResponses<StorageUploadInitResponseDto?>
                 {
@@ -79,7 +81,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
 
                 if (!Request.ContentLength.HasValue || Request.ContentLength.Value <= 0)
                 {
@@ -129,7 +131,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 var status = await _uploadService.GetStatusAsync(rutaTemporalId, archivoTemporalId, usuarioId);
                 return Ok(new AppResponses<StorageUploadStatusResponseDto?>
                 {
@@ -163,7 +165,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 await _uploadService.CompleteAsync(rutaTemporalId, archivoTemporalId, usuarioId);
 
                 return Ok(new AppResponses<object?>
@@ -192,7 +194,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
         {
             try
             {
-                var usuarioId = ResolveUsuarioId();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
                 await _uploadService.CancelAsync(rutaTemporalId, archivoTemporalId, usuarioId);
 
                 return Ok(new AppResponses<object?>
@@ -226,8 +228,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                     return BadRequest(aliasValidation.Response);
                 }
 
-                var usuarioId = ResolveUsuarioId();
-                var usuario = ResolveUsuario();
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
+                var usuario = _currentUserService.ResolveLoginOrThrow();
                 var ipTrans = ResolveIpTrans();
 
                 var result = await _reemplazoPdfService.ExecuteAsync(
@@ -287,33 +289,6 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
             }
         }
 
-        private int ResolveUsuarioId()
-        {
-            try
-            {
-                var usuarioIdValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
-                if (!usuarioIdValidation.Success || string.IsNullOrWhiteSpace(usuarioIdValidation.ClaimValue))
-                {
-                    throw new SecurityException("Claim invalido: usuarioid");
-                }
-
-                if (!int.TryParse(usuarioIdValidation.ClaimValue, out var usuarioId) || usuarioId <= 0)
-                {
-                    throw new SecurityException("Claim invalido: usuarioid");
-                }
-
-                return usuarioId;
-            }
-            catch (SecurityException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new SecurityException($"Error resolviendo usuarioid: {ex.Message}");
-            }
-        }
-
         private static AppResponses<T?> UploadError<T>(string message, string? details = null) where T : class
         {
             return new AppResponses<T?>
@@ -332,42 +307,6 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                     }
                 ]
             };
-        }
-
-        private string ResolveUsuario()
-        {
-            try
-            {
-                var fromIdentity = User?.Identity?.Name;
-                if (!string.IsNullOrWhiteSpace(fromIdentity))
-                {
-                    return fromIdentity.Trim();
-                }
-
-                var fromClaim = User?.Claims?
-                    .FirstOrDefault(c => string.Equals(c.Type, "usuario", StringComparison.OrdinalIgnoreCase))?
-                    .Value;
-
-                if (!string.IsNullOrWhiteSpace(fromClaim))
-                {
-                    return fromClaim.Trim();
-                }
-
-                var fromSubject = User?.Claims?
-                    .FirstOrDefault(c => string.Equals(c.Type, "sub", StringComparison.OrdinalIgnoreCase))?
-                    .Value;
-
-                if (!string.IsNullOrWhiteSpace(fromSubject))
-                {
-                    return fromSubject.Trim();
-                }
-
-                return "usuario_autenticado";
-            }
-            catch
-            {
-                return "usuario_autenticado";
-            }
         }
 
         private string ResolveIpTrans()
