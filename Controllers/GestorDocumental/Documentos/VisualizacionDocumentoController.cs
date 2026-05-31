@@ -67,9 +67,9 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
 
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(Validation("visualizacion", ex.Message));
+                return BadRequest(Validation("visualizacion", "No fue posible resolver el documento para visualización"));
             }
         }
 
@@ -98,9 +98,9 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 var bytes = System.IO.File.ReadAllBytes(filePath);
                 return File(bytes, contentType, fileName);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(Validation("visualizacionDownload", ex.Message));
+                return BadRequest(Validation("visualizacionDownload", "No fue posible descargar el documento"));
             }
         }
 
