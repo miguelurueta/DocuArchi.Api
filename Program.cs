@@ -6,6 +6,7 @@ using MiApp.Services.Service.GestorDocumental.ConfiguracionUpload;
 using MiApp.Services.Service.GestorDocumental.Editor;
 using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
 using AutoMapper;
+using DocuArchi.Api.Infrastructure.Logging;
 using DocuArchi.Api.Infrastructure.Security;
 using DocuArchiCore.Abstractions.Security;
 using MiApp.DTOs.DTOs.Account;
@@ -87,6 +88,9 @@ using DocuArchi.Api.Infrastructure.Swagger;
 using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
+    Path.Combine(builder.Environment.ContentRootPath, "logs")));
 
 builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.StoragePathOptions>(builder.Configuration.GetSection("StoragePaths"));
 builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadOptions>(builder.Configuration.GetSection("StorageUpload"));

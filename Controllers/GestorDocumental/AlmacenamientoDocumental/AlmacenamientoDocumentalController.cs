@@ -9,6 +9,7 @@ using MiApp.DTOs.DTOs.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental;
 using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Errors;
+using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Observability;
 using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload;
 using MiApp.Services.Service.SessionHelper;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
@@ -241,55 +242,76 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             try
             {
-                var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
-                if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
-                {
-                    return BadRequest(StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
-                        StorageErrorCatalog.AliasRequired,
-                        request?.RequestId,
-                        "defaulalias",
-                        aliasValidation.Response?.message));
-                }
+                var perfContext = BuildPerfContext(request, null);
+                return await StorageStageTimer.MeasureAsync(
+                    _logger,
+                    "api.total",
+                    perfContext,
+                    async () =>
+                    {
+                        var aliasValidation = StorageStageTimer.Measure(
+                            _logger,
+                            "api.claims",
+                            perfContext,
+                            () => _claimValidationService.ValidateClaim<string>("defaulalias"));
+                        if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
+                        {
+                            return BadRequest(StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
+                                StorageErrorCatalog.AliasRequired,
+                                request?.RequestId,
+                                "defaulalias",
+                                aliasValidation.Response?.message));
+                        }
 
-                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
+                        var usuarioId = StorageStageTimer.Measure(
+                            _logger,
+                            "api.claims",
+                            perfContext,
+                            () => _currentUserService.ResolveUsuarioIdOrThrow());
 
-                if (!await _featureToggleService.IsEnabledAsync(StorageEngineFeatureName))
-                {
-                    return BadRequest(StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
-                        StorageErrorCatalog.FeatureDisabled,
-                        request?.RequestId,
-                        StorageEngineFeatureName));
-                }
-                var usuario = _currentUserService.ResolveLoginOrThrow();
-                var ipTrans = ResolveIpTrans();
-                _logger.LogInformation(
-                    "Storage API request received. usuarioId={UsuarioId}",
-                    usuarioId);
+                        var authenticatedPerfContext = BuildPerfContext(request, usuarioId);
 
-                var result = await _useCase.ExecuteAsync(
-                    request,
-                    aliasValidation.ClaimValue,
-                    usuario,
-                    usuarioId,
-                    ipTrans);
+                        var featureEnabled = await StorageStageTimer.MeasureAsync(
+                            _logger,
+                            "api.featureFlag",
+                            authenticatedPerfContext,
+                            () => _featureToggleService.IsEnabledAsync(StorageEngineFeatureName));
+                        if (!featureEnabled)
+                        {
+                            return BadRequest(StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
+                                StorageErrorCatalog.FeatureDisabled,
+                                request?.RequestId,
+                                StorageEngineFeatureName));
+                        }
 
-                if (!result.success)
-                {
-                    return ToErrorActionResult(result);
-                }
-                //var ipTrans = ResolveIpTrans();
-                //var result = await _useCase.ExecuteAsync(
-                //    request,
-                //    "DA",
-                //    "LUZ.AGUILERA",
-                //    141,
-                //    ipTrans);
+                        var usuario = StorageStageTimer.Measure(
+                            _logger,
+                            "api.claims",
+                            authenticatedPerfContext,
+                            () => _currentUserService.ResolveLoginOrThrow());
+                        var ipTrans = ResolveIpTrans();
+                        _logger.LogInformation(
+                            "Storage API request received. usuarioId={UsuarioId}",
+                            usuarioId);
 
-                //if (!result.success)
-                //{
-                //    return BadRequest(result);
-                //}
-                return Ok(result);
+                        var result = await StorageStageTimer.MeasureAsync(
+                            _logger,
+                            "api.useCase",
+                            authenticatedPerfContext,
+                            () => _useCase.ExecuteAsync(
+                                request,
+                                aliasValidation.ClaimValue,
+                                usuario,
+                                usuarioId,
+                                ipTrans));
+
+                        if (!result.success)
+                        {
+                            return ToErrorActionResult(result);
+                        }
+
+                        return Ok(result);
+                    });
             }
             catch (SecurityException ex)
             {
@@ -345,6 +367,19 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
         {
             var ip = _ipHelper.ObtenerDireccionIP(HttpContext);
             return ip.StartsWith("#", StringComparison.Ordinal) ? string.Empty : ip;
+        }
+
+        private static StoragePerfContext BuildPerfContext(
+            AlmacenarDocumentoRequest? request,
+            int? usuarioId)
+        {
+            return new StoragePerfContext
+            {
+                RequestId = request?.RequestId,
+                NombreGabinete = request?.NombreGabinete,
+                UsuarioId = usuarioId,
+                IdExpediente = request?.Expediente?.IdExpediente
+            };
         }
     }
 }
