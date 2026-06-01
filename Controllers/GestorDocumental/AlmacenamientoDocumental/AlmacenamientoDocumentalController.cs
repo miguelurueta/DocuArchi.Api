@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using DocuArchi.Api.Infrastructure.Features;
@@ -7,6 +8,7 @@ using MiApp.DTOs.DTOs.GestorDocumental.AlmacenamientoDocumental;
 using MiApp.DTOs.DTOs.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental;
+using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Errors;
 using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload;
 using MiApp.Services.Service.SessionHelper;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
@@ -77,7 +79,10 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "InitUploadTemporal failed");
-                return BadRequest(UploadError<StorageUploadInitResponseDto>(ex.Message));
+                return BadRequest(UploadError<StorageUploadInitResponseDto>(
+                    StorageErrorCatalog.TemporaryUploadFailed,
+                    "uploadTemporal.init",
+                    ex.Message));
             }
         }
 
@@ -95,14 +100,20 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
 
                 if (!Request.ContentLength.HasValue || Request.ContentLength.Value <= 0)
                 {
-                    return BadRequest(UploadError<object>("UPLOAD_INVALID_CHUNK", "Content-Length requerido"));
+                    return BadRequest(UploadError<object>(
+                        StorageErrorCatalog.InvalidChunk,
+                        "Content-Length",
+                        "Content-Length requerido"));
                 }
 
                 if (!Request.Headers.TryGetValue("X-Total-Chunks", out var totalChunksValues)
                     || !int.TryParse(totalChunksValues.ToString(), out var totalChunks)
                     || totalChunks <= 0)
                 {
-                    return BadRequest(UploadError<object>("UPLOAD_INVALID_CHUNK", "Header X-Total-Chunks requerido"));
+                    return BadRequest(UploadError<object>(
+                        StorageErrorCatalog.InvalidChunk,
+                        "X-Total-Chunks",
+                        "Header X-Total-Chunks requerido"));
                 }
 
                 await _uploadService.UploadChunkAsync(
@@ -125,7 +136,10 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "UploadTemporalChunk failed rutaTemporalId={RutaTemporalId} archivoTemporalId={ArchivoTemporalId} chunk={ChunkIndex}", rutaTemporalId, archivoTemporalId, chunkIndex);
-                return BadRequest(UploadError<object>(ex.Message));
+                return BadRequest(UploadError<object>(
+                    StorageErrorCatalog.TemporaryUploadFailed,
+                    "uploadTemporal.chunk",
+                    ex.Message));
             }
         }
 
@@ -156,7 +170,10 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "UploadTemporalStatus failed rutaTemporalId={RutaTemporalId} archivoTemporalId={ArchivoTemporalId}", rutaTemporalId, archivoTemporalId);
-                return BadRequest(UploadError<StorageUploadStatusResponseDto>(ex.Message));
+                return BadRequest(UploadError<StorageUploadStatusResponseDto>(
+                    StorageErrorCatalog.TemporaryUploadFailed,
+                    "uploadTemporal.status",
+                    ex.Message));
             }
         }
 
@@ -182,7 +199,10 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "CompleteUploadTemporal failed rutaTemporalId={RutaTemporalId} archivoTemporalId={ArchivoTemporalId}", rutaTemporalId, archivoTemporalId);
-                return BadRequest(UploadError<object>(ex.Message));
+                return BadRequest(UploadError<object>(
+                    StorageErrorCatalog.TemporaryUploadFailed,
+                    "uploadTemporal.complete",
+                    ex.Message));
             }
         }
 
@@ -208,7 +228,10 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "CancelUploadTemporal failed rutaTemporalId={RutaTemporalId} archivoTemporalId={ArchivoTemporalId}", rutaTemporalId, archivoTemporalId);
-                return BadRequest(UploadError<object>(ex.Message));
+                return BadRequest(UploadError<object>(
+                    StorageErrorCatalog.TemporaryUploadFailed,
+                    "uploadTemporal.cancel",
+                    ex.Message));
             }
         }
 
@@ -221,29 +244,21 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
                 var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
                 {
-                    return BadRequest(aliasValidation.Response);
+                    return BadRequest(StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
+                        StorageErrorCatalog.AliasRequired,
+                        request?.RequestId,
+                        "defaulalias",
+                        aliasValidation.Response?.message));
                 }
 
                 var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
 
                 if (!await _featureToggleService.IsEnabledAsync(StorageEngineFeatureName))
                 {
-                    return BadRequest(new AppResponses<AlmacenarDocumentoResponse?>
-                    {
-                        success = false,
-                        message = "StorageEngineV2 deshabilitado y no existe adaptador legacy configurado",
-                        data = null,
-                        meta = new AppMeta { Status = "feature_disabled" },
-                        errors =
-                        [
-                            new AppError
-                            {
-                                Type = "FeatureFlag",
-                                Field = StorageEngineFeatureName,
-                                Message = "StorageEngineV2 = false"
-                            }
-                        ]
-                    });
+                    return BadRequest(StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
+                        StorageErrorCatalog.FeatureDisabled,
+                        request?.RequestId,
+                        StorageEngineFeatureName));
                 }
                 var usuario = _currentUserService.ResolveLoginOrThrow();
                 var ipTrans = ResolveIpTrans();
@@ -260,7 +275,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
 
                 if (!result.success)
                 {
-                    return BadRequest(result);
+                    return ToErrorActionResult(result);
                 }
                 //var ipTrans = ResolveIpTrans();
                 //var result = await _useCase.ExecuteAsync(
@@ -279,64 +294,51 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.AlmacenamientoDocumental
             catch (SecurityException ex)
             {
                 _logger.LogWarning(ex, "Storage API security validation failed");
-                return BadRequest(new AppResponses<AlmacenarDocumentoResponse?>
-                {
-                    success = false,
-                    message = "Error de validacion de seguridad",
-                    data = null,
-                    meta = new AppMeta { Status = "validation" },
-                    errors =
-                    [
-                        new AppError
-                        {
-                            Type = "Security",
-                            Field = "usuarioid",
-                            Message = ex.Message
-                        }
-                    ]
-                });
+                return BadRequest(StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
+                    StorageErrorCatalog.UserUnresolved,
+                    request?.RequestId,
+                    "usuarioid",
+                    ex.Message));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Storage API unexpected failure");
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new AppResponses<AlmacenarDocumentoResponse?>
-                    {
-                        success = false,
-                        message = "Error interno procesando almacenamiento documental",
-                        data = null,
-                        meta = new AppMeta { Status = "error" },
-                        errors =
-                        [
-                            new AppError
-                            {
-                                Type = "Exception",
-                                Field = "storage",
-                                Message = "Ocurrio un error no controlado en el endpoint de almacenamiento"
-                            }
-                        ]
-                    });
+                    StorageErrorResponseFactory.Build<AlmacenarDocumentoResponse>(
+                        StorageErrorCatalog.UnexpectedError,
+                        request?.RequestId,
+                        "storage",
+                        ex.Message));
             }
         }
 
-        private static AppResponses<T?> UploadError<T>(string message, string? details = null) where T : class
+        private ActionResult<AppResponses<AlmacenarDocumentoResponse?>> ToErrorActionResult(
+            AppResponses<AlmacenarDocumentoResponse?> result)
         {
-            return new AppResponses<T?>
+            var code = ResolveFirstErrorCode(result);
+            var status = code == null
+                ? StatusCodes.Status400BadRequest
+                : StorageErrorResponseFactory.ResolveHttpStatus(code);
+
+            if (status >= StatusCodes.Status500InternalServerError)
             {
-                success = false,
-                message = "Error en upload temporal",
-                data = null,
-                meta = new AppMeta { Status = "validation" },
-                errors =
-                [
-                    new AppError
-                    {
-                        Type = "Validation",
-                        Field = message,
-                        Message = details ?? message
-                    }
-                ]
-            };
+                return StatusCode(status, result);
+            }
+
+            return BadRequest(result);
+        }
+
+        private static string? ResolveFirstErrorCode(AppResponses<AlmacenarDocumentoResponse?> result)
+        {
+            return result.errors?.OfType<AppError>().FirstOrDefault()?.Code;
+        }
+
+        private static AppResponses<T?> UploadError<T>(
+            string code,
+            string? field = null,
+            string? details = null) where T : class
+        {
+            return StorageErrorResponseFactory.Build<T>(code, null, field, details);
         }
 
         private string ResolveIpTrans()
