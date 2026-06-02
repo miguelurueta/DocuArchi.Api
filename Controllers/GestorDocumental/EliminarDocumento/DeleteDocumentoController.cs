@@ -118,7 +118,9 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                     NombreGabinete = nombreGabinete.Trim(),
                     SourceModule = normalizedSourceModule,
                     DefaultDbAlias = aliasValidation.ClaimValue.Trim(),
+                    WorkflowDbAlias = ResolveWorkflowDbAlias(),
                     UsuarioId = usuarioId,
+                    UsuarioLogin = ResolveLogin(),
                     RequestId = requestId,
                     IpAddress = ResolveIpTrans()
                 };
@@ -245,6 +247,16 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
         {
             var ip = _ipHelper.ObtenerDireccionIP(HttpContext);
             return ip.StartsWith("#", StringComparison.Ordinal) ? string.Empty : ip;
+        }
+
+        private string ResolveWorkflowDbAlias()
+        {
+            return User.FindFirst("defaulaliaswf")?.Value?.Trim() ?? string.Empty;
+        }
+
+        private string ResolveLogin()
+        {
+            return User.FindFirst("login")?.Value?.Trim().ToUpperInvariant() ?? string.Empty;
         }
 
         private static AppResponses<StorageDeleteResult?> Validation(string field, string message, string requestId)
