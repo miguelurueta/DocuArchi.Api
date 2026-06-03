@@ -475,6 +475,9 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Almacenamient
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Workflow.IWorkflowStorageLogBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Workflow.WorkflowStorageLogBuilder>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Workflow.IWorkflowStorageLogService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Workflow.WorkflowStorageLogService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPdfService, MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPdfService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPaginasPdfAnotadasService, MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPaginasPdfAnotadasService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPdfStorageReplacementExecutor, MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPdfStorageReplacementExecutor>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.IPdfPageReplacementService, MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.PdfPageReplacementService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.ITifToPdfConverterService, MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.TifToPdfConverterService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.VisualizacionDocumento.IVisualizacionDocumentoService, MiApp.Services.Service.GestorDocumental.Documentos.VisualizacionDocumento.VisualizacionDocumentoService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados.IListaDocumentosRadicadoService, MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados.ListaDocumentosRadicadoService>();
@@ -511,6 +514,7 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Almacenamient
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadPolicy, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadPolicy>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageLargeUploadService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageLargeUploadService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadCleanupService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadCleanupService>();
+builder.Services.AddHostedService<DocuArchi.Api.Infrastructure.HostedServices.StorageUploadCleanupHostedService>();
 // ===================================================
   builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Infrastructure (Security + Session)

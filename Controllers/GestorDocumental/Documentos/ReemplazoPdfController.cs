@@ -23,6 +23,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
         private readonly IClaimValidationService _claimValidationService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IReemplazoPdfService _reemplazoPdfService;
+        private readonly IReemplazoPaginasPdfAnotadasService _reemplazoPaginasPdfAnotadasService;
         private readonly IStorageLargeUploadService _uploadService;
         private readonly IIpHelper _ipHelper;
         private readonly ILogger<ReemplazoPdfController> _logger;
@@ -31,6 +32,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
             IClaimValidationService claimValidationService,
             ICurrentUserService currentUserService,
             IReemplazoPdfService reemplazoPdfService,
+            IReemplazoPaginasPdfAnotadasService reemplazoPaginasPdfAnotadasService,
             IStorageLargeUploadService uploadService,
             IIpHelper ipHelper,
             ILogger<ReemplazoPdfController> logger)
@@ -38,6 +40,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
             _claimValidationService = claimValidationService;
             _currentUserService = currentUserService;
             _reemplazoPdfService = reemplazoPdfService;
+            _reemplazoPaginasPdfAnotadasService = reemplazoPaginasPdfAnotadasService;
             _uploadService = uploadService;
             _ipHelper = ipHelper;
             _logger = logger;
@@ -283,6 +286,80 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                                 Type = "Exception",
                                 Field = "reemplazopdf",
                                 Message = "Ocurrio un error no controlado en reemplazo de documento PDF"
+                            }
+                        ]
+                    });
+            }
+        }
+
+        [HttpPost("paginas-anotadas")]
+        public async Task<ActionResult<AppResponses<ReemplazarPaginasPdfAnotadasResponse?>>> PostPaginasAnotadas(
+            [FromBody] ReemplazarPaginasPdfAnotadasRequest request)
+        {
+            try
+            {
+                var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
+                {
+                    return BadRequest(aliasValidation.Response);
+                }
+
+                var usuarioId = _currentUserService.ResolveUsuarioIdOrThrow();
+                var usuario = _currentUserService.ResolveLoginOrThrow();
+                var ipTrans = ResolveIpTrans();
+
+                var result = await _reemplazoPaginasPdfAnotadasService.ExecuteAsync(
+                    request,
+                    aliasValidation.ClaimValue,
+                    usuario,
+                    usuarioId,
+                    ipTrans,
+                    HttpContext.RequestAborted);
+
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (SecurityException ex)
+            {
+                _logger.LogWarning(ex, "Replace annotated PDF pages security validation failed");
+                return BadRequest(new AppResponses<ReemplazarPaginasPdfAnotadasResponse?>
+                {
+                    success = false,
+                    message = "Error de validacion de seguridad",
+                    data = null,
+                    meta = new AppMeta { Status = "validation" },
+                    errors =
+                    [
+                        new AppError
+                        {
+                            Type = "Security",
+                            Field = "usuarioid",
+                            Message = ex.Message
+                        }
+                    ]
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Replace annotated PDF pages unexpected failure");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AppResponses<ReemplazarPaginasPdfAnotadasResponse?>
+                    {
+                        success = false,
+                        message = "Error interno reemplazando paginas PDF anotadas",
+                        data = null,
+                        meta = new AppMeta { Status = "error" },
+                        errors =
+                        [
+                            new AppError
+                            {
+                                Type = "Exception",
+                                Field = "reemplazopdf",
+                                Message = "Ocurrio un error no controlado en reemplazo de paginas PDF anotadas"
                             }
                         ]
                     });
