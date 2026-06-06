@@ -6,6 +6,7 @@ using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Models.Models.GestorDocumental.EliminarDocumento;
 using MiApp.Services.Service.GestorDocumental.EliminarDocumento;
+using MiApp.Services.Service.GestorDocumental.EliminarDocumento.Errors;
 using MiApp.Services.Service.GestorDocumental.EliminarDocumento.Restriction;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using MiApp.Services.Service.SessionHelper;
@@ -46,8 +47,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
         [HttpDelete("{idAlmacen:long}")]
         public async Task<ActionResult<AppResponses<StorageDeleteResult?>>> EliminarDocumento(
             [FromRoute] long idAlmacen,
-            [FromQuery] string nombreGabinete,
-            [FromQuery] string sourceModule)
+            [FromQuery] string? nombreGabinete,
+            [FromQuery] string? sourceModule)
         {
             var startedAt = DateTime.UtcNow;
             var requestId = ResolveRequestId();
@@ -56,29 +57,29 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
             {
                 if (idAlmacen <= 0)
                 {
-                    return BadRequest(Validation("idAlmacen", "Debe ser mayor a cero", requestId));
+                    return ErrorResult(DeleteErrorCatalog.RuntimeInvalid, requestId, "idAlmacen", "Debe ser mayor a cero");
                 }
 
                 if (string.IsNullOrWhiteSpace(nombreGabinete))
                 {
-                    return BadRequest(Validation("nombreGabinete", "NombreGabinete requerido", requestId));
+                    return ErrorResult(DeleteErrorCatalog.RuntimeInvalid, requestId, "nombreGabinete", "NombreGabinete requerido");
                 }
 
                 if (!DeleteSourceModuleCatalog.TryNormalize(sourceModule, out var normalizedSourceModule))
                 {
-                    return BadRequest(Validation("sourceModule", "SourceModule invalido", requestId));
+                    return ErrorResult(DeleteErrorCatalog.RuntimeInvalid, requestId, "sourceModule", "SourceModule invalido");
                 }
 
                 var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
                 {
-                    return BadRequest(aliasValidation.Response);
+                    return ErrorResult(DeleteErrorCatalog.RuntimeInvalid, requestId, "defaulalias", "DefaultDbAlias requerido");
                 }
 
                 var usuarioIdValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
                 if (!usuarioIdValidation.Success || string.IsNullOrWhiteSpace(usuarioIdValidation.ClaimValue))
                 {
-                    return BadRequest(usuarioIdValidation.Response);
+                    return ErrorResult(DeleteErrorCatalog.RuntimeInvalid, requestId, "usuarioid", "UsuarioId requerido");
                 }
 
                 if (!long.TryParse(usuarioIdValidation.ClaimValue, out var usuarioId) || usuarioId <= 0)
@@ -88,28 +89,11 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
 
                 if (!await _featureToggleService.IsEnabledAsync(DeleteStorageEngineFeatureName))
                 {
-                    return BadRequest(new AppResponses<StorageDeleteResult?>
-                    {
-                    success = false,
-                    message = "Delete StorageEngineV2 deshabilitado",
-                    data = null,
-                    meta = new AppMeta
-                    {
-                        Status = "feature_disabled",
-                        RequestId = requestId
-                    },
-                    errors =
-                    [
-                        new AppError
-                        {
-                            Type = "FeatureFlag",
-                            Code = "DELETE_FEATURE_DISABLED",
-                            Field = DeleteStorageEngineFeatureName,
-                            Message = "DELETE_STORAGE_ENGINE_V2 = false",
-                            UserMessage = "La funcionalidad de eliminacion no esta disponible actualmente"
-                        }
-                    ]
-                });
+                    return ErrorResult(
+                        DeleteErrorCatalog.FeatureDisabled,
+                        requestId,
+                        DeleteStorageEngineFeatureName,
+                        "DELETE_STORAGE_ENGINE_V2 = false");
                 }
 
                 var request = new StorageDeleteRequest
@@ -148,28 +132,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                     requestId,
                     idAlmacen);
 
-                return BadRequest(new AppResponses<StorageDeleteResult?>
-                {
-                    success = false,
-                    message = "Error de validacion de seguridad",
-                    data = null,
-                    meta = new AppMeta
-                    {
-                        Status = "validation",
-                        RequestId = requestId
-                    },
-                    errors =
-                    [
-                        new AppError
-                        {
-                            Type = "Security",
-                            Code = "DELETE_RUNTIME_INVALID",
-                            Field = "usuarioid",
-                            Message = ex.Message,
-                            UserMessage = ex.Message
-                        }
-                    ]
-                });
+                return ErrorResult(DeleteErrorCatalog.RuntimeInvalid, requestId, "usuarioid", ex.Message);
             }
             catch (Exception ex)
             {
@@ -179,28 +142,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
                     requestId,
                     idAlmacen);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new AppResponses<StorageDeleteResult?>
-                {
-                    success = false,
-                    message = "Error interno procesando eliminación documental",
-                    data = null,
-                    meta = new AppMeta
-                    {
-                        Status = "error",
-                        RequestId = requestId
-                    },
-                    errors =
-                    [
-                        new AppError
-                        {
-                            Type = "Exception",
-                            Code = "DEL-INT-UNEXPECTED",
-                            Field = "delete",
-                            Message = "Ocurrio un error no controlado en el endpoint de eliminar documento",
-                            UserMessage = "Ocurrio un error no controlado en el endpoint de eliminar documento"
-                        }
-                    ]
-                });
+                return ErrorResult(DeleteErrorCatalog.Unexpected, requestId, "delete", ex.Message);
             }
             finally
             {
@@ -215,15 +157,26 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
 
         private ActionResult<AppResponses<StorageDeleteResult?>> MapErrorResult(AppResponses<StorageDeleteResult?> result)
         {
-            var status = result.meta?.Status?.Trim().ToLowerInvariant();
-            return status switch
-            {
-                "validation" => BadRequest(result),
-                "forbidden" => StatusCode(StatusCodes.Status403Forbidden, result),
-                "not_found" => NotFound(result),
-                "business" => StatusCode(StatusCodes.Status409Conflict, result),
-                _ => StatusCode(StatusCodes.Status500InternalServerError, result)
-            };
+            var code = result.errors?.Length > 0 && result.errors[0] is AppError appError
+                ? appError.Code
+                : DeleteErrorCatalog.Unexpected;
+
+            return DeleteHttpResultMapper.Map(this, DeleteErrorResponseFactory.ResolveHttpStatus(code), result);
+        }
+
+        private ActionResult<AppResponses<StorageDeleteResult?>> ErrorResult(
+            string code,
+            string requestId,
+            string field,
+            string? technicalDetail)
+        {
+            var response = DeleteErrorResponseFactory.Build<StorageDeleteResult>(
+                code,
+                requestId,
+                field,
+                technicalDetail);
+
+            return DeleteHttpResultMapper.Map(this, DeleteErrorResponseFactory.ResolveHttpStatus(code), response);
         }
 
         private string ResolveRequestId()
@@ -259,30 +212,5 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.EliminarDocumento
             return User.FindFirst("login")?.Value?.Trim().ToUpperInvariant() ?? string.Empty;
         }
 
-        private static AppResponses<StorageDeleteResult?> Validation(string field, string message, string requestId)
-        {
-            return new AppResponses<StorageDeleteResult?>
-            {
-                success = false,
-                message = message,
-                data = null,
-                meta = new AppMeta
-                {
-                    Status = "validation",
-                    RequestId = requestId
-                },
-                errors =
-                [
-                    new AppError
-                    {
-                        Type = "Validation",
-                        Code = "DELETE_RUNTIME_INVALID",
-                        Field = field,
-                        Message = message,
-                        UserMessage = message
-                    }
-                ]
-            };
-        }
     }
 }
