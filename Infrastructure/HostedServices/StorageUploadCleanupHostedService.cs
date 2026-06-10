@@ -22,12 +22,19 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await RunCleanupAsync(stoppingToken);
-
-            using var timer = new PeriodicTimer(GetInterval());
-            while (await timer.WaitForNextTickAsync(stoppingToken))
+            try
             {
                 await RunCleanupAsync(stoppingToken);
+
+                using var timer = new PeriodicTimer(GetInterval());
+                while (await timer.WaitForNextTickAsync(stoppingToken))
+                {
+                    await RunCleanupAsync(stoppingToken);
+                }
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogDebug("Limpieza periodica de temporales upload cancelada por apagado de la aplicacion");
             }
         }
 
@@ -47,6 +54,10 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
                 {
                     _logger.LogInformation("Limpieza temporales upload removio {Removed} directorios", removed);
                 }
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogDebug("Limpieza de temporales upload cancelada por apagado de la aplicacion");
             }
             catch (Exception ex)
             {
