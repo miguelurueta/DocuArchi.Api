@@ -95,6 +95,7 @@ builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
 builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.StoragePathOptions>(builder.Configuration.GetSection("StoragePaths"));
 builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadOptions>(builder.Configuration.GetSection("StorageUpload"));
 builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.StorageMetadataOptions>(builder.Configuration.GetSection("StorageMetadata"));
+builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexProviderCatalogOptions>(builder.Configuration.GetSection("StorageCabinetIndexProviders"));
 builder.Services.AddMemoryCache();
 
 
@@ -519,6 +520,15 @@ builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Almacenamient
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadPolicy, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadPolicy>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageLargeUploadService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageLargeUploadService>();
 builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.IStorageUploadCleanupService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadCleanupService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexSeedEnvelopeValidationService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexSeedEnvelopeValidationService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexProviderExecutionContextBuilder, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexProviderExecutionContextBuilder>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.IStorageCabinetIndexProviderPolicyCatalog, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.StorageCabinetIndexProviderPolicyCatalog>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.IStorageCabinetIndexPolicyResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.StorageCabinetIndexPolicyResolver>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.IStorageCabinetIndexProviderResolver, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.StorageCabinetIndexProviderResolver>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexFieldOwnershipPolicy, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexFieldOwnershipPolicy>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexEffectiveFieldsService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexEffectiveFieldsService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexValidationService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexValidationService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexResolutionPoint, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexResolutionPoint>();
 builder.Services.AddHostedService<DocuArchi.Api.Infrastructure.HostedServices.StorageUploadCleanupHostedService>();
 // ===================================================
   builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
