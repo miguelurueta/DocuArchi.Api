@@ -1,0 +1,29 @@
+name: Multi Repo Backend Build
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: Run .NET tests after build.
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  multirepo-build:
+    uses: miguelurueta/DocuArchiCore/.github/workflows/reusable-multirepo-backend-build.yml@main
+    with:
+      changed_repo: DocuArchi.Api
+      changed_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      run_tests: ${{ github.event_name == 'workflow_dispatch' && inputs.run_tests || false }}
+    secrets:
+      MULTIREPO_READ_TOKEN: ${{ secrets.MULTIREPO_READ_TOKEN }}
