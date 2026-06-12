@@ -20,10 +20,125 @@ permissions:
 
 jobs:
   multirepo-build:
-    uses: miguelurueta/DocuArchiCore/.github/workflows/reusable-multirepo-backend-build.yml@main
-    with:
-      changed_repo: DocuArchi.Api
-      changed_ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      run_tests: ${{ github.event_name == 'workflow_dispatch' && inputs.run_tests || false }}
-    secrets:
-      MULTIREPO_READ_TOKEN: ${{ secrets.MULTIREPO_READ_TOKEN }}
+    name: Multi Repo Backend Build
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Validate multi-repo read token
+        shell: pwsh
+        run: |
+          if ("${{ secrets.MULTIREPO_READ_TOKEN }}" -eq "") {
+            throw "Missing GitHub Actions secret MULTIREPO_READ_TOKEN. Configure it with read access to every backend repository before enabling this workflow as a required check."
+          }
+
+      - name: Checkout DocuArchiCore
+        uses: actions/checkout@v4
+        with:
+          repository: miguelurueta/DocuArchiCore
+          ref: main
+          path: DocuArchiCore
+          token: ${{ secrets.MULTIREPO_READ_TOKEN }}
+          fetch-depth: 0
+
+      - name: Normalize DocuArchiCore origin
+        shell: pwsh
+        run: |
+          git -C DocuArchiCore remote set-url origin https://github.com/miguelurueta/DocuArchiCore.git
+          git -C DocuArchiCore config --local --unset-all http.https://github.com/.extraheader 2>$null
+          git -C DocuArchiCore remote get-url origin
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Configure private repository access
+        shell: pwsh
+        run: |
+          $token = "${{ secrets.MULTIREPO_READ_TOKEN }}"
+          $bytes = [Text.Encoding]::ASCII.GetBytes("x-access-token:$token")
+          $encoded = [Convert]::ToBase64String($bytes)
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $encoded"
+
+      - name: Reconstruct multi-repo workspace
+        working-directory: DocuArchiCore
+        shell: pwsh
+        run: |
+          npm.cmd --prefix Tools/jira-open run opsxj:workspace:reconstruct -- `
+            -WorkspaceRoot "${{ github.workspace }}" `
+            -SyncMode fetch `
+            -SkipApiValidation `
+            -NonInteractive
+
+      - name: Checkout changed satellite repository ref
+        shell: pwsh
+        run: |
+          $changedRepo = "DocuArchi.Api"
+          $changedRef = "${{ github.event.pull_request.head.sha || github.sha }}"
+          $repoPath = Join-Path "${{ github.workspace }}" $changedRepo
+
+          if (-not (Test-Path (Join-Path $repoPath ".git"))) {
+            throw "Changed repository was not materialized by workspace reconstruction: $repoPath"
+          }
+
+          git -C $repoPath fetch origin $changedRef --depth=1
+          git -C $repoPath checkout --detach FETCH_HEAD
+          git -C $repoPath log -1 --oneline
+
+      - name: Print reconstructed repository heads
+        shell: pwsh
+        run: |
+          $repos = @(
+            "DocuArchiCore",
+            "DocuArchi.Api",
+            "DocuArchiCore.Abstractions",
+            "MiApp.DTOs",
+            "MiApp.Models",
+            "MiApp.Repository",
+            "MiApp.Services"
+          )
+
+          foreach ($repo in $repos) {
+            $repoPath = Join-Path "${{ github.workspace }}" $repo
+            if (Test-Path (Join-Path $repoPath ".git")) {
+              Write-Host "## $repo"
+              git -C $repoPath status --short --branch
+              git -C $repoPath log -1 --oneline
+            }
+            else {
+              Write-Host "## $repo not found"
+            }
+          }
+
+      - name: Restore backend solution
+        working-directory: DocuArchiCore
+        shell: pwsh
+        run: dotnet restore DocuArchiCore.sln
+
+      - name: Build backend solution
+        working-directory: DocuArchiCore
+        shell: pwsh
+        run: dotnet build DocuArchiCore.sln --configuration Release --no-restore
+
+      - name: Test backend solution
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_tests }}
+        working-directory: DocuArchiCore
+        shell: pwsh
+        run: dotnet test DocuArchiCore.sln --configuration Release --no-build --logger trx --results-directory TestResults
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: multirepo-build-reports
+          if-no-files-found: ignore
+          path: |
+            DocuArchiCore/Tools/jira-open/.opsxj/reports/*.json
+            DocuArchiCore/TestResults/*.trx
+            **/TestResults/*.trx
