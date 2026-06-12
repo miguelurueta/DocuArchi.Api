@@ -92,9 +92,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
     Path.Combine(builder.Environment.ContentRootPath, "logs")));
 
-builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.StoragePathOptions>(builder.Configuration.GetSection("StoragePaths"));
+builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StoragePathOptions>(builder.Configuration.GetSection("StoragePaths"));
 builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadOptions>(builder.Configuration.GetSection("StorageUpload"));
-builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.StorageMetadataOptions>(builder.Configuration.GetSection("StorageMetadata"));
+builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StorageMetadataOptions>(builder.Configuration.GetSection("StorageMetadata"));
 builder.Services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexProviderCatalogOptions>(builder.Configuration.GetSection("StorageCabinetIndexProviders"));
 builder.Services.AddMemoryCache();
 
