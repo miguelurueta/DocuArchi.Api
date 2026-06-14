@@ -124,7 +124,7 @@ jobs:
       - name: Build backend solution
         working-directory: DocuArchiCore
         shell: pwsh
-        run: dotnet build DocuArchiCore.sln --configuration Release --no-restore
+        run: dotnet build DocuArchiCore.sln --configuration Release --no-restore -warnaserror:MSB9008
 
       - name: Test backend solution
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_tests }}
