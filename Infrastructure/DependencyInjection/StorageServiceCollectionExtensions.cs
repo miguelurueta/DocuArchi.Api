@@ -173,6 +173,7 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexValidationService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexValidationService>();
             services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.ICabinetIndexResolutionPoint, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexResolutionPoint>();
             services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.IRadicacionCabinetIndexSourceService, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.RadicacionCabinetIndexSourceService>();
+            services.AddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.IStorageCabinetIndexProvider, MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.RadicacionCabinetIndexProvider>();
 
             return services;
         }
