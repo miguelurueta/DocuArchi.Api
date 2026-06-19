@@ -95,6 +95,7 @@ builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
 
 builder.Services.AddMemoryCache();
 builder.Services.AddStorageEngine(builder.Configuration);
+builder.Services.AddEmailDispatchEngine(builder.Configuration);
 
 
 // ===================================================
