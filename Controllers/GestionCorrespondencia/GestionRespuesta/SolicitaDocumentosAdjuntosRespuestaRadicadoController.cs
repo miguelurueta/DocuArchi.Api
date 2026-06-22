@@ -1,7 +1,7 @@
 using MiApp.DTOs.DTOs.Errors;
-using MiApp.DTOs.DTOs.GestionCorrespondencia.GestionRespuesta;
+using MiApp.DTOs.DTOs.GestionCorrespondencia.GestionRespuesta.Core;
 using MiApp.DTOs.DTOs.Utilidades;
-using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.Core;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
