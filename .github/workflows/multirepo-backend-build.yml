@@ -128,6 +128,7 @@ jobs:
           npm.cmd --prefix Tools/jira-open run opsxj:workspace:reconstruct -- `
             -WorkspaceRoot "${{ github.workspace }}" `
             -SyncMode fetch `
+            -SkipBuild `
             -SkipApiValidation `
             -NonInteractive
 
@@ -201,6 +202,7 @@ jobs:
         with:
           name: multirepo-build-reports
           if-no-files-found: ignore
+          include-hidden-files: true
           path: |
             DocuArchiCore/Tools/jira-open/.opsxj/reports/*.json
             DocuArchiCore/TestResults/*.trx
