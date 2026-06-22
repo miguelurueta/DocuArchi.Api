@@ -37,7 +37,7 @@ using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
 using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
 using MiApp.Repository.Repositorio.GestionCorrespondencia;
-using MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.Core;
 using MiApp.Repository.Repositorio.GestionCorrespondencia.TiposRespuesta;
 using MiApp.Repository.Repositorio.GestionCorrespondencia.PlantillaValidacion.SolicitaCorreoElectronicoRemitente;
 using MiApp.Repository.Repositorio.Workflow.usuario;
@@ -77,7 +77,7 @@ using MiApp.Services.Service.Workflow.BandejaCorrespondencia;
 using MiApp.Services.Service.Workflow.Inicio;
 using MiApp.Services.Service.Workflow.RutaTrabajo;
 using MiApp.Services.Service.GestorDocumental;
-using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.Core;
 using MiApp.Services.Service.GestionCorrespondencia.TiposRespuesta;
 using MiApp.Services.Service.Workflow.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -95,6 +95,7 @@ builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
 
 builder.Services.AddMemoryCache();
 builder.Services.AddStorageEngine(builder.Configuration);
+builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
 
 
 // ===================================================
