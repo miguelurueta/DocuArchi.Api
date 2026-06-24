@@ -2,7 +2,9 @@ using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Indexacion;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Indexacion;
+using MiApp.Services.Service.Seguridad.Autorizacion.Claims;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
+using MiApp.Services.Service.Seguridad.Autorizacion.Permisos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +15,21 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
     [Route("api/GestionCorrespondencia/respuestas/contexto-historico/indexacion")]
     public sealed class RespuestaHistoricalContextIndexacionController : ControllerBase
     {
-        private static readonly HashSet<string> TechnicalPermissions = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> StatusPermissions = new(StringComparer.OrdinalIgnoreCase)
         {
-            "ctx-hist-index-admin",
-            "contexto-historico-indexacion-admin",
-            "gestion-correspondencia-contexto-historico-indexacion",
-            "admin"
+            DocuArchiPermissionsGD.GCOR_CTX_HIST_INDEX_ESTADO,
+            DocuArchiPermissionsGD.GCOR_CTX_HIST_INDEX_OPERAR
+        };
+
+        private static readonly HashSet<string> ReindexPermissions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            DocuArchiPermissionsGD.GCOR_CTX_HIST_INDEX_REINDEXAR,
+            DocuArchiPermissionsGD.GCOR_CTX_HIST_INDEX_OPERAR
+        };
+
+        private static readonly HashSet<string> OperationPermissions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            DocuArchiPermissionsGD.GCOR_CTX_HIST_INDEX_OPERAR
         };
 
         private readonly IClaimValidationService _claimValidationService;
@@ -46,7 +57,7 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
         public async Task<ActionResult<AppResponses<RespuestaHistoricalIndexacionOperationResponseDto>>> Backfill(
             [FromBody] RespuestaHistoricalBackfillRequestDto request)
         {
-            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>();
+            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>(OperationPermissions, "operar");
             if (!context.Response.success)
             {
                 return MapFailure(context.Response);
@@ -68,7 +79,7 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
         public async Task<ActionResult<AppResponses<RespuestaHistoricalIndexacionOperationResponseDto>>> Reindexar(
             [FromBody] RespuestaHistoricalReindexRequestDto request)
         {
-            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>();
+            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>(ReindexPermissions, "reindexar");
             if (!context.Response.success)
             {
                 return MapFailure(context.Response);
@@ -90,7 +101,7 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
         public async Task<ActionResult<AppResponses<RespuestaHistoricalIndexacionOperationResponseDto>>> Reconciliar(
             [FromBody] RespuestaHistoricalReconcileRequestDto request)
         {
-            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>();
+            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>(OperationPermissions, "operar");
             if (!context.Response.success)
             {
                 return MapFailure(context.Response);
@@ -111,7 +122,7 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
         [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalIndexacionStatusResponseDto>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AppResponses<RespuestaHistoricalIndexacionStatusResponseDto>>> Estado()
         {
-            var context = ValidateContext<RespuestaHistoricalIndexacionStatusResponseDto>();
+            var context = ValidateContext<RespuestaHistoricalIndexacionStatusResponseDto>(StatusPermissions, "estado");
             if (!context.Response.success)
             {
                 return MapFailure(context.Response);
@@ -139,7 +150,7 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
         public async Task<ActionResult<AppResponses<RespuestaHistoricalIndexacionOperationResponseDto>>> ReintentarFallidos(
             [FromBody] RespuestaHistoricalRetryFailedRequestDto request)
         {
-            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>();
+            var context = ValidateContext<RespuestaHistoricalIndexacionOperationResponseDto>(OperationPermissions, "operar");
             if (!context.Response.success)
             {
                 return MapFailure(context.Response);
@@ -150,7 +161,9 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
             return MapOperationResult(result);
         }
 
-        private ContextValidation<T> ValidateContext<T>()
+        private ContextValidation<T> ValidateContext<T>(
+            IReadOnlySet<string> requiredPermissions,
+            string requiredPermissionGroup)
         {
             var requestId = ResolveRequestId();
 
@@ -177,8 +190,15 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
                     Validation<T>("usuarioid", "Claim usuarioid invalido", requestId));
             }
 
-            if (!HasTechnicalPermission())
+            if (!HasTechnicalPermission(requiredPermissions))
             {
+                _logger.LogWarning(
+                    "RespuestaHistoricalContextIndexacion forbidden requestId={RequestId} usuarioId={UsuarioId} alias={Alias} requiredPermissionGroup={RequiredPermissionGroup}",
+                    requestId,
+                    usuarioId,
+                    aliasValidation.ClaimValue,
+                    requiredPermissionGroup);
+
                 return new ContextValidation<T>(
                     new RespuestaHistoricalIndexacionAdminContext { RequestId = requestId },
                     Forbidden<T>(requestId));
@@ -195,21 +215,11 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
                 Success<T>(requestId));
         }
 
-        private bool HasTechnicalPermission()
+        private bool HasTechnicalPermission(IReadOnlySet<string> requiredPermissions)
         {
-            if (User.IsInRole("admin") || User.IsInRole("ctx-hist-index-admin"))
-            {
-                return true;
-            }
-
             return User.Claims.Any(claim =>
-                (claim.Type.Equals("permission", StringComparison.OrdinalIgnoreCase)
-                    || claim.Type.Equals("permissions", StringComparison.OrdinalIgnoreCase)
-                    || claim.Type.Equals("role", StringComparison.OrdinalIgnoreCase)
-                    || claim.Type.Equals("rol", StringComparison.OrdinalIgnoreCase)
-                    || claim.Type.Equals("esadmin", StringComparison.OrdinalIgnoreCase)
-                    || claim.Type.Equals("isadmin", StringComparison.OrdinalIgnoreCase))
-                && TechnicalPermissions.Contains(claim.Value));
+                claim.Type.Equals(DocuArchiClaimTypes.permisos, StringComparison.OrdinalIgnoreCase)
+                && requiredPermissions.Contains(PermissionClaimNormalizer.Normalize(claim.Value)));
         }
 
         private string ResolveRequestId()
