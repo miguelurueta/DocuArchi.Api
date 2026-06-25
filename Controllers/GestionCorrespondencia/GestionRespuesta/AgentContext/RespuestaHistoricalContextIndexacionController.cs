@@ -1,6 +1,7 @@
 using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Indexacion;
 using MiApp.DTOs.DTOs.Utilidades;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Indexacion;
 using MiApp.Services.Service.Seguridad.Autorizacion.Claims;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
@@ -34,15 +35,18 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
 
         private readonly IClaimValidationService _claimValidationService;
         private readonly IRespuestaHistoricalContextIndexacionAdminService _service;
+        private readonly IRespuestaHistoricalDocumentExtractionAdminService _documentExtractionService;
         private readonly ILogger<RespuestaHistoricalContextIndexacionController> _logger;
 
         public RespuestaHistoricalContextIndexacionController(
             IClaimValidationService claimValidationService,
             IRespuestaHistoricalContextIndexacionAdminService service,
+            IRespuestaHistoricalDocumentExtractionAdminService documentExtractionService,
             ILogger<RespuestaHistoricalContextIndexacionController> logger)
         {
             _claimValidationService = claimValidationService;
             _service = service;
+            _documentExtractionService = documentExtractionService;
             _logger = logger;
         }
 
@@ -120,7 +124,8 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
         [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalIndexacionStatusResponseDto>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalIndexacionStatusResponseDto>), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalIndexacionStatusResponseDto>), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<AppResponses<RespuestaHistoricalIndexacionStatusResponseDto>>> Estado()
+        public async Task<ActionResult<AppResponses<RespuestaHistoricalIndexacionStatusResponseDto>>> Estado(
+            [FromQuery] RespuestaHistoricalIndexacionStatusRequestDto? request = null)
         {
             var context = ValidateContext<RespuestaHistoricalIndexacionStatusResponseDto>(StatusPermissions, "estado");
             if (!context.Response.success)
@@ -128,13 +133,46 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
                 return MapFailure(context.Response);
             }
 
-            var result = await _service.GetStatusAsync(context.Context);
+            var result = await _service.GetStatusAsync(context.Context, request ?? new RespuestaHistoricalIndexacionStatusRequestDto());
             _logger.LogInformation(
                 "RespuestaHistoricalContextIndexacion estado requestId={RequestId} usuarioId={UsuarioId} alias={Alias} success={Success}",
                 context.Context.RequestId,
                 context.Context.UsuarioId,
                 context.Context.DefaultDbAlias,
                 result.success);
+
+            return result.success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Ejecuta extraccion documental real del contexto historico.
+        /// </summary>
+        [HttpPost("extraer-documentos")]
+        [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalDocumentExtractionRunResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalDocumentExtractionRunResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalDocumentExtractionRunResponseDto>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(AppResponses<RespuestaHistoricalDocumentExtractionRunResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<RespuestaHistoricalDocumentExtractionRunResponseDto>>> ExtraerDocumentos(
+            [FromBody] RespuestaHistoricalDocumentExtractionRunRequestDto request)
+        {
+            var context = ValidateContext<RespuestaHistoricalDocumentExtractionRunResponseDto>(OperationPermissions, "operar");
+            if (!context.Response.success)
+            {
+                return MapFailure(context.Response);
+            }
+
+            var result = await _documentExtractionService.RunAsync(request, context.Context);
+            _logger.LogInformation(
+                "RespuestaHistoricalContextIndexacion extraer-documentos requestId={RequestId} operationId={OperationId} usuarioId={UsuarioId} alias={Alias} success={Success} status={Status} processed={Processed} ready={Ready} failed={Failed}",
+                context.Context.RequestId,
+                result.data?.OperationId,
+                context.Context.UsuarioId,
+                context.Context.DefaultDbAlias,
+                result.success,
+                result.meta?.Status,
+                result.data?.Processed,
+                result.data?.Ready,
+                result.data?.Failed);
 
             return result.success ? Ok(result) : BadRequest(result);
         }
