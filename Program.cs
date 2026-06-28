@@ -94,6 +94,7 @@ builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
     Path.Combine(builder.Environment.ContentRootPath, "logs")));
 
 builder.Services.AddMemoryCache();
+builder.Services.AddGestorDocumental(builder.Configuration);
 builder.Services.AddStorageEngine(builder.Configuration);
 builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
 
