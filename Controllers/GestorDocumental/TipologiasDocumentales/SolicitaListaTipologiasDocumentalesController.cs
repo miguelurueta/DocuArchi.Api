@@ -63,11 +63,21 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.TipologiasDocumentales
                 usuarioId = parsedUsuarioId;
             }
 
+            string? workflowDbAlias = null;
+            var workflowAliasValidation = _claimValidationService.ValidateClaim<string>("defaulaliaswf");
+            if (workflowAliasValidation is not null
+                && workflowAliasValidation.Success
+                && !string.IsNullOrWhiteSpace(workflowAliasValidation.ClaimValue))
+            {
+                workflowDbAlias = workflowAliasValidation.ClaimValue.Trim();
+            }
+
             var result = await _service.SolicitaListaTipologiasDocumentalesAsync(
                 safeRequest,
                 aliasValidation.ClaimValue.Trim(),
                 requestId,
-                usuarioId);
+                usuarioId,
+                workflowDbAlias);
 
             if (!result.success)
             {

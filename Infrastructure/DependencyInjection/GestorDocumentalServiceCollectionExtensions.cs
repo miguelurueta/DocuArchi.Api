@@ -20,6 +20,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
         {
             services.AddScoped<IServiceSolicitaListaTipologiasDocumentales, ServiceSolicitaListaTipologiasDocumentales>();
             services.AddScoped<ISolicitaListaTipologiasDocumentalesRepository, SolicitaListaTipologiasDocumentalesRepository>();
+            services.AddScoped<IContextoTipologiaResolverService, ContextoTipologiaResolverService>();
+            services.AddScoped<IContextoTipologiaResolverRepository, SolicitaListaTipologiasDocumentalesRepository>();
 
             return services;
         }
