@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MiApp.Repository.Repositorio.DocumentProcessing.Ocr.Configuration;
+using MiApp.Services.Service.DocumentProcessing.Ocr.Configuration;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Ocr;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Office;
 
@@ -23,6 +25,10 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IRespuestaHistoricalOfficeTextExtractor, RespuestaHistoricalOfficeTextExtractor>();
             services.AddScoped<IRespuestaHistoricalLegacyDocConverter, RespuestaHistoricalLibreOfficeDocConverter>();
             services.AddScoped<IRespuestaHistoricalOcrEngine, TesseractRespuestaHistoricalOcrEngine>();
+            services.AddScoped<IOcrConfigurationRepository, OcrConfigurationRepository>();
+            services.AddScoped<IOcrJobRepository, OcrJobRepository>();
+            services.AddScoped<IOcrArtifactRepository, OcrArtifactRepository>();
+            services.AddScoped<IOcrConfigurationResolver, OcrConfigurationResolver>();
             services.AddScoped<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Backfill.IRespuestaHistoricalBackfillService, MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Backfill.RespuestaHistoricalBackfillService>();
             services.AddScoped<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Incremental.IRespuestaHistoricalIncrementalService, MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.Incremental.RespuestaHistoricalIncrementalService>();
             services.AddScoped<MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.IRespuestaHistoricalContextReadRepository, MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.RespuestaHistoricalContextReadRepository>();
