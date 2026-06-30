@@ -30,8 +30,10 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IOcrConfigurationRepository, OcrConfigurationRepository>();
             services.AddScoped<IOcrJobRepository, OcrJobRepository>();
             services.AddScoped<IOcrArtifactRepository, OcrArtifactRepository>();
+            services.AddScoped<IOcrTextChunkRepository, OcrTextChunkRepository>();
             services.AddScoped<IOcrConfigurationResolver, OcrConfigurationResolver>();
             services.AddScoped<IOcrArtifactStore, OcrArtifactStore>();
+            services.AddScoped<IOcrTextChunkService, OcrTextChunkService>();
             services.AddScoped<IOcrPdfaValidator, OcrPdfaValidator>();
             services.AddScoped<IOcrRetentionPolicyResolver, OcrRetentionPolicyResolver>();
             services.AddScoped<IOcrPdfDeliveryPolicy, OcrPdfDeliveryPolicy>();
