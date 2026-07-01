@@ -533,12 +533,12 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocuArchi.Api v1 (Legacy)");
-    c.SwaggerEndpoint("/swagger/radicacion/swagger.json", "Radicacion");
-    c.SwaggerEndpoint("/swagger/workflow/swagger.json", "Workflow");
-    c.SwaggerEndpoint("/swagger/gestor-documental/swagger.json", "GestorDocumental");
-    c.SwaggerEndpoint("/swagger/gestion-correspondencia/swagger.json", "GestionCorrespondencia");
-    c.SwaggerEndpoint("/swagger/cross-cutting/swagger.json", "CrossCutting");
+    c.SwaggerEndpoint("v1/swagger.json", "DocuArchi.Api v1 (Legacy)");
+    c.SwaggerEndpoint("radicacion/swagger.json", "Radicacion");
+    c.SwaggerEndpoint("workflow/swagger.json", "Workflow");
+    c.SwaggerEndpoint("gestor-documental/swagger.json", "GestorDocumental");
+    c.SwaggerEndpoint("gestion-correspondencia/swagger.json", "GestionCorrespondencia");
+    c.SwaggerEndpoint("cross-cutting/swagger.json", "CrossCutting");
 });
 
 app.UseHttpsRedirection();
