@@ -1,10 +1,13 @@
 using MiApp.Repository.Repositorio.DocumentProcessing.Core;
 using MiApp.Repository.Repositorio.DocumentProcessing.Ocr.Configuration;
+using MiApp.Repository.Repositorio.DocumentProcessing.Office.Configuration;
 using MiApp.Services.Service.DocumentProcessing.Core;
 using MiApp.Services.Service.DocumentProcessing.Ocr.Artifacts;
+using MiApp.Services.Service.DocumentProcessing.Office.Configuration;
 using MiApp.Services.Service.DocumentProcessing.Ocr.Workers;
 using DocuArchi.Api.Infrastructure.HostedServices;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Ocr;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Office;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection
 {
@@ -18,8 +21,15 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.Configure<DocumentProcessingOcrWorkerOptions>(workerSection);
             services.Configure<RespuestaHistoricalOcrOptions>(
                 configuration.GetSection("RespuestaHistoricalContext:DocumentExtraction:Ocr"));
+            services.Configure<RespuestaHistoricalOfficeExtractionOptions>(
+                configuration.GetSection("RespuestaHistoricalContext:DocumentExtraction:Office"));
 
             services.AddScoped<IDocumentProcessingRepository, DocumentProcessingRepository>();
+            services.AddScoped<IOfficeConfigurationRepository, OfficeConfigurationRepository>();
+            services.AddScoped<IOfficeJobRepository, OfficeJobRepository>();
+            services.AddScoped<IOfficeArtifactRepository, OfficeArtifactRepository>();
+            services.AddScoped<IOfficeTextChunkRepository, OfficeTextChunkRepository>();
+            services.AddScoped<IOfficeConfigurationResolver, OfficeConfigurationResolver>();
             services.AddScoped<IOcrArtifactRepository, OcrArtifactRepository>();
             services.AddScoped<IOcrTextChunkRepository, OcrTextChunkRepository>();
             services.AddScoped<IDocumentProcessingService, DocumentProcessingService>();
