@@ -90,8 +90,16 @@ using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
+var runtimeRootPath = ResolveConfiguredPath(
+    builder.Configuration["RuntimePaths:Root"],
+    GetDefaultRuntimeRootPath());
+var runtimeLogsPath = ResolveConfiguredPath(
+    builder.Configuration["StoragePaths:Logs"] ?? builder.Configuration["RuntimePaths:Logs"],
+    Path.Combine(runtimeRootPath, "logs"));
+EnsureRuntimeDirectory(runtimeLogsPath, "logs runtime");
+
 builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
-    Path.Combine(builder.Environment.ContentRootPath, "logs")));
+    runtimeLogsPath));
 
 builder.Services.AddMemoryCache();
 builder.Services.AddGestorDocumental(builder.Configuration);
@@ -450,11 +458,13 @@ builder.Configuration.GetSection("SessionConfig").Bind(sessionConfig);
 if (sessionConfig.IdleTimeoutMinutes <= 0)
     sessionConfig.IdleTimeoutMinutes = 20;
 
-var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, ".tmp", "dataprotection-keys");
-Directory.CreateDirectory(dataProtectionKeysPath);
+var dataProtectionKeysPath = ResolveConfiguredPath(
+    builder.Configuration["DataProtection:KeysPath"] ?? builder.Configuration["RuntimePaths:DataProtectionKeys"],
+    Path.Combine(runtimeRootPath, "dataprotection-keys"));
+var dataProtectionKeysDirectory = EnsureRuntimeDirectory(dataProtectionKeysPath, "DataProtection keys");
 builder.Services
     .AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+    .PersistKeysToFileSystem(dataProtectionKeysDirectory)
     .SetApplicationName("DocuArchi.Api");
 
 builder.Services.AddSingleton(sessionConfig);
@@ -554,4 +564,39 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
+static string GetDefaultRuntimeRootPath()
+{
+    if (OperatingSystem.IsWindows())
+    {
+        return @"C:\AppData\DocuArchiApi";
+    }
+
+    return Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "DocuArchiApi");
+}
+
+static string ResolveConfiguredPath(string? configuredPath, string fallbackPath)
+{
+    var path = string.IsNullOrWhiteSpace(configuredPath)
+        ? fallbackPath
+        : configuredPath.Trim();
+    return Environment.ExpandEnvironmentVariables(path);
+}
+
+static DirectoryInfo EnsureRuntimeDirectory(string path, string logicalName)
+{
+    try
+    {
+        return Directory.CreateDirectory(path);
+    }
+    catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+    {
+        throw new InvalidOperationException(
+            $"No se pudo crear o acceder la carpeta de {logicalName}: '{path}'. " +
+            "Configure permisos Modify al identity real del App Pool o ajuste la ruta por configuracion.",
+            ex);
+    }
+}
 
