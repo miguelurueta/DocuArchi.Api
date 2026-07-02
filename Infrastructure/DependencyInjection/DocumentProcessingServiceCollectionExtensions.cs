@@ -40,6 +40,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IOfficeTextQualityEvaluator, OfficeTextQualityEvaluator>();
             services.AddScoped<IOfficeArtifactStore, OfficeArtifactStore>();
             services.AddScoped<IOfficeTextChunkService, OfficeTextChunkService>();
+            services.AddScoped<IOfficeDocumentConverter, LibreOfficeDocumentConverter>();
+            services.AddScoped<IOfficePdfaValidator, ExternalProcessOfficePdfaValidator>();
             services.AddScoped<IOfficeDocumentConversionService, OfficeDocumentConversionService>();
             services.AddScoped<IOfficeRetentionPolicyResolver, OfficeRetentionPolicyResolver>();
             services.AddScoped<IOfficeExtractionService, OfficeExtractionService>();
