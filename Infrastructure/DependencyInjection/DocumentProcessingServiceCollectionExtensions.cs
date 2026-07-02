@@ -9,6 +9,7 @@ using MiApp.Services.Service.DocumentProcessing.Office.Configuration;
 using MiApp.Services.Service.DocumentProcessing.Office.Extraction;
 using MiApp.Services.Service.DocumentProcessing.Office.Quality;
 using MiApp.Services.Service.DocumentProcessing.Ocr.Workers;
+using MiApp.Services.Service.DocumentProcessing.Office.Workers;
 using DocuArchi.Api.Infrastructure.HostedServices;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Ocr;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Office;
@@ -23,6 +24,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
         {
             var workerSection = configuration.GetSection("DocumentProcessing:OcrWorker");
             services.Configure<DocumentProcessingOcrWorkerOptions>(workerSection);
+            services.Configure<DocumentProcessingOfficeWorkerOptions>(
+                configuration.GetSection("DocumentProcessing:OfficeWorker"));
             services.Configure<RespuestaHistoricalOcrOptions>(
                 configuration.GetSection("RespuestaHistoricalContext:DocumentExtraction:Ocr"));
             services.Configure<RespuestaHistoricalOfficeExtractionOptions>(
@@ -54,10 +57,18 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IDocumentProcessingStoredDocumentResolver, NotConfiguredStoredDocumentResolver>();
             services.AddScoped<IDocumentProcessingOcrTextReadService, DocumentProcessingOcrTextReadService>();
             services.AddScoped<IOcrDocumentProcessorAdapter, OcrDocumentProcessorAdapter>();
+            services.AddScoped<IOfficeDocumentProcessorAdapter, OfficeDocumentProcessorAdapter>();
             services.AddScoped<IOcrArtifactReflectionService, OcrArtifactReflectionService>();
+            services.AddScoped<IOfficeArtifactReflectionService, OfficeArtifactReflectionService>();
             services.AddScoped<IDocumentProcessingOcrWorkerCoordinator, DocumentProcessingOcrWorkerCoordinator>();
+            services.AddScoped<IDocumentProcessingOfficeWorkerCoordinator, DocumentProcessingOfficeWorkerCoordinator>();
             services.AddScoped<IOcrJobProcessor, DocumentProcessingOcrJobProcessor>();
+            services.AddScoped<IOfficeJobQueueService, OfficeJobQueueService>();
+            services.AddScoped<IOfficeJobWorker, OfficeJobWorker>();
+            services.AddScoped<IOfficeJobProcessor, OfficeJobProcessor>();
+            services.AddScoped<IOfficeOperationalReportService, OfficeOperationalReportService>();
             services.AddHostedService<OcrWorkerHostedService>();
+            services.AddHostedService<OfficeWorkerHostedService>();
 
             return services;
         }
