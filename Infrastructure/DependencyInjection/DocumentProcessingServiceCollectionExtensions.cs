@@ -1,6 +1,8 @@
 using MiApp.Repository.Repositorio.DocumentProcessing.Core;
 using MiApp.Repository.Repositorio.DocumentProcessing.Ocr.Configuration;
 using MiApp.Repository.Repositorio.DocumentProcessing.Office.Configuration;
+using MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.StorageRoute;
+using MiApp.Repository.Repositorio.GestorDocumental.Documentos.ReemplazoPdf;
 using MiApp.Services.Service.DocumentProcessing.Core;
 using MiApp.Services.Service.DocumentProcessing.Ocr.Artifacts;
 using MiApp.Services.Service.DocumentProcessing.Office.Artifacts;
@@ -13,6 +15,7 @@ using MiApp.Services.Service.DocumentProcessing.Office.Workers;
 using DocuArchi.Api.Infrastructure.HostedServices;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Ocr;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Office;
+using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Physical;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection
 {
@@ -54,7 +57,11 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IDocumentProcessingSourceResolver, TemporaryUploadDocumentProcessingSourceResolver>();
             services.AddScoped<IDocumentProcessingSourceResolver, StoredDocumentProcessingSourceResolver>();
             services.AddScoped<IDocumentProcessingSourceResolver, PhysicalPathDocumentProcessingSourceResolver>();
-            services.AddScoped<IDocumentProcessingStoredDocumentResolver, NotConfiguredStoredDocumentResolver>();
+            services.AddScoped<IReemplazoPdfDocumentLocationRepository, ReemplazoPdfDocumentLocationRepository>();
+            services.AddScoped<IStorageRouteRepository, StorageRouteRepository>();
+            services.AddScoped<IStorageFolderLegacyPolicy, StorageFolderLegacyPolicy>();
+            services.AddScoped<IStoragePathResolver, StoragePathResolver>();
+            services.AddScoped<IDocumentProcessingStoredDocumentResolver, StoredDocumentDocumentProcessingResolver>();
             services.AddScoped<IDocumentProcessingOcrTextReadService, DocumentProcessingOcrTextReadService>();
             services.AddScoped<IOcrDocumentProcessorAdapter, OcrDocumentProcessorAdapter>();
             services.AddScoped<IOfficeDocumentProcessorAdapter, OfficeDocumentProcessorAdapter>();
