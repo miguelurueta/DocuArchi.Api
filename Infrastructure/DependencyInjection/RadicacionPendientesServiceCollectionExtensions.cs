@@ -16,6 +16,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
             services.AddScoped<IRadicacionPendienteEstadoActivoRepository, RadicacionPendienteEstadoActivoRepository>();
             services.AddScoped<IRadicacionPendienteEstadoActivoService, RadicacionPendienteEstadoActivoService>();
+            services.AddScoped<IRadicacionPendientesContadorRepository, RadicacionPendientesContadorRepository>();
+            services.AddScoped<IRadicacionPendientesContadorService, RadicacionPendientesContadorService>();
 
             return services;
         }
