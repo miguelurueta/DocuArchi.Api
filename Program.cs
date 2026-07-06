@@ -106,6 +106,7 @@ builder.Services.AddGestorDocumental(builder.Configuration);
 builder.Services.AddStorageEngine(builder.Configuration);
 builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
 builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
+builder.Services.AddRadicacionPendientes(builder.Configuration);
 builder.Services.AddDocumentProcessing(builder.Configuration);
 
 
@@ -300,7 +301,6 @@ builder.Services.AddScoped<IFlujosRelacionadosTramiteRepository, FlujosRelaciona
 builder.Services.AddScoped<IRaRestriRelacionTramiteR, RaRestriRelacionTramiteR>();
 builder.Services.AddScoped<ITotalDiasVencimientoTramiteRepository, TotalDiasVencimientoTramiteRepository>();
 builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriadosTramiteRepository>();
-builder.Services.AddScoped<IListaRadicadosPendientesRepository, ListaRadicadosPendientesRepository>();
 builder.Services.AddScoped<IRegistroPlantillaBuilder, RegistroPlantillaBuilder>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteRepository, RegistrarRadicacionEntranteRepository>();
 builder.Services.AddScoped<IValidaDimensionCamposRepository, ValidaDimensionCamposRepository>();
@@ -375,7 +375,6 @@ builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlan
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoService, SolicitaAutoCompleteTokenRadicadoService>();
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoService, SolicitaAutoCompleteTokenExpedienteRadicadoService>();
 builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
-builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
 builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicadoService>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicacionEntranteService>();
 builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
