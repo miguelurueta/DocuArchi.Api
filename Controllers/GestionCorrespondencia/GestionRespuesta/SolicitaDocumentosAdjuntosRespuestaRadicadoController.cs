@@ -37,36 +37,53 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta
                 return BadRequest(validation.Response);
             }
 
+            var usuarioValidation = _claimValidationService.ValidateClaim<string>("usuarioid");
+            if (!usuarioValidation.Success || string.IsNullOrWhiteSpace(usuarioValidation.ClaimValue))
+            {
+                return BadRequest(usuarioValidation.Response);
+            }
+
+            if (!int.TryParse(usuarioValidation.ClaimValue, out var usuarioId) || usuarioId <= 0)
+            {
+                return BadRequest(Validation("usuarioid", "Claim invalido: usuarioid"));
+            }
+
             if (idRespuestaRadicado <= 0)
             {
-                return BadRequest(new AppResponses<List<DocumentoAdjuntoRespuestaRadicadoDto>>
-                {
-                    success = false,
-                    message = "IdRespuestaRadicado requerido",
-                    data = [],
-                    errors =
-                    [
-                        new AppError
-                        {
-                            Type = "Validation",
-                            Field = "idRespuestaRadicado",
-                            Message = "IdRespuestaRadicado requerido"
-                        }
-                    ]
-                });
+                return BadRequest(Validation("idRespuestaRadicado", "IdRespuestaRadicado requerido"));
             }
 
             _logger.LogInformation(
-                "SolicitaDocumentosAdjuntosRespuestaRadicado: idRespuestaRadicado={IdRespuestaRadicado} alias={Alias}",
+                "SolicitaDocumentosAdjuntosRespuestaRadicado: idRespuestaRadicado={IdRespuestaRadicado} usuarioId={UsuarioId} alias={Alias}",
                 idRespuestaRadicado,
+                usuarioId,
                 validation.ClaimValue);
 
-            var result = await _service.SolicitaDocumentosAdjuntosRespuestaRadicadoAsync(idRespuestaRadicado, validation.ClaimValue.Trim());
+            var result = await _service.SolicitaDocumentosAdjuntosRespuestaRadicadoAsync(idRespuestaRadicado, usuarioId, validation.ClaimValue.Trim());
             if (!result.success)
             {
                 return BadRequest(result);
             }
             return Ok(result);
+        }
+
+        private static AppResponses<List<DocumentoAdjuntoRespuestaRadicadoDto>> Validation(string field, string message)
+        {
+            return new AppResponses<List<DocumentoAdjuntoRespuestaRadicadoDto>>
+            {
+                success = false,
+                message = message,
+                data = [],
+                errors =
+                [
+                    new AppError
+                    {
+                        Type = "Validation",
+                        Field = field,
+                        Message = message
+                    }
+                ]
+            };
         }
     }
 }

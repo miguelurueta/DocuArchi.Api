@@ -105,6 +105,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddGestorDocumental(builder.Configuration);
 builder.Services.AddStorageEngine(builder.Configuration);
 builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
+builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
 builder.Services.AddDocumentProcessing(builder.Configuration);
 
 
@@ -318,7 +319,6 @@ builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowRepository, Solicita
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
 builder.Services.AddScoped<ISolicitaListaTiposRespuestaRepository, SolicitaListaTiposRespuestaRepository>();
-builder.Services.AddScoped<ISolicitaDocumentosAdjuntosRespuestaRadicadoRepository, SolicitaDocumentosAdjuntosRespuestaRadicadoRepository>();
 builder.Services.AddScoped<ISolicitaCorreoElectronicoRemitenteRepository, SolicitaCorreoElectronicoRemitenteRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
 builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
@@ -403,7 +403,6 @@ builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowService, SolicitaGab
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaListaTiposRespuesta, ServiceSolicitaListaTiposRespuesta>();
-builder.Services.AddScoped<IServiceSolicitaDocumentosAdjuntosRespuestaRadicado, ServiceSolicitaDocumentosAdjuntosRespuestaRadicado>();
 builder.Services.AddScoped<IServiceSolicitaCorreoElectronicoRemitente, ServiceSolicitaCorreoElectronicoRemitente>();
 builder.Services.AddScoped<IServiceSolicitaUsuarioPrincipalRespuesta, ServiceSolicitaUsuarioPrincipalRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaListaFirmasPermitidasSolicitudAprobacion, ServiceSolicitaListaFirmasPermitidasSolicitudAprobacion>();
