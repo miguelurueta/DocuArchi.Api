@@ -17,17 +17,20 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         private readonly IRadicacionPendienteEstadoActivoService _estadoActivoService;
         private readonly IRadicacionPendientesContadorService _contadorService;
         private readonly IEnviarRadicadoPendienteService _enviarPendienteService;
+        private readonly ITomarRadicadoPendienteService _tomarPendienteService;
 
         public RadicacionPendientesController(
             IClaimValidationService claimValidationService,
             IRadicacionPendienteEstadoActivoService estadoActivoService,
             IRadicacionPendientesContadorService contadorService,
-            IEnviarRadicadoPendienteService enviarPendienteService)
+            IEnviarRadicadoPendienteService enviarPendienteService,
+            ITomarRadicadoPendienteService tomarPendienteService)
         {
             _claimValidationService = claimValidationService;
             _estadoActivoService = estadoActivoService;
             _contadorService = contadorService;
             _enviarPendienteService = enviarPendienteService;
+            _tomarPendienteService = tomarPendienteService;
         }
 
         /// <summary>
@@ -210,6 +213,76 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
             }
         }
 
+        /// <summary>
+        /// Toma un radicado pendiente para gestion documental mediante transicion estricta estado 1 a estado 0.
+        /// </summary>
+        /// <param name="idEstadoRadicado">Identificador del registro de estado de radicacion pendiente.</param>
+        /// <param name="request">Tarea workflow opcional cuando la fila del listado ya la tiene disponible.</param>
+        /// <returns>Contrato AppResponses con contexto documental compatible con estado-activo.</returns>
+        [HttpPost("pendientes/{idEstadoRadicado:long}/tomar")]
+        [ProducesResponseType(typeof(AppResponses<TomarRadicadoPendienteResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<TomarRadicadoPendienteResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<TomarRadicadoPendienteResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<TomarRadicadoPendienteResponseDto>>> TomarPendiente(
+            long idEstadoRadicado,
+            [FromBody] TomarRadicadoPendienteRequestDto? request)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            try
+            {
+                var validationAlias = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validationAlias.Success || string.IsNullOrWhiteSpace(validationAlias.ClaimValue))
+                {
+                    return BadRequest(validationAlias.Response);
+                }
+
+                var validationUsuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+                if (!validationUsuario.Success || string.IsNullOrWhiteSpace(validationUsuario.ClaimValue))
+                {
+                    return BadRequest(validationUsuario.Response);
+                }
+
+                if (!int.TryParse(validationUsuario.ClaimValue, out var idUsuarioGestion))
+                {
+                    return BadRequest(BuildTomarPendienteError(
+                        "RADICACION_TOMAR_PENDIENTE_CLAIM_INVALID",
+                        "Claim usuarioid invalido",
+                        "No fue posible identificar el usuario autenticado.",
+                        requestId,
+                        "usuarioid"));
+                }
+
+                var validationAliasWorkflow = _claimValidationService.ValidateClaim<string>("defaulaliaswf");
+                var defaultAliasWorkflow = validationAliasWorkflow.Success
+                    ? validationAliasWorkflow.ClaimValue
+                    : null;
+
+                var result = await _tomarPendienteService.TomaPendiente(
+                    idEstadoRadicado,
+                    idUsuarioGestion,
+                    validationAlias.ClaimValue,
+                    defaultAliasWorkflow,
+                    request,
+                    requestId);
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    BuildTomarPendienteError(
+                        "RADICACION_TOMAR_PENDIENTE_UNEXPECTED",
+                        "Error inesperado al tomar radicado pendiente",
+                        "No fue posible tomar el radicado pendiente.",
+                        requestId));
+            }
+        }
+
         private static AppResponses<RadicacionPendienteEstadoActivoDto> BuildError(
             string code,
             string message,
@@ -282,6 +355,38 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
             string? field = null)
         {
             return new AppResponses<EnviarRadicadoPendienteResponseDto>
+            {
+                success = false,
+                message = $"{message}. Code={code}; requestId={requestId}",
+                data = null!,
+                errors =
+                [
+                    new AppError
+                    {
+                        Type = "Validation",
+                        Code = code,
+                        Message = message,
+                        UserMessage = userMessage,
+                        Field = field
+                    }
+                ],
+                meta = new AppMeta
+                {
+                    Status = "ERROR",
+                    RequestId = requestId,
+                    ResponseVersion = "1.0"
+                }
+            };
+        }
+
+        private static AppResponses<TomarRadicadoPendienteResponseDto> BuildTomarPendienteError(
+            string code,
+            string message,
+            string userMessage,
+            string requestId,
+            string? field = null)
+        {
+            return new AppResponses<TomarRadicadoPendienteResponseDto>
             {
                 success = false,
                 message = $"{message}. Code={code}; requestId={requestId}",
