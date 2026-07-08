@@ -6,6 +6,7 @@ using MiApp.Services.Service.DocumentProcessing.Ocr.Configuration;
 using MiApp.Services.Service.DocumentProcessing.Ocr.Workers;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.DocumentProcessing.Adapters;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.DocumentProcessing.Mappers;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.DocumentProcessing.Persistence;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.DocumentProcessing.Requests;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Ocr;
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Office;
@@ -32,6 +33,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IRespuestaHistoricalOcrEngine, TesseractRespuestaHistoricalOcrEngine>();
             services.AddScoped<RespuestaHistoricalDocumentProcessingRequestFactory>();
             services.AddScoped<RespuestaHistoricalDocumentProcessingResultMapper>();
+            services.AddScoped<RespuestaHistoricalDocumentFragmentQualityGuard>();
+            services.AddScoped<IRespuestaHistoricalDocumentProcessingPersistenceService, RespuestaHistoricalDocumentProcessingPersistenceService>();
             services.AddScoped<IRespuestaHistoricalDocumentProcessingAdapter, RespuestaHistoricalDocumentProcessingAdapter>();
             services.AddScoped<IOcrConfigurationRepository, OcrConfigurationRepository>();
             services.AddScoped<IOcrJobRepository, OcrJobRepository>();
