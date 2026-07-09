@@ -23,6 +23,9 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<ITomarRadicadoPendienteRepository, TomarRadicadoPendienteRepository>();
             services.AddScoped<ITomarRadicadoPendienteWorkflowProvisioner, TomarRadicadoPendienteWorkflowProvisioner>();
             services.AddScoped<ITomarRadicadoPendienteService, TomarRadicadoPendienteService>();
+            services.AddScoped<IRotuloRadicacionRepository, RotuloRadicacionRepository>();
+            services.AddScoped<IRotuloRadicacionPdfGenerator, RotuloRadicacionPdfGenerator>();
+            services.AddScoped<IRotuloRadicacionService, RotuloRadicacionService>();
 
             return services;
         }
