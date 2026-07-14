@@ -27,6 +27,7 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StoragePathOptions>(configuration.GetSection("StoragePaths"));
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadOptions>(configuration.GetSection("StorageUpload"));
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StorageMetadataOptions>(configuration.GetSection("StorageMetadata"));
+            services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StorageFolderPolicyOptions>(configuration.GetSection("StorageEngine:FolderPolicy"));
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexProviderCatalogOptions>(configuration.GetSection("StorageCabinetIndexProviders"));
 
             return services;
