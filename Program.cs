@@ -106,6 +106,7 @@ builder.Services.AddGestorDocumental(builder.Configuration);
 builder.Services.AddStorageEngine(builder.Configuration);
 builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
 builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
+builder.Services.AddRadicacionCore(builder.Configuration);
 builder.Services.AddRadicacionPendientes(builder.Configuration);
 builder.Services.AddDocumentProcessing(builder.Configuration);
 
