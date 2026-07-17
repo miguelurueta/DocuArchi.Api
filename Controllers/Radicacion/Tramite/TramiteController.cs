@@ -111,7 +111,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         }
 
         [HttpGet("tramites/solicitaFechaLimiteRespuesta")]
-        public async Task<ActionResult<AppResponses<FechaLimiteRespuestaDto>>> SolicitaFechaLimiteRespuesta(int idTipoTramite)
+        public async Task<ActionResult<AppResponses<FechaLimiteRespuestaDto>>> SolicitaFechaLimiteRespuesta(
+            int idTipoTramite,
+            [FromQuery] DateTime? fechaBase = null)
         {
             var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
             if (!validation.Success || validation.ClaimValue == null)
@@ -119,7 +121,10 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                 return BadRequest(validation.Response);
             }
 
-            var result = await _fechaLimiteRespuestaService.SolicitaFechaLimiteRespuesta(idTipoTramite, validation.ClaimValue);
+            var result = await _fechaLimiteRespuestaService.SolicitaFechaLimiteRespuesta(
+                idTipoTramite,
+                validation.ClaimValue,
+                fechaBase);
 
             if (!result.success)
             {
