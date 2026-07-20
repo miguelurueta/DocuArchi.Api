@@ -2,6 +2,8 @@
 using MiApp.DTOs.DTOs.General;
 using MiApp.DTOs.DTOs.GestorDocumental.usuario;
 using MiApp.DTOs.DTOs.Home.Menu;
+using MiApp.DTOs.DTOs.Radicacion.PlatillaRadicado;
+using MiApp.DTOs.DTOs.Radicacion.PlantillaValidacion;
 using MiApp.DTOs.DTOs.Radicacion.Tramite;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Repository.ErrorController;
@@ -34,7 +36,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         private readonly ICamposDinamicosPlantillaService _camposDinamicosPlantillaService;
         private readonly ISolicitaAutoCompleteTokenRadicadoService _solicitaAutoCompleteTokenRadicadoService;
         private readonly ISolicitaAutoCompleteTokenExpedienteRadicadoService _solicitaAutoCompleteTokenExpedienteRadicadoService;
-        public PlantillaRadicacionController(ICurrentUserService iCurrentUserService, IPlantillaRadicacionL iPlantillaRadicacionL, IClaimValidationService claimValidationService, IPlantillaValidacionR iPlantillaValidacionR, IPlantillaValidacionL plantillaValidacionL, IUsuarioCaracterizacionService usuarioCaracterizacionService, IAutoCompleteDestinatarioRestriccionService autoCompleteDestinatarioRestriccionService, ICamposDinamicosPlantillaService camposDinamicosPlantillaService, ISolicitaAutoCompleteTokenRadicadoService solicitaAutoCompleteTokenRadicadoService, ISolicitaAutoCompleteTokenExpedienteRadicadoService solicitaAutoCompleteTokenExpedienteRadicadoService)
+        private readonly IAsignacionCamposValidacionDinamicaService _asignacionCamposValidacionDinamicaService;
+        private readonly IPlantillaRadicacionDefaultService _plantillaRadicacionDefaultService;
+        public PlantillaRadicacionController(ICurrentUserService iCurrentUserService, IPlantillaRadicacionL iPlantillaRadicacionL, IClaimValidationService claimValidationService, IPlantillaValidacionR iPlantillaValidacionR, IPlantillaValidacionL plantillaValidacionL, IUsuarioCaracterizacionService usuarioCaracterizacionService, IAutoCompleteDestinatarioRestriccionService autoCompleteDestinatarioRestriccionService, ICamposDinamicosPlantillaService camposDinamicosPlantillaService, ISolicitaAutoCompleteTokenRadicadoService solicitaAutoCompleteTokenRadicadoService, ISolicitaAutoCompleteTokenExpedienteRadicadoService solicitaAutoCompleteTokenExpedienteRadicadoService, IAsignacionCamposValidacionDinamicaService asignacionCamposValidacionDinamicaService, IPlantillaRadicacionDefaultService plantillaRadicacionDefaultService)
         {
             _ICurrentUserService = iCurrentUserService;
             _IPlantillaRadicacionL = iPlantillaRadicacionL;
@@ -46,6 +50,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             _camposDinamicosPlantillaService = camposDinamicosPlantillaService;
             _solicitaAutoCompleteTokenRadicadoService = solicitaAutoCompleteTokenRadicadoService;
             _solicitaAutoCompleteTokenExpedienteRadicadoService = solicitaAutoCompleteTokenExpedienteRadicadoService;
+            _asignacionCamposValidacionDinamicaService = asignacionCamposValidacionDinamicaService;
+            _plantillaRadicacionDefaultService = plantillaRadicacionDefaultService;
         }
 
         [HttpGet("listaPlantilla")]
@@ -80,6 +86,130 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                                 Type = "System",
                                 Field = "",
                                 Message = ex.Message
+                            }
+                        }
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Consulta la plantilla de radicacion configurada como default para el alias del usuario autenticado.
+        /// </summary>
+        /// <returns>Id, nombre y tipo de la plantilla default de radicacion.</returns>
+        [HttpGet("plantilla-default")]
+        [ProducesResponseType(typeof(AppResponses<PlantillaRadicacionDefaultDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<PlantillaRadicacionDefaultDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<PlantillaRadicacionDefaultDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<PlantillaRadicacionDefaultDto>>> SolicitaPlantillaDefaultRadicacion()
+        {
+            try
+            {
+                var requestId = ResolveRequestId();
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || validation.ClaimValue == null)
+                {
+                    return BadRequest(validation.Response);
+                }
+
+                var result = await _plantillaRadicacionDefaultService.SolicitarPlantillaDefaultAsync(
+                    validation.ClaimValue,
+                    requestId);
+
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch
+            {
+                var requestId = ResolveRequestId();
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AppResponses<PlantillaRadicacionDefaultDto>
+                    {
+                        success = false,
+                        message = "No fue posible consultar la plantilla de radicacion por defecto.",
+                        data = null,
+                        meta = new MiApp.DTOs.DTOs.Utilidades.AppMeta
+                        {
+                            Status = PlantillaRadicacionDefaultService.UnexpectedCode,
+                            RequestId = requestId
+                        },
+                        errors = new object[]
+                        {
+                            new AppError
+                            {
+                                Type = "Technical",
+                                Field = PlantillaRadicacionDefaultService.UnexpectedCode,
+                                Code = PlantillaRadicacionDefaultService.UnexpectedCode,
+                                Message = "No fue posible consultar la plantilla de radicacion por defecto.",
+                                UserMessage = "No fue posible consultar la plantilla de radicacion por defecto."
+                            }
+                        }
+                    });
+            }
+        }
+
+        private string ResolveRequestId()
+        {
+            return ControllerContext.HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+        }
+
+        /// <summary>
+        /// Asigna campos destino de radicacion a partir de un registro seleccionado en una plantilla de validacion dinamica.
+        /// </summary>
+        /// <param name="request">Datos del script, campo origen, plantilla de radicacion y registro de validacion seleccionado.</param>
+        /// <returns>Campos destino normalizados, marcados como solo lectura y con origen VALIDACION_DINAMICA.</returns>
+        [HttpPost("validacion-dinamica/asignar-campos")]
+        [ProducesResponseType(typeof(AppResponses<AsignacionCamposValidacionDinamicaResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<AsignacionCamposValidacionDinamicaResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<AsignacionCamposValidacionDinamicaResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<AsignacionCamposValidacionDinamicaResponseDto>>> AsignarCamposValidacionDinamica(
+            [FromBody] AsignacionCamposValidacionDinamicaRequestDto request)
+        {
+            try
+            {
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || validation.ClaimValue == null)
+                {
+                    return BadRequest(validation.Response);
+                }
+
+                var result = await _asignacionCamposValidacionDinamicaService.AsignarCamposAsync(
+                    request,
+                    validation.ClaimValue,
+                    HttpContext.TraceIdentifier);
+
+                if (!result.success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AppResponses<AsignacionCamposValidacionDinamicaResponseDto>
+                    {
+                        success = false,
+                        message = "VALIDACION_DINAMICA_UNEXPECTED: Error inesperado al asignar campos de validacion dinamica.",
+                        data = new AsignacionCamposValidacionDinamicaResponseDto(),
+                        meta = new MiApp.DTOs.DTOs.Utilidades.AppMeta
+                        {
+                            Status = "VALIDACION_DINAMICA_UNEXPECTED",
+                            RequestId = HttpContext.TraceIdentifier
+                        },
+                        errors = new object[]
+                        {
+                            new AppError
+                            {
+                                Type = "Technical",
+                                Code = "VALIDACION_DINAMICA_UNEXPECTED",
+                                Field = "AsignarCamposValidacionDinamica",
+                                Message = "Error inesperado al asignar campos de validacion dinamica.",
+                                UserMessage = "No fue posible asignar los campos de validacion dinamica."
                             }
                         }
                     });
