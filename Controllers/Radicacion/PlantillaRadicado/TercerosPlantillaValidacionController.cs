@@ -1,4 +1,4 @@
-using MiApp.DTOs.DTOs.Radicacion.PlantillaValidacion;
+﻿using MiApp.DTOs.DTOs.Radicacion.PlantillaValidacion;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion.Errors;
@@ -32,6 +32,11 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             _logger = logger;
         }
 
+        /// <summary>
+        /// Obtiene la estructura dinamica del formulario de tercero/remitente para crear o editar registros.
+        /// </summary>
+        /// <param name="request">IdScript, modo de uso e IdRegistro cuando el modo es editar.</param>
+        /// <returns>Contrato AppResponses con metadata de campos, valores actuales y permisos de UI.</returns>
         [HttpPost("formulario")]
         [ProducesResponseType(typeof(AppResponses<TerceroFormularioResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<TerceroFormularioResponseDto>), StatusCodes.Status400BadRequest)]
@@ -39,22 +44,47 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         public async Task<ActionResult<AppResponses<TerceroFormularioResponseDto>>> ObtenerFormulario(
             [FromBody] TerceroFormularioRequestDto request)
         {
-            var requestId = HttpContext.TraceIdentifier;
-            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
-            if (!validation.Success)
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+            try
             {
-                return BadRequest(validation.Response);
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || string.IsNullOrWhiteSpace(validation.ClaimValue))
+                {
+                    var claimResponse = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroFormularioResponseDto>(
+                        TercerosPlantillaValidacionErrorCatalog.ClaimRequired,
+                        requestId,
+                        "defaulalias",
+                        validation.Response?.message);
+
+                    return BadRequest(claimResponse);
+                }
+
+                var result = await _service.ObtenerFormularioAsync(
+                    request,
+                    validation.ClaimValue,
+                    requestId,
+                    _currentUserService.UsuarioIdInt);
+
+                if (!result.success)
+                {
+                    return StatusCode(ResolveStatus(result), result);
+                }
+
+                return Ok(result);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "terceros_formulario_controller_unexpected requestId={RequestId}", requestId);
 
-            var response = await _service.ObtenerFormularioAsync(
-                request,
-                validation.ClaimValue ?? string.Empty,
-                requestId,
-                _currentUserService.UsuarioIdInt);
+                var response = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroFormularioResponseDto>(
+                    TercerosPlantillaValidacionErrorCatalog.Unexpected,
+                    requestId,
+                    nameof(ObtenerFormulario),
+                    ex.Message);
 
-            return response.success
-                ? Ok(response)
-                : StatusCode(TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(response.meta?.Status), response);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
         }
 
         [HttpPost]
@@ -64,9 +94,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         public async Task<ActionResult<AppResponses<TerceroOperacionResponseDto>>> Crear(
             [FromBody] TerceroGuardarRequestDto request)
         {
-            var requestId = HttpContext.TraceIdentifier;
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
             var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
-            if (!aliasValidation.Success)
+            if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
             {
                 var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
                     TercerosPlantillaValidacionErrorCatalog.CrearClaimRequired,
@@ -90,7 +120,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             {
                 var response = await _service.CrearAsync(
                     request,
-                    aliasValidation.ClaimValue ?? string.Empty,
+                    aliasValidation.ClaimValue,
                     requestId,
                     _currentUserService.UsuarioIdInt);
 
@@ -108,6 +138,11 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                     ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
+        }
+
+        private static int ResolveStatus(AppResponses<TerceroFormularioResponseDto> result)
+        {
+            return TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(result.meta?.Status);
         }
     }
 }

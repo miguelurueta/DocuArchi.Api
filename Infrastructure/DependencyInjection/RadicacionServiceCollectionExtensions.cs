@@ -1,4 +1,6 @@
 using MiApp.Services.Service.Radicacion.Tramite.Configuracion;
+using MiApp.Services.Service.Radicacion.PlantillaRadicado;
+using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection
 {
@@ -14,6 +16,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.Configure<RadicacionCamposFijosOptions>(
                 configuration.GetSection("Radicacion:CamposFijos"));
             services.AddScoped<IRadicacionCampoFijoPolicyService, RadicacionCampoFijoPolicyService>();
+            services.AddScoped<IAsignacionCamposValidacionDinamicaService, AsignacionCamposValidacionDinamicaService>();
+            services.AddScoped<IPlantillaRadicacionDefaultService, PlantillaRadicacionDefaultService>();
 
             return services;
         }
