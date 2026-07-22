@@ -140,6 +140,61 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             }
         }
 
+        [HttpPut("{idRegistro:int}")]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<TerceroOperacionResponseDto>>> Actualizar(
+            [FromRoute] int idRegistro,
+            [FromBody] TerceroActualizarRequestDto request)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
+            {
+                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
+                    TercerosPlantillaValidacionErrorCatalog.EditarClaimRequired,
+                    requestId,
+                    "defaulalias",
+                    aliasValidation.Response?.message);
+                return BadRequest(error);
+            }
+
+            if (!_currentUserService.HasPermission(DocuArchiRAClaims.TerceroEditar))
+            {
+                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
+                    TercerosPlantillaValidacionErrorCatalog.EditarForbidden,
+                    requestId,
+                    "permission",
+                    DocuArchiRAClaims.TerceroEditar);
+                return BadRequest(error);
+            }
+
+            try
+            {
+                var response = await _service.ActualizarAsync(
+                    idRegistro,
+                    request,
+                    aliasValidation.ClaimValue,
+                    requestId,
+                    _currentUserService.UsuarioIdInt);
+
+                return response.success
+                    ? Ok(response)
+                    : StatusCode(TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(response.meta?.Status), response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "terceros_editar_controller_unexpected requestId={RequestId} idRegistro={IdRegistro}", requestId, idRegistro);
+                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
+                    TercerosPlantillaValidacionErrorCatalog.EditarUnexpected,
+                    requestId,
+                    "controller",
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
+        }
+
         private static int ResolveStatus(AppResponses<TerceroFormularioResponseDto> result)
         {
             return TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(result.meta?.Status);
