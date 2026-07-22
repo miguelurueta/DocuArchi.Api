@@ -1,8 +1,8 @@
-using MiApp.DTOs.DTOs.Errors;
-using MiApp.DTOs.DTOs.Radicacion.PlantillaValidacion;
+﻿using MiApp.DTOs.DTOs.Radicacion.PlantillaValidacion;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion.Errors;
+using MiApp.Services.Service.Seguridad.Autorizacion.Claims;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,19 +12,23 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
     [ApiController]
     [Authorize]
     [Route("api/PlantillaRadicado/terceros")]
+    [Produces("application/json")]
     public sealed class TercerosPlantillaValidacionController : ControllerBase
     {
         private readonly IClaimValidationService _claimValidationService;
         private readonly ITercerosPlantillaValidacionService _service;
+        private readonly ICurrentUserService _currentUserService;
         private readonly ILogger<TercerosPlantillaValidacionController> _logger;
 
         public TercerosPlantillaValidacionController(
             IClaimValidationService claimValidationService,
             ITercerosPlantillaValidacionService service,
+            ICurrentUserService currentUserService,
             ILogger<TercerosPlantillaValidacionController> logger)
         {
             _claimValidationService = claimValidationService;
             _service = service;
+            _currentUserService = currentUserService;
             _logger = logger;
         }
 
@@ -50,7 +54,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                     var claimResponse = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroFormularioResponseDto>(
                         TercerosPlantillaValidacionErrorCatalog.ClaimRequired,
                         requestId,
-                        "defaulalias");
+                        "defaulalias",
+                        validation.Response?.message);
 
                     return BadRequest(claimResponse);
                 }
@@ -58,7 +63,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                 var result = await _service.ObtenerFormularioAsync(
                     request,
                     validation.ClaimValue,
-                    requestId);
+                    requestId,
+                    _currentUserService.UsuarioIdInt);
 
                 if (!result.success)
                 {
@@ -81,14 +87,62 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             }
         }
 
+        [HttpPost]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<TerceroOperacionResponseDto>>> Crear(
+            [FromBody] TerceroGuardarRequestDto request)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var aliasValidation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!aliasValidation.Success || string.IsNullOrWhiteSpace(aliasValidation.ClaimValue))
+            {
+                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
+                    TercerosPlantillaValidacionErrorCatalog.CrearClaimRequired,
+                    requestId,
+                    "defaulalias",
+                    aliasValidation.Response?.message);
+                return BadRequest(error);
+            }
+
+            if (!_currentUserService.HasPermission(DocuArchiRAClaims.TerceroAdicionar))
+            {
+                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
+                    TercerosPlantillaValidacionErrorCatalog.CrearForbidden,
+                    requestId,
+                    "permission",
+                    DocuArchiRAClaims.TerceroAdicionar);
+                return BadRequest(error);
+            }
+
+            try
+            {
+                var response = await _service.CrearAsync(
+                    request,
+                    aliasValidation.ClaimValue,
+                    requestId,
+                    _currentUserService.UsuarioIdInt);
+
+                return response.success
+                    ? Ok(response)
+                    : StatusCode(TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(response.meta?.Status), response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "terceros_crear_controller_unexpected requestId={RequestId}", requestId);
+                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
+                    TercerosPlantillaValidacionErrorCatalog.CrearUnexpected,
+                    requestId,
+                    "controller",
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
+        }
+
         private static int ResolveStatus(AppResponses<TerceroFormularioResponseDto> result)
         {
-            var code = result.errors?
-                .OfType<AppError>()
-                .FirstOrDefault()?
-                .Code;
-
-            return TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(code);
+            return TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(result.meta?.Status);
         }
     }
 }
