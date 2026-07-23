@@ -11,6 +11,7 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
         {
             services.AddScoped<ITercerosPlantillaValidacionRepository, TercerosPlantillaValidacionRepository>();
             services.AddScoped<ITercerosPlantillaValidacionService, TercerosPlantillaValidacionService>();
+            services.AddScoped<ITercerosPlantillaValidacionPermissionService, TercerosPlantillaValidacionPermissionService>();
 
             return services;
         }
