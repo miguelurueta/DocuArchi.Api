@@ -2,7 +2,6 @@
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion.Errors;
-using MiApp.Services.Service.Seguridad.Autorizacion.Claims;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,17 +16,20 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
     {
         private readonly IClaimValidationService _claimValidationService;
         private readonly ITercerosPlantillaValidacionService _service;
+        private readonly ITercerosPlantillaValidacionPermissionService _permissionService;
         private readonly ICurrentUserService _currentUserService;
         private readonly ILogger<TercerosPlantillaValidacionController> _logger;
 
         public TercerosPlantillaValidacionController(
             IClaimValidationService claimValidationService,
             ITercerosPlantillaValidacionService service,
+            ITercerosPlantillaValidacionPermissionService permissionService,
             ICurrentUserService currentUserService,
             ILogger<TercerosPlantillaValidacionController> logger)
         {
             _claimValidationService = claimValidationService;
             _service = service;
+            _permissionService = permissionService;
             _currentUserService = currentUserService;
             _logger = logger;
         }
@@ -60,11 +62,18 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                     return BadRequest(claimResponse);
                 }
 
+                var permissionValidation = _permissionService.ValidarFormulario(request, requestId);
+                if (permissionValidation != null)
+                {
+                    return BadRequest(permissionValidation);
+                }
+
                 var result = await _service.ObtenerFormularioAsync(
                     request,
                     validation.ClaimValue,
                     requestId,
-                    _currentUserService.UsuarioIdInt);
+                    _currentUserService.UsuarioIdInt,
+                    _permissionService.ObtenerPermisos());
 
                 if (!result.success)
                 {
@@ -115,6 +124,12 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                     return BadRequest(claimResponse);
                 }
 
+                var permissionValidation = _permissionService.ValidarAutocomplete(requestId);
+                if (permissionValidation != null)
+                {
+                    return BadRequest(permissionValidation);
+                }
+
                 var result = await _service.AutocompleteCampoAsync(
                     request,
                     validation.ClaimValue,
@@ -161,14 +176,10 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                 return BadRequest(error);
             }
 
-            if (!_currentUserService.HasPermission(DocuArchiRAClaims.TerceroAdicionar))
+            var permissionValidation = _permissionService.ValidarCrear(requestId);
+            if (permissionValidation != null)
             {
-                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
-                    TercerosPlantillaValidacionErrorCatalog.CrearForbidden,
-                    requestId,
-                    "permission",
-                    DocuArchiRAClaims.TerceroAdicionar);
-                return BadRequest(error);
+                return BadRequest(permissionValidation);
             }
 
             try
@@ -215,14 +226,10 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                 return BadRequest(error);
             }
 
-            if (!_currentUserService.HasPermission(DocuArchiRAClaims.TerceroEditar))
+            var permissionValidation = _permissionService.ValidarEditar(requestId);
+            if (permissionValidation != null)
             {
-                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
-                    TercerosPlantillaValidacionErrorCatalog.EditarForbidden,
-                    requestId,
-                    "permission",
-                    DocuArchiRAClaims.TerceroEditar);
-                return BadRequest(error);
+                return BadRequest(permissionValidation);
             }
 
             try
@@ -270,14 +277,10 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
                 return BadRequest(error);
             }
 
-            if (!_currentUserService.HasPermission(DocuArchiRAClaims.TerceroEliminar))
+            var permissionValidation = _permissionService.ValidarEliminar(requestId);
+            if (permissionValidation != null)
             {
-                var error = TercerosPlantillaValidacionErrorResponseFactory.Build<TerceroOperacionResponseDto>(
-                    TercerosPlantillaValidacionErrorCatalog.EliminarForbidden,
-                    requestId,
-                    "permission",
-                    DocuArchiRAClaims.TerceroEliminar);
-                return BadRequest(error);
+                return BadRequest(permissionValidation);
             }
 
             try
