@@ -87,6 +87,61 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             }
         }
 
+        /// <summary>
+        /// Obtiene opciones de autocomplete para un campo dinamico de tercero/remitente.
+        /// </summary>
+        /// <param name="request">IdScript, nombre de campo y texto buscado.</param>
+        /// <returns>Contrato AppResponses con opciones idValue/texValue del campo solicitado.</returns>
+        [HttpPost("campos/autocomplete")]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoAutocompleteOptionDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoAutocompleteOptionDto>>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoAutocompleteOptionDto>>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<List<TerceroCampoAutocompleteOptionDto>>>> AutocompleteCampo(
+            [FromBody] TerceroCampoAutocompleteRequestDto request)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+            try
+            {
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || string.IsNullOrWhiteSpace(validation.ClaimValue))
+                {
+                    var claimResponse = TercerosPlantillaValidacionErrorResponseFactory.Build<List<TerceroCampoAutocompleteOptionDto>>(
+                        TercerosPlantillaValidacionErrorCatalog.AutocompleteClaimRequired,
+                        requestId,
+                        "defaulalias",
+                        validation.Response?.message);
+
+                    return BadRequest(claimResponse);
+                }
+
+                var result = await _service.AutocompleteCampoAsync(
+                    request,
+                    validation.ClaimValue,
+                    requestId,
+                    _currentUserService.UsuarioIdInt);
+
+                if (!result.success)
+                {
+                    return StatusCode(TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(result.meta?.Status), result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "terceros_autocomplete_controller_unexpected requestId={RequestId}", requestId);
+
+                var response = TercerosPlantillaValidacionErrorResponseFactory.Build<List<TerceroCampoAutocompleteOptionDto>>(
+                    TercerosPlantillaValidacionErrorCatalog.AutocompleteUnexpected,
+                    requestId,
+                    nameof(AutocompleteCampo),
+                    ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status400BadRequest)]
