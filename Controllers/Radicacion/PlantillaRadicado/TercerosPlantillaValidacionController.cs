@@ -1,4 +1,4 @@
-﻿using MiApp.DTOs.DTOs.Radicacion.PlantillaValidacion;
+using MiApp.DTOs.DTOs.Radicacion.PlantillaValidacion;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion.Errors;
@@ -17,6 +17,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         private readonly IClaimValidationService _claimValidationService;
         private readonly ITercerosPlantillaValidacionService _service;
         private readonly ITercerosPlantillaValidacionPermissionService _permissionService;
+        private readonly ITercerosPlantillaUbicacionService? _ubicacionService;
         private readonly ICurrentUserService _currentUserService;
         private readonly ILogger<TercerosPlantillaValidacionController> _logger;
 
@@ -25,13 +26,15 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             ITercerosPlantillaValidacionService service,
             ITercerosPlantillaValidacionPermissionService permissionService,
             ICurrentUserService currentUserService,
-            ILogger<TercerosPlantillaValidacionController> logger)
+            ILogger<TercerosPlantillaValidacionController> logger,
+            ITercerosPlantillaUbicacionService? ubicacionService = null)
         {
             _claimValidationService = claimValidationService;
             _service = service;
             _permissionService = permissionService;
             _currentUserService = currentUserService;
             _logger = logger;
+            _ubicacionService = ubicacionService;
         }
 
         /// <summary>
@@ -101,6 +104,33 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         /// </summary>
         /// <param name="request">IdScript, nombre de campo y texto buscado.</param>
         /// <returns>Contrato AppResponses con opciones idValue/texValue del campo solicitado.</returns>
+
+        [HttpGet("ubicacion/paises")]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status500InternalServerError)]
+        public Task<ActionResult<AppResponses<List<TerceroCampoOpcionDto>>>> ObtenerPaisesUbicacion([FromQuery] int idScript)
+        {
+            return ObtenerOpcionesUbicacion(idScript, service => service.ObtenerPaisesAsync(idScript, ResolveAlias(), ResolveRequestId(), _currentUserService.UsuarioIdInt));
+        }
+
+        [HttpGet("ubicacion/departamentos")]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status500InternalServerError)]
+        public Task<ActionResult<AppResponses<List<TerceroCampoOpcionDto>>>> ObtenerDepartamentosUbicacion([FromQuery] int idScript, [FromQuery] int idPais)
+        {
+            return ObtenerOpcionesUbicacion(idScript, service => service.ObtenerDepartamentosPorPaisAsync(idScript, idPais, ResolveAlias(), ResolveRequestId(), _currentUserService.UsuarioIdInt));
+        }
+
+        [HttpGet("ubicacion/municipios")]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<List<TerceroCampoOpcionDto>>), StatusCodes.Status500InternalServerError)]
+        public Task<ActionResult<AppResponses<List<TerceroCampoOpcionDto>>>> ObtenerMunicipiosUbicacion([FromQuery] int idScript, [FromQuery] int idDepartamento)
+        {
+            return ObtenerOpcionesUbicacion(idScript, service => service.ObtenerMunicipiosPorDepartamentoAsync(idScript, idDepartamento, ResolveAlias(), ResolveRequestId(), _currentUserService.UsuarioIdInt));
+        }
         [HttpPost("campos/autocomplete")]
         [ProducesResponseType(typeof(AppResponses<List<TerceroCampoAutocompleteOptionDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<List<TerceroCampoAutocompleteOptionDto>>), StatusCodes.Status400BadRequest)]
@@ -308,6 +338,72 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
             }
         }
 
+
+        private string ResolveRequestId()
+        {
+            return HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+        }
+
+        private string ResolveAlias()
+        {
+            var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+            return validation.Success && !string.IsNullOrWhiteSpace(validation.ClaimValue)
+                ? validation.ClaimValue
+                : string.Empty;
+        }
+
+        private async Task<ActionResult<AppResponses<List<TerceroCampoOpcionDto>>>> ObtenerOpcionesUbicacion(
+            int idScript,
+            Func<ITercerosPlantillaUbicacionService, Task<AppResponses<List<TerceroCampoOpcionDto>>>> action)
+        {
+            var requestId = ResolveRequestId();
+
+            try
+            {
+                var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!validation.Success || string.IsNullOrWhiteSpace(validation.ClaimValue))
+                {
+                    var claimResponse = TercerosPlantillaValidacionErrorResponseFactory.Build<List<TerceroCampoOpcionDto>>(
+                        TercerosPlantillaValidacionErrorCatalog.UbicacionClaimRequired,
+                        requestId,
+                        "defaulalias",
+                        validation.Response?.message);
+
+                    return BadRequest(claimResponse);
+                }
+
+                var permissionValidation = _permissionService.ValidarAutocomplete(requestId);
+                if (permissionValidation != null)
+                {
+                    return BadRequest(permissionValidation);
+                }
+
+                if (_ubicacionService == null)
+                {
+                    var missing = TercerosPlantillaValidacionErrorResponseFactory.Build<List<TerceroCampoOpcionDto>>(
+                        TercerosPlantillaValidacionErrorCatalog.UbicacionUnexpected,
+                        requestId,
+                        "ubicacionService",
+                        "Servicio de ubicacion no registrado.");
+                    return StatusCode(StatusCodes.Status500InternalServerError, missing);
+                }
+
+                var result = await action(_ubicacionService);
+                return result.success
+                    ? Ok(result)
+                    : StatusCode(TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(result.meta?.Status), result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "terceros_ubicacion_controller_unexpected requestId={RequestId} idScript={IdScript}", requestId, idScript);
+                var response = TercerosPlantillaValidacionErrorResponseFactory.Build<List<TerceroCampoOpcionDto>>(
+                    TercerosPlantillaValidacionErrorCatalog.UbicacionUnexpected,
+                    requestId,
+                    "controller",
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+        }
         private static int ResolveStatus(AppResponses<TerceroFormularioResponseDto> result)
         {
             return TercerosPlantillaValidacionErrorResponseFactory.ResolveHttpStatus(result.meta?.Status);
