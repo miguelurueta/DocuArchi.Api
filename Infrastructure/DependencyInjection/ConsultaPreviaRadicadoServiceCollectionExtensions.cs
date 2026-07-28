@@ -1,7 +1,9 @@
 using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Estructura;
+using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Query;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Core;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Errors;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Estructura;
+using MiApp.Services.Service.Radicacion.ConsultaPrevia.Query;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection
 {
@@ -15,7 +17,9 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             IConfiguration configuration)
         {
             services.AddScoped<IConsultaPreviaRadicadoEstructuraRepository, ConsultaPreviaRadicadoEstructuraRepository>();
+            services.AddScoped<IConsultaPreviaRadicadoRepository, ConsultaPreviaRadicadoRepository>();
             services.AddScoped<IConsultaPreviaRadicadoEstructuraService, ConsultaPreviaRadicadoEstructuraService>();
+            services.AddScoped<IConsultaPreviaRadicadoQueryService, ConsultaPreviaRadicadoQueryService>();
             services.AddScoped<IConsultaPreviaRadicadoService, ConsultaPreviaRadicadoService>();
             services.AddScoped<ConsultaPreviaRadicadoErrorResponseFactory>();
 

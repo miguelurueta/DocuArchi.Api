@@ -1,4 +1,5 @@
 using MiApp.DTOs.DTOs.Radicacion.ConsultaPrevia;
+using MiApp.DTOs.DTOs.UI.MuiTable;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Core;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Errors;
@@ -92,7 +93,81 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
         }
 
-        private static int ResolveStatusCode(AppResponses<ConsultaPreviaRadicadoEstructuraDto> response)
+        /// <summary>
+        /// Consulta radicados previos con filtros dinamicos y respuesta compatible con AppTable.
+        /// </summary>
+        /// <param name="request">Request paginado de consulta previa.</param>
+        /// <param name="cancellationToken">Token de cancelacion de la solicitud HTTP.</param>
+        /// <returns>Contrato AppResponses con DynamicUiTableDto.</returns>
+        [HttpPost("query")]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<DynamicUiTableDto>>> QueryAsync(
+            [FromBody] ConsultaPreviaRadicadoQueryRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(_errorFactory.Validation<DynamicUiTableDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.QueryRequestInvalido,
+                        "request",
+                        requestId));
+                }
+
+                var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
+                {
+                    return BadRequest(_errorFactory.Validation<DynamicUiTableDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.QueryClaimRequired,
+                        "defaulalias",
+                        requestId));
+                }
+
+                var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+                if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
+                    || !long.TryParse(usuario.ClaimValue, out var usuarioId))
+                {
+                    return BadRequest(_errorFactory.Validation<DynamicUiTableDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.QueryClaimRequired,
+                        "usuarioid",
+                        requestId));
+                }
+
+                var result = await _consultaPreviaRadicadoService.QueryAsync(
+                    request,
+                    alias.ClaimValue,
+                    usuarioId,
+                    requestId,
+                    cancellationToken);
+
+                if (result.success)
+                {
+                    return Ok(result);
+                }
+
+                return StatusCode(ResolveStatusCode(result), result);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var error = _errorFactory.FromDescriptor<DynamicUiTableDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.QueryUnexpected),
+                    "unexpected",
+                    requestId,
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
+        }
+
+        private static int ResolveStatusCode<T>(AppResponses<T> response)
         {
             var code = response.errors?
                 .OfType<MiApp.DTOs.DTOs.Errors.AppError>()
