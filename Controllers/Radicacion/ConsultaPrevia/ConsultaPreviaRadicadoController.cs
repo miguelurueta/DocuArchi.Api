@@ -241,6 +241,83 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
         }
 
+        /// <summary>
+        /// Prepara los datos copiables de un radicado consultado hacia una plantilla destino sin persistir cambios.
+        /// </summary>
+        /// <param name="request">Request de preparacion de copia de datos.</param>
+        /// <param name="cancellationToken">Token de cancelacion de la solicitud HTTP.</param>
+        /// <returns>Contrato AppResponses con campos copiables, no mapeados y riesgo de sobrescritura.</returns>
+        [HttpPost("copiar-datos")]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoCopiarDatosResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoCopiarDatosResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoCopiarDatosResponseDto>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoCopiarDatosResponseDto>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoCopiarDatosResponseDto>), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoCopiarDatosResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<ConsultaPreviaRadicadoCopiarDatosResponseDto>>> CopiarDatosAsync(
+            [FromBody] ConsultaPreviaRadicadoCopiarDatosRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.CopiarRequestInvalido,
+                        "request",
+                        requestId));
+                }
+
+                var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.CopiarClaimRequired,
+                        "defaulalias",
+                        requestId));
+                }
+
+                var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+                if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
+                    || !long.TryParse(usuario.ClaimValue, out var usuarioId))
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.CopiarClaimRequired,
+                        "usuarioid",
+                        requestId));
+                }
+
+                var result = await _consultaPreviaRadicadoService.CopiarDatosAsync(
+                    request,
+                    alias.ClaimValue,
+                    usuarioId,
+                    requestId,
+                    cancellationToken);
+
+                if (result.success)
+                {
+                    return Ok(result);
+                }
+
+                return StatusCode(ResolveStatusCode(result), result);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.CopiarUnexpected),
+                    "unexpected",
+                    requestId,
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
+        }
+
         private static int ResolveStatusCode<T>(AppResponses<T> response)
         {
             var code = response.errors?
