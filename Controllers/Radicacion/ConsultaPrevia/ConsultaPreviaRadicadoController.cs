@@ -318,6 +318,122 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
         }
 
+        /// <summary>
+        /// Anexa el radicado destino al expediente asociado al radicado origen.
+        /// </summary>
+        [HttpPost("anexar-expediente")]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>>> AnexarExpedienteAsync(
+            [FromBody] ConsultaPreviaRadicadoAnexarExpedienteRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.RelacionRequestInvalido,
+                        "request",
+                        requestId));
+                }
+
+                var claims = ValidateBaseClaims<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(requestId);
+                if (claims.Error != null)
+                {
+                    return BadRequest(claims.Error);
+                }
+
+                var result = await _consultaPreviaRadicadoService.AnexarExpedienteAsync(
+                    request,
+                    claims.DefaultDbAlias!,
+                    claims.UsuarioId,
+                    ExtractPermissionClaims(),
+                    requestId,
+                    cancellationToken);
+
+                return result.success ? Ok(result) : StatusCode(ResolveStatusCode(result), result);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.RelacionUnexpected),
+                    "unexpected",
+                    requestId,
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
+        }
+
+        /// <summary>
+        /// Relaciona dos radicados desde Consulta Previa con modo agrega o remplaza.
+        /// </summary>
+        [HttpPost("relacionar")]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>>> RelacionarAsync(
+            [FromBody] ConsultaPreviaRadicadoRelacionRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoRelacionResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.RelacionRequestInvalido,
+                        "request",
+                        requestId));
+                }
+
+                var claims = ValidateBaseClaims<ConsultaPreviaRadicadoRelacionResponseDto>(requestId);
+                if (claims.Error != null)
+                {
+                    return BadRequest(claims.Error);
+                }
+
+                var result = await _consultaPreviaRadicadoService.RelacionarAsync(
+                    request,
+                    claims.DefaultDbAlias!,
+                    claims.UsuarioId,
+                    ExtractPermissionClaims(),
+                    requestId,
+                    cancellationToken);
+
+                return result.success ? Ok(result) : StatusCode(ResolveStatusCode(result), result);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoRelacionResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.RelacionUnexpected),
+                    "unexpected",
+                    requestId,
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
+        }
+
         private static int ResolveStatusCode<T>(AppResponses<T> response)
         {
             var code = response.errors?
@@ -326,6 +442,56 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
                 .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
 
             return ConsultaPreviaRadicadoErrorResponseFactory.ResolveHttpStatus(code);
+        }
+
+        private BaseClaimsResult<T> ValidateBaseClaims<T>(string requestId)
+        {
+            var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
+            {
+                return new BaseClaimsResult<T>
+                {
+                    Error = _errorFactory.Validation<T>(
+                        ConsultaPreviaRadicadoErrorCatalog.RelacionClaimRequired,
+                        "defaulalias",
+                        requestId)
+                };
+            }
+
+            var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+            if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
+                || !long.TryParse(usuario.ClaimValue, out var usuarioId))
+            {
+                return new BaseClaimsResult<T>
+                {
+                    Error = _errorFactory.Validation<T>(
+                        ConsultaPreviaRadicadoErrorCatalog.RelacionClaimRequired,
+                        "usuarioid",
+                        requestId)
+                };
+            }
+
+            return new BaseClaimsResult<T>
+            {
+                DefaultDbAlias = alias.ClaimValue,
+                UsuarioId = usuarioId
+            };
+        }
+
+        private IReadOnlyCollection<string> ExtractPermissionClaims()
+        {
+            return User?.Claims?
+                .SelectMany(claim => new[] { claim.Type, claim.Value })
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray() ?? [];
+        }
+
+        private sealed class BaseClaimsResult<T>
+        {
+            public string? DefaultDbAlias { get; set; }
+            public long UsuarioId { get; set; }
+            public AppResponses<T>? Error { get; set; }
         }
     }
 }
