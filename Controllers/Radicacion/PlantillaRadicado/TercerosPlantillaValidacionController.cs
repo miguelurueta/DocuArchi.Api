@@ -190,6 +190,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         [HttpPost]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AppResponses<TerceroOperacionResponseDto>>> Crear(
             [FromBody] TerceroGuardarRequestDto request)
@@ -239,6 +240,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.PlantillaRadicado
         [HttpPut("{idRegistro:int}")]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(AppResponses<TerceroOperacionResponseDto>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AppResponses<TerceroOperacionResponseDto>>> Actualizar(
             [FromRoute] int idRegistro,
