@@ -103,6 +103,7 @@ builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
 
 builder.Services.AddMemoryCache();
 builder.Services.AddGestorDocumental(builder.Configuration);
+builder.Services.AddAdministracion(builder.Configuration);
 builder.Services.AddStorageEngine(builder.Configuration);
 builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
 builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
