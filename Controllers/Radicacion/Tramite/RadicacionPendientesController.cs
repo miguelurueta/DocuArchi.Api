@@ -58,6 +58,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                     return BadRequest(validationUsuario.Response);
                 }
 
+                var validationAliasWorkflow = _claimValidationService.ValidateClaim<string>("defaulaliaswf");
+                var workflowAlias = validationAliasWorkflow.Success ? validationAliasWorkflow.ClaimValue : null;
+
                 if (!int.TryParse(validationUsuario.ClaimValue, out var idUsuarioGestion))
                 {
                     return BadRequest(BuildError(
@@ -71,7 +74,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                 var result = await _estadoActivoService.SolicitaEstadoActivo(
                     idUsuarioGestion,
                     validationAlias.ClaimValue,
-                    requestId);
+                    requestId,
+                    workflowAlias);
                 if (!result.success)
                 {
                     return BadRequest(result);
