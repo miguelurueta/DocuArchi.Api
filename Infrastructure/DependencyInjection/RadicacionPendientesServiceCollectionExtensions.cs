@@ -1,5 +1,7 @@
 using MiApp.Repository.Repositorio.Radicador.Tramite;
 using MiApp.Services.Service.Radicacion.Tramite;
+using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
+using MiApp.Services.Service.Workflow.RutaTrabajo;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection
 {
@@ -16,6 +18,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
             services.AddScoped<IRadicacionPendienteEstadoActivoRepository, RadicacionPendienteEstadoActivoRepository>();
             services.AddScoped<IRadicacionPendienteEstadoActivoService, RadicacionPendienteEstadoActivoService>();
+            services.AddScoped<IWorkflowRouteLookupRepository, WorkflowRouteLookupRepository>();
+            services.AddScoped<IWorkflowRouteLookupService, WorkflowRouteLookupService>();
             services.AddScoped<IRadicacionPendientesContadorRepository, RadicacionPendientesContadorRepository>();
             services.AddScoped<IRadicacionPendientesContadorService, RadicacionPendientesContadorService>();
             services.AddScoped<IEnviarRadicadoPendienteRepository, EnviarRadicadoPendienteRepository>();
