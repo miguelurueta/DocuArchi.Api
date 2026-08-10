@@ -49,25 +49,29 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 var result = await _service.SolicitaListaDocumentosRadicadosTreeAsync(request, usuarioId, aliasValidation.ClaimValue);
                 if (!result.success)
                 {
+                    result.meta ??= new AppMeta { Status = "error" };
+                    result.meta.RequestId = HttpContext.TraceIdentifier;
                     return BadRequest(result);
                 }
                return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest(new AppResponses<object>
                 {
                     success = false,
                     message = "Error en query de ListaDocumentosRadicados",
                     data = null!,
-                    meta = new AppMeta { Status = "error" },
+                    meta = new AppMeta { Status = "error", RequestId = HttpContext.TraceIdentifier },
                     errors =
                     [
                         new MiApp.DTOs.DTOs.Errors.AppError
                         {
                             Type = "Exception",
+                            Code = "GD_LISTA_DOCUMENTOS_QUERY_UNEXPECTED",
                             Field = "query",
-                            Message = ex.Message
+                            Message = "Error en query de ListaDocumentosRadicados",
+                            UserMessage = "No fue posible consultar la lista de documentos"
                         }
                     ]
                 });
@@ -99,25 +103,29 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 var result = await _service.EjecutaAccionListaDocumentosRadicadosTreeAsync(request, usuarioId, aliasValidation.ClaimValue);
                 if (!result.success)
                 {
+                    result.meta ??= new AppMeta { Status = "error" };
+                    result.meta.RequestId = HttpContext.TraceIdentifier;
                     return BadRequest(result);
                 }
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest(new AppResponses<ListaDocumentosRadicadosTreeMutationResultDto?>
                 {
                     success = false,
                     message = "Error en action de ListaDocumentosRadicados",
                     data = null,
-                    meta = new AppMeta { Status = "error" },
+                    meta = new AppMeta { Status = "error", RequestId = HttpContext.TraceIdentifier },
                     errors =
                     [
                         new MiApp.DTOs.DTOs.Errors.AppError
                         {
                             Type = "Exception",
+                            Code = "GD_LISTA_DOCUMENTOS_ACTION_UNEXPECTED",
                             Field = "action",
-                            Message = ex.Message
+                            Message = "Error en action de ListaDocumentosRadicados",
+                            UserMessage = "No fue posible procesar la accion solicitada"
                         }
                     ]
                 });
