@@ -90,14 +90,6 @@ using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
-// El host E2E local puede evitar Windows Event Log cuando la cuenta no tiene
-// permisos para registrar eventos. Produccion conserva los proveedores por defecto.
-if (builder.Configuration.GetValue("Hosting:DisableDefaultLoggingProviders", false))
-{
-    builder.Logging.ClearProviders();
-    builder.Logging.AddConsole();
-}
-
 var runtimeRootPath = ResolveConfiguredPath(
     builder.Configuration["RuntimePaths:Root"],
     GetDefaultRuntimeRootPath());
@@ -561,12 +553,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("cross-cutting/swagger.json", "CrossCutting");
 });
 
-// HTTPS permanece habilitado por defecto. El host E2E local puede desactivarlo
-// explícitamente cuando se ejecuta sólo con HTTP y sin certificado de desarrollo.
-if (builder.Configuration.GetValue("Hosting:EnableHttpsRedirection", true))
-{
-    app.UseHttpsRedirection();
-}
+app.UseHttpsRedirection();
 
 app.UseRouting();                // 🔥 NECESARIO
 
