@@ -110,6 +110,7 @@ builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
 builder.Services.AddRadicacionCore(builder.Configuration);
 builder.Services.AddTercerosPlantillaValidacion(builder.Configuration);
 builder.Services.AddRadicacionPendientes(builder.Configuration);
+builder.Services.AddRadicacionTerminar(builder.Configuration);
 builder.Services.AddConsultaPreviaRadicado(builder.Configuration);
 builder.Services.AddDocumentProcessing(builder.Configuration);
 
