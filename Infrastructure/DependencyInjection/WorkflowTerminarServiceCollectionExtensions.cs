@@ -10,6 +10,22 @@ public static class WorkflowTerminarServiceCollectionExtensions
         services.AddScoped<ITransitionConnectorRepository, TransitionConnectorRepository>();
         services.AddScoped<ITransitionConnectorResolver, TransitionConnectorResolver>();
         services.AddScoped<ITransitionRuleValidator, TransitionRuleValidator>();
+        services.AddScoped<IWorkflowTerminationPreparationResolver, UnavailableWorkflowTerminationPreparationResolver>();
+        services.AddScoped<IWorkflowTopologyMetadataReader, MySqlWorkflowTopologyMetadataReader>();
+        services.AddScoped<IWorkflowAtomicTopologyGate, WorkflowAtomicTopologyGate>();
+        services.AddScoped<IWorkflowMySqlTransactionSessionFactory, MySqlWorkflowTransactionSessionFactory>();
+        services.AddScoped<IWorkflowTransitionUnitOfWork, MySqlWorkflowTransitionUnitOfWork>();
+        services.AddScoped<IWorkflowIdempotencyStore, MySqlWorkflowIdempotencyStore>();
+        services.AddScoped<IWorkflowIdempotencyRepository, WorkflowIdempotencyRepository>();
+        services.AddScoped<IWorkflowTaskTransitionStore, MySqlWorkflowTaskTransitionStore>();
+        services.AddScoped<IWorkflowTaskTransitionRepository, WorkflowTaskTransitionRepository>();
+        services.AddScoped<IWorkflowSuccessorTaskStore, MySqlWorkflowSuccessorTaskStore>();
+        services.AddScoped<IWorkflowSuccessorTaskRepository, WorkflowSuccessorTaskRepository>();
+        services.AddScoped<IWorkflowRadicacionTransitionStore, MySqlWorkflowRadicacionTransitionStore>();
+        services.AddScoped<IWorkflowRadicacionTransitionRepository, WorkflowRadicacionTransitionRepository>();
+        services.AddScoped<IWorkflowTerminationAuditStore, MySqlWorkflowTerminationAuditStore>();
+        services.AddScoped<IWorkflowTerminationAuditRepository, WorkflowTerminationAuditRepository>();
+        services.AddScoped<ICompleteWorkflowTaskService, CompleteWorkflowTaskService>();
         return services;
     }
 }
