@@ -1,4 +1,6 @@
+using MiApp.Repository.Repositorio.GestorDocumental.ContextoDocumental;
 using MiApp.Repository.Repositorio.GestorDocumental.TipologiasDocumentales;
+using MiApp.Services.Service.GestorDocumental.ContextoDocumental;
 using MiApp.Services.Service.GestorDocumental.TipologiasDocumentales;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,17 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             IConfiguration configuration)
         {
             services.AddTipologiasDocumentales();
+            services.AddContextoDocumental();
+
+            return services;
+        }
+
+        private static IServiceCollection AddContextoDocumental(this IServiceCollection services)
+        {
+            services.AddScoped<IContextoDocumentalRepository, ContextoDocumentalRepository>();
+            services.AddScoped<IContextoDocumentalResolver, RadicacionContextResolver>();
+            services.AddScoped<IContextoDocumentalResolver, WorkflowContextResolver>();
+            services.AddScoped<IContextoDocumentalRadicadoService, ContextoDocumentalRadicadoService>();
 
             return services;
         }
