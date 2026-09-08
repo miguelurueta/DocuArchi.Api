@@ -29,8 +29,10 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.TipologiasDocumentales
 
         [HttpGet]
         [ProducesResponseType(typeof(AppResponses<List<ResponseDropdownDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<TipologiasDocumentalesResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<List<ResponseDropdownDto>>), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AppResponses<List<ResponseDropdownDto>>>> Get(
+        [ProducesResponseType(typeof(AppResponses<TipologiasDocumentalesResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Get(
             [FromQuery] SolicitaListaTipologiasDocumentalesRequest? request)
         {
             var safeRequest = request ?? new SolicitaListaTipologiasDocumentalesRequest();
@@ -72,6 +74,22 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.TipologiasDocumentales
                 workflowDbAlias = workflowAliasValidation.ClaimValue.Trim();
             }
 
+            if (safeRequest.VersionContrato == 2)
+            {
+                var v2Result = await _service.SolicitaListaTipologiasDocumentalesV2Async(
+                    safeRequest,
+                    aliasValidation.ClaimValue.Trim(),
+                    requestId,
+                    usuarioId,
+                    workflowDbAlias);
+                if (!v2Result.success)
+                {
+                    return StatusCode(ResolveErrorStatus(v2Result.message), v2Result);
+                }
+
+                return Ok(v2Result);
+            }
+
             var result = await _service.SolicitaListaTipologiasDocumentalesAsync(
                 safeRequest,
                 aliasValidation.ClaimValue.Trim(),
@@ -90,7 +108,7 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.TipologiasDocumentales
                     "api.result",
                     result.meta?.Status);
 
-                return BadRequest(result);
+                return StatusCode(ResolveErrorStatus(result.message), result);
             }
 
             _logger.LogInformation(
@@ -104,6 +122,14 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.TipologiasDocumentales
                 result.data?.Count ?? 0);
 
             return Ok(result);
+        }
+
+        private static int ResolveErrorStatus(string? message)
+        {
+            return message?.Contains(TipologiasDocumentalesErrorCatalog.RepositoryFailed, StringComparison.OrdinalIgnoreCase) == true
+                || message?.Contains(TipologiasDocumentalesErrorCatalog.UnexpectedError, StringComparison.OrdinalIgnoreCase) == true
+                ? StatusCodes.Status500InternalServerError
+                : StatusCodes.Status400BadRequest;
         }
     }
 }
