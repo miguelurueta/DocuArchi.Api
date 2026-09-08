@@ -14,6 +14,7 @@ public static class EmailServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddEmailDispatchRepositories();
+        services.TryAddScoped<MiApp.Services.Service.Email.IServicioCorreo, MiApp.Services.Service.Email.ServicioCorreo>();
 
         return services;
     }
