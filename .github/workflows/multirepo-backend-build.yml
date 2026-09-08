@@ -80,6 +80,10 @@ jobs:
     timeout-minutes: 45
 
     steps:
+      - name: Enable long Git paths
+        shell: pwsh
+        run: git config --global core.longpaths true
+
       - name: Validate multi-repo read token
         shell: pwsh
         run: |
@@ -106,7 +110,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          global-json-file: DocuArchiCore/global.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -128,6 +132,7 @@ jobs:
           npm.cmd --prefix Tools/jira-open run opsxj:workspace:reconstruct -- `
             -WorkspaceRoot "${{ github.workspace }}" `
             -SyncMode fetch `
+            -SkipBuild `
             -SkipApiValidation `
             -NonInteractive
 
@@ -201,6 +206,7 @@ jobs:
         with:
           name: multirepo-build-reports
           if-no-files-found: ignore
+          include-hidden-files: true
           path: |
             DocuArchiCore/Tools/jira-open/.opsxj/reports/*.json
             DocuArchiCore/TestResults/*.trx

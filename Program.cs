@@ -37,7 +37,7 @@ using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
 using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
 using MiApp.Repository.Repositorio.GestionCorrespondencia;
-using MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.Core;
 using MiApp.Repository.Repositorio.GestionCorrespondencia.TiposRespuesta;
 using MiApp.Repository.Repositorio.GestionCorrespondencia.PlantillaValidacion.SolicitaCorreoElectronicoRemitente;
 using MiApp.Repository.Repositorio.Workflow.usuario;
@@ -77,7 +77,7 @@ using MiApp.Services.Service.Workflow.BandejaCorrespondencia;
 using MiApp.Services.Service.Workflow.Inicio;
 using MiApp.Services.Service.Workflow.RutaTrabajo;
 using MiApp.Services.Service.GestorDocumental;
-using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.Core;
 using MiApp.Services.Service.GestionCorrespondencia.TiposRespuesta;
 using MiApp.Services.Service.Workflow.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -90,12 +90,31 @@ using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
+var runtimeRootPath = ResolveConfiguredPath(
+    builder.Configuration["RuntimePaths:Root"],
+    GetDefaultRuntimeRootPath());
+var runtimeLogsPath = ResolveConfiguredPath(
+    builder.Configuration["StoragePaths:Logs"] ?? builder.Configuration["RuntimePaths:Logs"],
+    Path.Combine(runtimeRootPath, "logs"));
+EnsureRuntimeDirectory(runtimeLogsPath, "logs runtime");
+
 builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
-    Path.Combine(builder.Environment.ContentRootPath, "logs")));
+    runtimeLogsPath));
 
 builder.Services.AddMemoryCache();
+builder.Services.AddGestorDocumental(builder.Configuration);
+builder.Services.AddAdministracion(builder.Configuration);
 builder.Services.AddStorageEngine(builder.Configuration);
 builder.Services.AddEmailDispatchEngine(builder.Configuration);
+builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
+builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
+builder.Services.AddRadicacionCore(builder.Configuration);
+builder.Services.AddTercerosPlantillaValidacion(builder.Configuration);
+builder.Services.AddRadicacionPendientes(builder.Configuration);
+builder.Services.AddRadicacionTerminar(builder.Configuration);
+builder.Services.AddWorkflowTerminar(builder.Configuration);
+builder.Services.AddConsultaPreviaRadicado(builder.Configuration);
+builder.Services.AddDocumentProcessing(builder.Configuration);
 
 
 // ===================================================
@@ -289,7 +308,6 @@ builder.Services.AddScoped<IFlujosRelacionadosTramiteRepository, FlujosRelaciona
 builder.Services.AddScoped<IRaRestriRelacionTramiteR, RaRestriRelacionTramiteR>();
 builder.Services.AddScoped<ITotalDiasVencimientoTramiteRepository, TotalDiasVencimientoTramiteRepository>();
 builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriadosTramiteRepository>();
-builder.Services.AddScoped<IListaRadicadosPendientesRepository, ListaRadicadosPendientesRepository>();
 builder.Services.AddScoped<IRegistroPlantillaBuilder, RegistroPlantillaBuilder>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteRepository, RegistrarRadicacionEntranteRepository>();
 builder.Services.AddScoped<IValidaDimensionCamposRepository, ValidaDimensionCamposRepository>();
@@ -308,7 +326,6 @@ builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowRepository, Solicita
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
 builder.Services.AddScoped<ISolicitaListaTiposRespuestaRepository, SolicitaListaTiposRespuestaRepository>();
-builder.Services.AddScoped<ISolicitaDocumentosAdjuntosRespuestaRadicadoRepository, SolicitaDocumentosAdjuntosRespuestaRadicadoRepository>();
 builder.Services.AddScoped<ISolicitaCorreoElectronicoRemitenteRepository, SolicitaCorreoElectronicoRemitenteRepository>();
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
 builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
@@ -365,7 +382,6 @@ builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlan
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoService, SolicitaAutoCompleteTokenRadicadoService>();
 builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoService, SolicitaAutoCompleteTokenExpedienteRadicadoService>();
 builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
-builder.Services.AddScoped<IListaRadicadosPendientesService, ListaRadicadosPendientesService>();
 builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicadoService>();
 builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicacionEntranteService>();
 builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
@@ -393,7 +409,6 @@ builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowService, SolicitaGab
 builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
 builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaListaTiposRespuesta, ServiceSolicitaListaTiposRespuesta>();
-builder.Services.AddScoped<IServiceSolicitaDocumentosAdjuntosRespuestaRadicado, ServiceSolicitaDocumentosAdjuntosRespuestaRadicado>();
 builder.Services.AddScoped<IServiceSolicitaCorreoElectronicoRemitente, ServiceSolicitaCorreoElectronicoRemitente>();
 builder.Services.AddScoped<IServiceSolicitaUsuarioPrincipalRespuesta, ServiceSolicitaUsuarioPrincipalRespuesta>();
 builder.Services.AddScoped<IServiceSolicitaListaFirmasPermitidasSolicitudAprobacion, ServiceSolicitaListaFirmasPermitidasSolicitudAprobacion>();
@@ -448,11 +463,13 @@ builder.Configuration.GetSection("SessionConfig").Bind(sessionConfig);
 if (sessionConfig.IdleTimeoutMinutes <= 0)
     sessionConfig.IdleTimeoutMinutes = 20;
 
-var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, ".tmp", "dataprotection-keys");
-Directory.CreateDirectory(dataProtectionKeysPath);
+var dataProtectionKeysPath = ResolveConfiguredPath(
+    builder.Configuration["DataProtection:KeysPath"] ?? builder.Configuration["RuntimePaths:DataProtectionKeys"],
+    Path.Combine(runtimeRootPath, "dataprotection-keys"));
+var dataProtectionKeysDirectory = EnsureRuntimeDirectory(dataProtectionKeysPath, "DataProtection keys");
 builder.Services
     .AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+    .PersistKeysToFileSystem(dataProtectionKeysDirectory)
     .SetApplicationName("DocuArchi.Api");
 
 builder.Services.AddSingleton(sessionConfig);
@@ -531,12 +548,12 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocuArchi.Api v1 (Legacy)");
-    c.SwaggerEndpoint("/swagger/radicacion/swagger.json", "Radicacion");
-    c.SwaggerEndpoint("/swagger/workflow/swagger.json", "Workflow");
-    c.SwaggerEndpoint("/swagger/gestor-documental/swagger.json", "GestorDocumental");
-    c.SwaggerEndpoint("/swagger/gestion-correspondencia/swagger.json", "GestionCorrespondencia");
-    c.SwaggerEndpoint("/swagger/cross-cutting/swagger.json", "CrossCutting");
+    c.SwaggerEndpoint("v1/swagger.json", "DocuArchi.Api v1 (Legacy)");
+    c.SwaggerEndpoint("radicacion/swagger.json", "Radicacion");
+    c.SwaggerEndpoint("workflow/swagger.json", "Workflow");
+    c.SwaggerEndpoint("gestor-documental/swagger.json", "GestorDocumental");
+    c.SwaggerEndpoint("gestion-correspondencia/swagger.json", "GestionCorrespondencia");
+    c.SwaggerEndpoint("cross-cutting/swagger.json", "CrossCutting");
 });
 
 app.UseHttpsRedirection();
@@ -552,4 +569,39 @@ app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
 app.Run();
+
+static string GetDefaultRuntimeRootPath()
+{
+    if (OperatingSystem.IsWindows())
+    {
+        return @"C:\AppData\DocuArchiApi";
+    }
+
+    return Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "DocuArchiApi");
+}
+
+static string ResolveConfiguredPath(string? configuredPath, string fallbackPath)
+{
+    var path = string.IsNullOrWhiteSpace(configuredPath)
+        ? fallbackPath
+        : configuredPath.Trim();
+    return Environment.ExpandEnvironmentVariables(path);
+}
+
+static DirectoryInfo EnsureRuntimeDirectory(string path, string logicalName)
+{
+    try
+    {
+        return Directory.CreateDirectory(path);
+    }
+    catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+    {
+        throw new InvalidOperationException(
+            $"No se pudo crear o acceder la carpeta de {logicalName}: '{path}'. " +
+            "Configure permisos Modify al identity real del App Pool o ajuste la ruta por configuracion.",
+            ex);
+    }
+}
 

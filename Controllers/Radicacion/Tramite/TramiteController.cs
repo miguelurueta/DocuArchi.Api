@@ -1,4 +1,5 @@
-﻿using MiApp.DTOs.DTOs.General;
+using MiApp.DTOs.DTOs.Errors;
+using MiApp.DTOs.DTOs.General;
 using MiApp.DTOs.DTOs.Radicacion.Tramite;
 using MiApp.DTOs.DTOs.UI.MuiTable;
 using MiApp.DTOs.DTOs.Utilidades;
@@ -110,7 +111,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
         }
 
         [HttpGet("tramites/solicitaFechaLimiteRespuesta")]
-        public async Task<ActionResult<AppResponses<FechaLimiteRespuestaDto>>> SolicitaFechaLimiteRespuesta(int idTipoTramite)
+        public async Task<ActionResult<AppResponses<FechaLimiteRespuestaDto>>> SolicitaFechaLimiteRespuesta(
+            int idTipoTramite,
+            [FromQuery] DateTime? fechaBase = null)
         {
             var validation = _claimValidationService.ValidateClaim<string>("defaulalias");
             if (!validation.Success || validation.ClaimValue == null)
@@ -118,7 +121,10 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                 return BadRequest(validation.Response);
             }
 
-            var result = await _fechaLimiteRespuestaService.SolicitaFechaLimiteRespuesta(idTipoTramite, validation.ClaimValue);
+            var result = await _fechaLimiteRespuestaService.SolicitaFechaLimiteRespuesta(
+                idTipoTramite,
+                validation.ClaimValue,
+                fechaBase);
 
             if (!result.success)
             {
@@ -128,8 +134,33 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
             return Ok(result);
         }
 
+        /// <summary>
+        /// Lista los radicados pendientes del usuario autenticado en formato DynamicUiTable.
+        /// </summary>
         [HttpGet("tramites/apListaRadicadosPendientes")]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<AppResponses<DynamicUiTableDto>>> ApListaRadicadosPendientes()
+        {
+            return await ApListaRadicadosPendientesInternal(null);
+        }
+
+        /// <summary>
+        /// Lista los radicados pendientes del usuario autenticado con paginacion, busqueda y ordenamiento server-side para AppTable.
+        /// </summary>
+        [HttpPost("tramites/apListaRadicadosPendientes")]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<DynamicUiTableDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<DynamicUiTableDto>>> ApListaRadicadosPendientes(
+            [FromBody] DynamicUiTableQueryRequestDto? request)
+        {
+            return await ApListaRadicadosPendientesInternal(request ?? new DynamicUiTableQueryRequestDto());
+        }
+
+        private async Task<ActionResult<AppResponses<DynamicUiTableDto>>> ApListaRadicadosPendientesInternal(
+            DynamicUiTableQueryRequestDto? request)
         {
             try
             {
@@ -150,8 +181,14 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                     throw new SecurityException("Claim invalido: usuarioid");
                 }
 
-                var result = await _listaRadicadosPendientesService
-                    .SolicitaListaRadicadosPendientes(idUsuarioGestion, validation.ClaimValue);
+                var result = request == null
+                    ? await _listaRadicadosPendientesService.SolicitaListaRadicadosPendientes(
+                        idUsuarioGestion,
+                        validation.ClaimValue)
+                    : await _listaRadicadosPendientesService.SolicitaListaRadicadosPendientes(
+                        idUsuarioGestion,
+                        validation.ClaimValue,
+                        request);
                 if (!result.success)
                 {
                     return BadRequest(result);
@@ -159,7 +196,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
 
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new AppResponses<DynamicUiTableDto>
@@ -168,13 +205,20 @@ namespace DocuArchi.Api.Controllers.Radicacion.Tramite
                         message = "Error inesperado al consultar radicados pendientes",
                         errors =
                         [
-                            new
+                            new AppError
                             {
                                 Type = "Exception",
+                                Code = "RADICACION_PENDIENTES_ERROR",
                                 Field = "usuarioid",
-                                Message = ex.Message
+                                Message = "Error inesperado al consultar radicados pendientes",
+                                UserMessage = "No fue posible consultar los pendientes de radicacion."
                             }
                         ],
+                        meta = new AppMeta
+                        {
+                            Status = "ERROR",
+                            RequestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N")
+                        },
                         data = null!
                     });
             }

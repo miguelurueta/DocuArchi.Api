@@ -27,6 +27,7 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StoragePathOptions>(configuration.GetSection("StoragePaths"));
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.TemporaryUpload.StorageUploadOptions>(configuration.GetSection("StorageUpload"));
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StorageMetadataOptions>(configuration.GetSection("StorageMetadata"));
+            services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.Options.StorageFolderPolicyOptions>(configuration.GetSection("StorageEngine:FolderPolicy"));
             services.Configure<MiApp.Models.Models.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.CabinetIndexProviderCatalogOptions>(configuration.GetSection("StorageCabinetIndexProviders"));
 
             return services;
@@ -144,7 +145,7 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.IRadicacionExpedienteValueRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.RadicacionExpedienteValueRepository>();
             services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.IRadicacionDocumentoOrigenIndexRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.RadicacionDocumentoOrigenIndexRepository>();
             services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.IRadicacionLegacySourceRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.CabinetIndexProviders.Radicacion.RadicacionLegacySourceRepository>();
-            services.AddScoped<MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.IRespuestaRadicadoAnexoWriteRepository, MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.RespuestaRadicadoAnexoWriteRepository>();
+            services.AddScoped<MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.Core.IRespuestaRadicadoAnexoWriteRepository, MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.Core.RespuestaRadicadoAnexoWriteRepository>();
             services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Descriptors.IStorageDescriptorCatalogRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Descriptors.StorageDescriptorCatalogRepository>();
             services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.IStorageExtensionRepository, MiApp.Repository.Repositorio.GestorDocumental.AlmacenamientoDocumental.Extension.StorageExtensionRepository>();
 
