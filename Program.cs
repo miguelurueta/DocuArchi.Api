@@ -105,6 +105,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddGestorDocumental(builder.Configuration);
 builder.Services.AddAdministracion(builder.Configuration);
 builder.Services.AddStorageEngine(builder.Configuration);
+builder.Services.AddEmailDispatchEngine(builder.Configuration);
 builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
 builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
 builder.Services.AddRadicacionCore(builder.Configuration);
