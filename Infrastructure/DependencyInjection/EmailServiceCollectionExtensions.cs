@@ -16,6 +16,10 @@ public static class EmailServiceCollectionExtensions
         services.AddEmailDispatchRepositories();
         services.TryAddScoped<MiApp.Services.Service.Email.IServicioCorreo, MiApp.Services.Service.Email.ServicioCorreo>();
 
+        // EMAIL-05 must register a real IServicioColaCorreo before enabling dispatch.
+        if (configuration.GetValue<bool>("EmailDispatch:EnableDispatchService"))
+            services.AddEmailDispatchService(configuration);
+
         return services;
     }
 
@@ -24,6 +28,18 @@ public static class EmailServiceCollectionExtensions
         services.TryAddScoped<MiApp.Repository.Repositorio.Email.IRepositorioCorreo, MiApp.Repository.Repositorio.Email.RepositorioCorreo>();
         services.TryAddScoped<MiApp.Repository.Repositorio.Email.RepositorioCorreoHealthCheck>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddEmailDispatchService(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddEmailDispatchRepositories();
+        services.AddOptions<MiApp.Services.Service.Email.EmailDispatchOptions>()
+            .Bind(configuration.GetSection("EmailDispatch"))
+            .Validate(options => options.IsValid(), "EmailDispatch contains invalid limits.")
+            .ValidateOnStart();
+        services.TryAddScoped<MiApp.Services.Service.Email.IIdempotencyKeyFactory, MiApp.Services.Service.Email.IdempotencyKeyFactory>();
+        services.TryAddScoped<MiApp.Services.Service.Email.IServiceDespachoCorreo, MiApp.Services.Service.Email.ServicioDespachoCorreo>();
         return services;
     }
 }
