@@ -25,7 +25,9 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
         }
 
         [HttpPost("query")]
-        public async Task<ActionResult<AppResponses<object>>> Query([FromBody] ListaDocumentosRadicadosTreeQueryRequestDto request)
+        public async Task<ActionResult<AppResponses<object>>> Query(
+            [FromBody] ListaDocumentosRadicadosTreeQueryRequestDto request,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -46,7 +48,17 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                     throw new SecurityException("Claim invalido: usuarioid");
                 }
 
-                var result = await _service.SolicitaListaDocumentosRadicadosTreeAsync(request, usuarioId, aliasValidation.ClaimValue);
+                string? workflowAlias = null;
+                if (string.Equals(request?.ResolutionSource?.Trim(), "WORKFLOW", StringComparison.OrdinalIgnoreCase))
+                {
+                    var workflowValidation = _claimValidationService.ValidateClaim<string>("defaulaliaswf");
+                    if (workflowValidation.Success && !string.IsNullOrWhiteSpace(workflowValidation.ClaimValue))
+                        workflowAlias = workflowValidation.ClaimValue.Trim();
+                }
+
+                var result = await _service.SolicitaListaDocumentosRadicadosTreeAsync(
+                    request, usuarioId, aliasValidation.ClaimValue, workflowAlias,
+                    HttpContext.TraceIdentifier, cancellationToken);
                 if (!result.success)
                 {
                     result.meta ??= new AppMeta { Status = "error" };
