@@ -19,10 +19,23 @@ public sealed class InstrumentosArchivisticosController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(AppResponses<IReadOnlyList<InstrumentoArchivisticoDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<AppResponses<IReadOnlyList<InstrumentoArchivisticoDto>>>> List([FromQuery] bool soloActivos = true)
-        => Ok(await _service.ListAsync(soloActivos, _currentUser.ResolveAliasOrThrow(), HttpContext.TraceIdentifier));
+    {
+        var response = await _service.ListAsync(soloActivos, _currentUser.ResolveAliasOrThrow(), HttpContext.TraceIdentifier);
+        return StatusCode(ResolveHttpStatus(response), response);
+    }
 
     [HttpGet("{idInstrumento:int}")]
     [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoDetalleDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<AppResponses<InstrumentoArchivisticoDetalleDto>>> GetById([FromRoute] int idInstrumento)
-        => Ok(await _service.GetByIdAsync(idInstrumento, _currentUser.ResolveAliasOrThrow(), HttpContext.TraceIdentifier));
+    {
+        var response = await _service.GetByIdAsync(idInstrumento, _currentUser.ResolveAliasOrThrow(), HttpContext.TraceIdentifier);
+        return StatusCode(ResolveHttpStatus(response), response);
+    }
+
+    private static int ResolveHttpStatus<T>(AppResponses<T> response)
+    {
+        if (response.success) return StatusCodes.Status200OK;
+        var code = response.errors?.OfType<MiApp.DTOs.DTOs.Errors.AppError>().FirstOrDefault()?.Code;
+        return InstrumentoArchivisticoErrorResponseFactory.ResolveHttpStatus(code);
+    }
 }
