@@ -116,6 +116,7 @@ builder.Services.AddWorkflowTerminar(builder.Configuration);
 builder.Services.AddConsultaPreviaRadicado(builder.Configuration);
 builder.Services.AddDocumentProcessing(builder.Configuration);
 builder.Services.AddGestionExpedientes(builder.Configuration);
+builder.Services.AddInstrumentosArchivisticos(builder.Configuration);
 
 
 // ===================================================
