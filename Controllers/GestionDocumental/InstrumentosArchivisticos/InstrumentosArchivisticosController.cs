@@ -15,14 +15,17 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.InstrumentosArchivisticos;
 public sealed class InstrumentosArchivisticosController : ControllerBase
 {
     private readonly IInstrumentoArchivisticoQueryService _service;
+    private readonly IInstrumentoArchivisticoCicloService _cycleService;
     private readonly ICurrentUserService _currentUser;
     private readonly ILogger<InstrumentosArchivisticosController> _logger;
     public InstrumentosArchivisticosController(
         IInstrumentoArchivisticoQueryService service,
+        IInstrumentoArchivisticoCicloService cycleService,
         ICurrentUserService currentUser,
         ILogger<InstrumentosArchivisticosController> logger)
     {
         _service = service;
+        _cycleService = cycleService;
         _currentUser = currentUser;
         _logger = logger;
     }
@@ -61,6 +64,31 @@ public sealed class InstrumentosArchivisticosController : ControllerBase
             : response.errors?.OfType<MiApp.DTOs.DTOs.Errors.AppError>().FirstOrDefault()?.Code ?? "UNKNOWN";
         _logger.LogInformation(
             "Instrument series query completed. RequestId {RequestId} UsuarioId {UsuarioId} Stage {Stage} DurationMs {DurationMs} ErrorCode {ErrorCode} HttpStatus {HttpStatus}",
+            requestId, usuarioId, "completed", stopwatch.Elapsed.TotalMilliseconds, code, status);
+        return StatusCode(status, response);
+    }
+
+    [HttpGet("{idInstrumento:int}/ciclos")]
+    [ProducesResponseType(typeof(AppResponses<List<CicloArchivoDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AppResponses<List<CicloArchivoDto>>>> ListCycles([FromRoute] int idInstrumento)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var requestId = HttpContext.TraceIdentifier;
+        var usuarioId = _currentUser.ResolveUsuarioIdOrThrow();
+        var response = await _cycleService.ListCyclesAsync(
+            idInstrumento,
+            _currentUser.ResolveAliasOrThrow(),
+            requestId);
+        var status = ResolveHttpStatus(response);
+        var code = response.success
+            ? "NONE"
+            : response.errors?.OfType<MiApp.DTOs.DTOs.Errors.AppError>().FirstOrDefault()?.Code ?? "UNKNOWN";
+        _logger.LogInformation(
+            "Instrument cycles query completed. RequestId {RequestId} UsuarioId {UsuarioId} Stage {Stage} DurationMs {DurationMs} ErrorCode {ErrorCode} HttpStatus {HttpStatus}",
             requestId, usuarioId, "completed", stopwatch.Elapsed.TotalMilliseconds, code, status);
         return StatusCode(status, response);
     }
