@@ -196,7 +196,9 @@ builder.Services.AddSwaggerGen(c =>
 
     static string ResolveSwaggerDomain(string relativePath)
     {
-        if (relativePath.StartsWith("api/gestor-documental/") || relativePath.StartsWith("api/gestordocumental/"))
+        if (relativePath.StartsWith("api/gestor-documental/") ||
+            relativePath.StartsWith("api/gestordocumental/") ||
+            relativePath.StartsWith("api/instrumentos-archivisticos"))
         {
             return "gestor-documental";
         }
