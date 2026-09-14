@@ -6,6 +6,7 @@ using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using DocuArchi.Api.Infrastructure.Observability;
 
 namespace DocuArchi.Api.Controllers.GestorDocumental.InstrumentosArchivisticos;
 
@@ -18,16 +19,22 @@ public sealed class InstrumentosArchivisticosController : ControllerBase
     private readonly IInstrumentoArchivisticoCicloService _cycleService;
     private readonly ICurrentUserService _currentUser;
     private readonly ILogger<InstrumentosArchivisticosController> _logger;
+    private readonly IInstrumentoArchivisticoRetencionService? _retentionService;
+    private readonly IRequestCorrelationContext? _correlation;
     public InstrumentosArchivisticosController(
         IInstrumentoArchivisticoQueryService service,
         IInstrumentoArchivisticoCicloService cycleService,
         ICurrentUserService currentUser,
-        ILogger<InstrumentosArchivisticosController> logger)
+        ILogger<InstrumentosArchivisticosController> logger,
+        IInstrumentoArchivisticoRetencionService? retentionService = null,
+        IRequestCorrelationContext? correlation = null)
     {
         _service = service;
         _cycleService = cycleService;
         _currentUser = currentUser;
         _logger = logger;
+        _retentionService = retentionService;
+        _correlation = correlation;
     }
 
     [HttpGet]
@@ -66,6 +73,36 @@ public sealed class InstrumentosArchivisticosController : ControllerBase
             "Instrument series query completed. RequestId {RequestId} UsuarioId {UsuarioId} Stage {Stage} DurationMs {DurationMs} ErrorCode {ErrorCode} HttpStatus {HttpStatus}",
             requestId, usuarioId, "completed", stopwatch.Elapsed.TotalMilliseconds, code, status);
         return StatusCode(status, response);
+    }
+
+    [HttpGet("{idInstrumento:int}/retencion")]
+    [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AppResponses<InstrumentoArchivisticoRetencionDto>>> GetRetention(
+        [FromRoute] int idInstrumento,
+        [FromQuery] int idSerie,
+        [FromQuery] int? idSubSerie,
+        [FromQuery] string fechaBase)
+    {
+        var requestId = _correlation?.RequestId
+            ?? Activity.Current?.TraceId.ToString()
+            ?? HttpContext.TraceIdentifier;
+        var service = _retentionService
+            ?? throw new InvalidOperationException("Instrument retention service is not configured.");
+        var response = await service.CalculateAsync(
+            idInstrumento,
+            idSerie,
+            idSubSerie,
+            fechaBase,
+            _currentUser.ResolveAliasOrThrow(),
+            _currentUser.ResolveUsuarioIdOrThrow(),
+            requestId);
+        return StatusCode(ResolveHttpStatus(response), response);
     }
 
     [HttpGet("{idInstrumento:int}/ciclos")]
