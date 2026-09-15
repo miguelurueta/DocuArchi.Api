@@ -35,6 +35,14 @@ public sealed class ContextoDocumentalRadicadoController(
             return MapError(ContextoDocumentalErrorCatalog.InvalidRequest, requestId);
 
         string? workflowAlias = null;
+        int? usuarioRadicadorId = null;
+        if (string.Equals(query?.ResolutionSource?.Trim(), "RADICACION", StringComparison.OrdinalIgnoreCase))
+        {
+            var radicador = claimValidationService.ValidateClaim<string>("IdUsuarioRadicador");
+            if (radicador?.Success != true || !int.TryParse(radicador.ClaimValue, out var parsed) || parsed <= 0)
+                return MapError(ContextoDocumentalErrorCatalog.Forbidden, requestId);
+            usuarioRadicadorId = parsed;
+        }
         if (string.Equals(query?.ResolutionSource?.Trim(), "WORKFLOW", StringComparison.OrdinalIgnoreCase))
         {
             var workflow = claimValidationService.ValidateClaim<string>("defaulaliaswf");
@@ -45,7 +53,7 @@ public sealed class ContextoDocumentalRadicadoController(
         var result = await service.ResolveAsync(new ContextoDocumentalRequest(
             radicado, query?.SourceModule, query?.ResolutionSource, query?.Tipo,
             query?.IdRutaWorkflow, query?.IdTareaWorkflow, usuarioId, alias.ClaimValue.Trim(),
-            workflowAlias, requestId), cancellationToken);
+            workflowAlias, requestId, User.FindFirst("login")?.Value?.Trim(), usuarioRadicadorId), cancellationToken);
 
         if (!result.Success) return MapError(result.Code, requestId);
         return Ok(new AppResponses<ContextoDocumentalRadicadoDto?>
