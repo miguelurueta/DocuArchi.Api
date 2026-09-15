@@ -1,6 +1,15 @@
-﻿using AutoMapper;
+using MiApp.DTOs.DTOs.GestorDocumental.Editor;
+using MiApp.Models.Models.GestorDocumental.Editor;
+using MiApp.Repository.Repositorio.GestorDocumental.ConfiguracionUpload;
+using MiApp.Repository.Repositorio.GestorDocumental.Editor;
+using MiApp.Services.Service.GestorDocumental.ConfiguracionUpload;
+using MiApp.Services.Service.GestorDocumental.Editor;
+using DocuArchi.Api.Controllers.GestorDocumental.ConfiguracionUpload;
+using DocuArchi.Api.Infrastructure.DependencyInjection;
+using AutoMapper;
+using DocuArchi.Api.Infrastructure.Logging;
+using DocuArchi.Api.Infrastructure.Security;
 using DocuArchiCore.Abstractions.Security;
-using DocuArchiCore.Infrastructure.Security;
 using MiApp.DTOs.DTOs.Account;
 using MiApp.Repositorio.Account;
 using MiApp.Repository.DataAccess;
@@ -10,14 +19,27 @@ using MiApp.Repository.Repositorio.Autenticacion.Recovery;
 using MiApp.Repository.Repositorio.DataAccess;
 using MiApp.Repository.Repositorio.Docuarchi.Grupo;
 using MiApp.Repository.Repositorio.Docuarchi.Usuario;
+using MiApp.Repository.Repositorio.GestorDocumental.Sede;
+using MiApp.Repository.Repositorio.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.usuario;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.Firmas;
 using MiApp.Repository.Repositorio.Home.Menu;
+using MiApp.Repository.Repositorio.Configuracion;
 using MiApp.Repository.Repositorio.Radicador.PlantillaRadicado;
 using MiApp.Repository.Repositorio.Radicador.PlantillaValidacion;
+using MiApp.Repository.Repositorio.Radicador.Configuracion;
 using MiApp.Repository.Repositorio.Radicador.Tramite;
 using MiApp.Repository.Repositorio.Radicador.Usuario;
+using MiApp.Repository.Repositorio.UI.MuiTable;
+using MiApp.Repository.Repositorio.Workflow.BandejaCorrespondencia;
 using MiApp.Repository.Repositorio.Workflow.Eventos;
+using MiApp.Repository.Repositorio.Workflow.Flujo;
 using MiApp.Repository.Repositorio.Workflow.Grupo;
+using MiApp.Repository.Repositorio.Workflow.RutaTrabajo;
+using MiApp.Repository.Repositorio.GestionCorrespondencia;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.Core;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.TiposRespuesta;
+using MiApp.Repository.Repositorio.GestionCorrespondencia.PlantillaValidacion.SolicitaCorreoElectronicoRemitente;
 using MiApp.Repository.Repositorio.Workflow.usuario;
 using MiApp.Repository.Repositorio.Workflow.Usuario;
 using MiApp.Services.Service.Account;
@@ -36,42 +58,183 @@ using MiApp.Services.Service.Home.Menu;
 using MiApp.Services.Service.Mapping;
 using MiApp.Services.Service.Mapping.Home.Menu;
 using MiApp.Services.Service.Radicacion.Inicio;
+using MiApp.Services.Service.Radicacion.RelacionCamposRutaWorklflow;
+using MiApp.Services.Service.Radicacion.Configuracion;
 using MiApp.Services.Service.Radicacion.PlantillaRadicado;
 using MiApp.Services.Service.Radicacion.PlantillaValidacion;
 using MiApp.Services.Service.Radicacion.Tramite;
+using MiApp.Services.Service.GestionCorrespondencia.PlantillaValidacion.SolicitaCorreoElectronicoRemitente;
+using MiApp.Services.Service.GestionCorrespondencia.Firmas;
 using MiApp.Services.Service.Seguridad.Autorizacion.Configuracion;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using MiApp.Services.Service.Seguridad.Autorizacion.Extensiones;
 using MiApp.Services.Service.Seguridad.Autorizacion.Test;
 using MiApp.Services.Service.Seguridad.PasswordPolice;
 using MiApp.Services.Service.SessionHelper;
+using MiApp.Services.Service.UI.MuiTable;
 using MiApp.Services.Service.Usuario;
+using MiApp.Services.Service.Workflow.BandejaCorrespondencia;
 using MiApp.Services.Service.Workflow.Inicio;
+using MiApp.Services.Service.Workflow.RutaTrabajo;
+using MiApp.Services.Service.GestorDocumental;
+using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.Core;
+using MiApp.Services.Service.GestionCorrespondencia.TiposRespuesta;
 using MiApp.Services.Service.Workflow.Usuario;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using DocuArchi.Api.Infrastructure.Swagger;
+using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
+var runtimeRootPath = ResolveConfiguredPath(
+    builder.Configuration["RuntimePaths:Root"],
+    GetDefaultRuntimeRootPath());
+var runtimeLogsPath = ResolveConfiguredPath(
+    builder.Configuration["StoragePaths:Logs"] ?? builder.Configuration["RuntimePaths:Logs"],
+    Path.Combine(runtimeRootPath, "logs"));
+EnsureRuntimeDirectory(runtimeLogsPath, "logs runtime");
+
+builder.Logging.AddProvider(new StoragePerfFileLoggerProvider(
+    runtimeLogsPath));
+
+builder.Services.AddMemoryCache();
+builder.Services.AddGestorDocumental(builder.Configuration);
+builder.Services.AddAdministracion(builder.Configuration);
+builder.Services.AddStorageEngine(builder.Configuration);
+builder.Services.AddEmailDispatchEngine(builder.Configuration);
+builder.Services.AddRespuestaHistoricalContext(builder.Configuration);
+builder.Services.AddGestionCorrespondenciaRespuesta(builder.Configuration);
+builder.Services.AddRadicacionCore(builder.Configuration);
+builder.Services.AddTercerosPlantillaValidacion(builder.Configuration);
+builder.Services.AddRadicacionPendientes(builder.Configuration);
+builder.Services.AddRadicacionTerminar(builder.Configuration);
+builder.Services.AddWorkflowTerminar(builder.Configuration);
+builder.Services.AddConsultaPreviaRadicado(builder.Configuration);
+builder.Services.AddDocumentProcessing(builder.Configuration);
+builder.Services.AddGestionExpedientes(builder.Configuration);
+
+
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Controllers + JSON
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    var swaggerDocs = new (string Name, string Title)[]
+    {
+        ("v1", "DocuArchi.Api (Legacy)"),
+        ("radicacion", "Radicacion"),
+        ("workflow", "Workflow"),
+        ("gestor-documental", "GestorDocumental"),
+        ("gestion-correspondencia", "GestionCorrespondencia"),
+        ("cross-cutting", "CrossCutting")
+    };
+
+    foreach (var doc in swaggerDocs)
+    {
+        c.SwaggerDoc(doc.Name, new OpenApiInfo { Title = doc.Title, Version = "v1" });
+    }
+
+    c.TagActionsBy(api =>
+    {
+        var relativePath = api.RelativePath?.ToLowerInvariant() ?? string.Empty;
+        var domain = ResolveSwaggerDomain(relativePath);
+
+        if (domain == "gestor-documental" && relativePath.StartsWith("api/gestor-documental/editor/"))
+        {
+            if (relativePath.Contains("/images/") || relativePath.EndsWith("/guardar-imagen"))
+            {
+                return new[] { "GestorDocumental.Editor.Imagenes" };
+            }
+
+            return new[] { "GestorDocumental.Editor.Documento" };
+        }
+
+        return domain switch
+        {
+            "radicacion" => new[] { "Radicacion" },
+            "workflow" => new[] { "Workflow" },
+            "gestor-documental" => new[] { "GestorDocumental" },
+            "gestion-correspondencia" => new[] { "GestionCorrespondencia" },
+            _ => new[] { "CrossCutting" }
+        };
+    });
+
+    c.DocInclusionPredicate((docName, api) =>
+    {
+        if (string.Equals(docName, "v1", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var relativePath = api.RelativePath?.ToLowerInvariant() ?? string.Empty;
+        var domain = ResolveSwaggerDomain(relativePath);
+        return string.Equals(docName, domain, StringComparison.OrdinalIgnoreCase);
+    });
+
+    c.OperationFilter<UploadTemporalChunkOperationFilter>();
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Ingrese: Bearer {token}"
+    });
+
+    static string ResolveSwaggerDomain(string relativePath)
+    {
+        if (relativePath.StartsWith("api/gestor-documental/") || relativePath.StartsWith("api/gestordocumental/"))
+        {
+            return "gestor-documental";
+        }
+
+        if (relativePath.StartsWith("api/gestion-correspondencia/") || relativePath.StartsWith("api/gestioncorrespondencia/"))
+        {
+            return "gestion-correspondencia";
+        }
+
+        if (relativePath.StartsWith("api/workflow/") || relativePath.StartsWith("api/workflowinboxgestion/"))
+        {
+            return "workflow";
+        }
+
+        if (relativePath.StartsWith("api/radicacion/") ||
+            relativePath.StartsWith("api/tramite/") ||
+            relativePath.StartsWith("api/plantillaradicado/") ||
+            relativePath.StartsWith("api/configuracionplantilla/"))
+        {
+            return "radicacion";
+        }
+
+        return "cross-cutting";
+    }
+});
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // AutoMapper
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<RaMenuPrincipalProfile>());
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // CORS para React y otros clientes
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 
 builder.Services.AddCors(options =>
@@ -83,26 +246,32 @@ builder.Services.AddCors(options =>
             // Si no hay orígenes configurados, no permitimos ninguno
             p.WithOrigins(Array.Empty<string>())
              .AllowAnyHeader()
-             .AllowAnyMethod();
+             .AllowAnyMethod()
+             .AllowCredentials();
         }
         else
         {
             p.WithOrigins(allowedOrigins)
              .AllowAnyHeader()
-             .AllowAnyMethod();
+             .AllowAnyMethod()
+             .AllowCredentials();
         }
     });
 });
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // data Access
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddScoped<IDapperCrudEngine, DapperCrudEngine>();
 builder.Services.AddScoped<IEntidadBuilder, EntidadBuilder>();
 builder.Services.AddScoped<IDbConnectionFactory, DbConnectionFactoryImpl>();
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Repositories (R)
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddScoped<IEmpresaGestionDocumentalR, EmpresaGestionDocumentalR>();
 builder.Services.AddScoped<IGestorModuloR, GestorModuloR>();
 builder.Services.AddScoped<IMenuR, MenuR>();
@@ -129,6 +298,7 @@ builder.Services.AddScoped<IPermisosPlantillaR, PermisosPlantillaR>();
 builder.Services.AddScoped<ITipoDocEntranteR, TipoDocEntranteR>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ILogUsuarioDR, LogUsuarioDR>();
+builder.Services.AddScoped<ISedeEmpresaR, SedeEmpresaR>();
 builder.Services.AddScoped<IRaValoresCamposSeleccionPlantillaRadicadoR, RaValoresCamposSeleccionPlantillaRadicadoR>();
 builder.Services.AddScoped<ISecondFactorChallengeRepository, SecondFactorChallengeRepository>();
 builder.Services.AddScoped<IRecoverTokenConsumedRepository, RecoverTokenConsumedRepository>();
@@ -139,15 +309,47 @@ builder.Services.AddScoped<IFlujosRelacionadosTramiteRepository, FlujosRelaciona
 builder.Services.AddScoped<IRaRestriRelacionTramiteR, RaRestriRelacionTramiteR>();
 builder.Services.AddScoped<ITotalDiasVencimientoTramiteRepository, TotalDiasVencimientoTramiteRepository>();
 builder.Services.AddScoped<IListaDiasFeriadosTramiteRepository, ListaDiasFeriadosTramiteRepository>();
+builder.Services.AddScoped<IRegistroPlantillaBuilder, RegistroPlantillaBuilder>();
+builder.Services.AddScoped<IRegistrarRadicacionEntranteRepository, RegistrarRadicacionEntranteRepository>();
+builder.Services.AddScoped<IValidaDimensionCamposRepository, ValidaDimensionCamposRepository>();
+builder.Services.AddScoped<IValidaTipoCamposRepository, ValidaTipoCamposRepository>();
+builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionRepository, ValidaCamposDinamicosUnicosRadicacionRepository>();
 builder.Services.AddScoped<IRemitDestInternoR, RemitDestInternoR>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaRepository, CamposDinamicosPlantillaRepository>();
+builder.Services.AddScoped<ISolicitaListaEstructuraConfiguracionPlantillaRadicacionRepository, SolicitaListaEstructuraConfiguracionPlantillaRadicacionRepository>();
+builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoRepository, SolicitaAutoCompleteTokenRadicadoRepository>();
+builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoRepository, SolicitaAutoCompleteTokenExpedienteRadicadoRepository>();
+builder.Services.AddScoped<IUiTableConfigRepository, UiTableConfigRepository>();
+builder.Services.AddScoped<IConfiguracionPlantillaRepository, ConfiguracionPlantillaRepository>();
+builder.Services.AddScoped<IRelacionCamposRutaWorklflowRepository, RelacionCamposRutaWorklflowRepository>();
+builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowRepository, SolicitaExistenciaRadicadoRutaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowRepository, SolicitaGabineteRadicadoWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowRepository, SolicitaEstructuraRutaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaEstructuraRespuestaIdTareaRepository, SolicitaEstructuraRespuestaIdTareaRepository>();
+builder.Services.AddScoped<ISolicitaListaTiposRespuestaRepository, SolicitaListaTiposRespuestaRepository>();
+builder.Services.AddScoped<ISolicitaCorreoElectronicoRemitenteRepository, SolicitaCorreoElectronicoRemitenteRepository>();
+builder.Services.AddScoped<ISolicitaEstructuraConfiguracionUploadNameProcesoRepository, SolicitaEstructuraConfiguracionUploadNameProcesoRepository>();
+builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
+builder.Services.AddScoped<ISolicitaEditorContextDefinitionRepository, SolicitaEditorContextDefinitionRepository>();
+builder.Services.AddScoped<IGuardaEditorDocumentContextRepository, GuardaEditorDocumentContextRepository>();
+builder.Services.AddScoped<IServiceGuardaEditorDocumentContext, ServiceGuardaEditorDocumentContext>();
+builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
+builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
+builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
+builder.Services.AddScoped<IWorkflowInboxContextResolverService, WorkflowInboxContextResolverService>();
+builder.Services.AddScoped<IWorkflowInboxQueryBuilder, WorkflowInboxQueryBuilder>();
+builder.Services.AddScoped<IRegistroRadicadoTareaWorkflowRepository, RegistroRadicadoTareaWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaConfiguracionListaUsuarioWorkflowRepository, SolicitaConfiguracionListaUsuarioWorkflowRepository>();
+builder.Services.AddScoped<ISolicitaDatosActividadInicioFlujoRepository, SolicitaDatosActividadInicioFlujoRepository>();
 
 
 
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Services (L)
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddScoped<IInicioSesionL, InicioSesionL>();
 builder.Services.AddScoped<IGenerycService, GenerycService>();
 builder.Services.AddScoped<ICryptoHelper, CryptoHelper>();
@@ -158,6 +360,7 @@ builder.Services.AddScoped<IInicioModuloGestorL, InicioModuloGestorL>();
 builder.Services.AddScoped<IIncioModuloWorkflowL, IncioModuloWorkflowL>();
 builder.Services.AddScoped<IMenuL, MenuL>();
 builder.Services.AddScoped<IUsuarioWorkflowL, UsuarioWorkflowL>();
+builder.Services.AddScoped<IServiceFirmaTemporalUsuarioWorkflow, ServiceFirmaTemporalUsuarioWorkflow>();
 builder.Services.AddScoped<IPlantillaRadicacionL, PlantillaRadicacionL>();
 builder.Services.AddScoped<IRemitDestInternoL, RemitDestInternoL>();
 builder.Services.AddScoped<ISesionActualCleaner, SesionActualCleaner>();
@@ -177,16 +380,70 @@ builder.Services.AddScoped<ITotalDiasVencimientoTramiteService, TotalDiasVencimi
 builder.Services.AddScoped<IListaDiasFeriadosTramiteService, ListaDiasFeriadosTramiteService>();
 builder.Services.AddScoped<IAutoCompleteDestinatarioRestriccionService, AutoCompleteDestinatarioRestriccionService>();
 builder.Services.AddScoped<ICamposDinamicosPlantillaService, CamposDinamicosPlantillaService>();
+builder.Services.AddScoped<ISolicitaAutoCompleteTokenRadicadoService, SolicitaAutoCompleteTokenRadicadoService>();
+builder.Services.AddScoped<ISolicitaAutoCompleteTokenExpedienteRadicadoService, SolicitaAutoCompleteTokenExpedienteRadicadoService>();
 builder.Services.AddScoped<IFechaLimiteRespuestaService, FechaLimiteRespuestaService>();
+builder.Services.AddScoped<ISolicitaCuerpoRadicadoService, SolicitaCuerpoRadicadoService>();
+builder.Services.AddScoped<IRegistrarRadicacionEntranteService, RegistrarRadicacionEntranteService>();
+builder.Services.AddScoped<ISolicitaParametrosRadicadosService, SolicitaParametrosRadicadosService>();
+builder.Services.AddScoped<ISolicitaEstructuraTipoDocEntranteService, SolicitaEstructuraTipoDocEntranteService>();
+builder.Services.AddScoped<IValidaCamposObligatoriosService, ValidaCamposObligatoriosService>();
+builder.Services.AddScoped<IValidaDimensionCamposService, ValidaDimensionCamposService>();
+builder.Services.AddScoped<IValidaTipoCamposService, ValidaTipoCamposService>();
+builder.Services.AddScoped<IValidaCamposDinamicosUnicosRadicacionService, ValidaCamposDinamicosUnicosRadicacionService>();
+builder.Services.AddScoped<IValidaCamposRadicacionService, ValidaCamposRadicacionService>();
+builder.Services.AddScoped<IValidarRadicacionEntranteService, ValidarRadicacionEntranteService>();
+builder.Services.AddScoped<IFlujoInicialRadicacionService, FlujoInicialRadicacionService>();
+builder.Services.AddScoped<IAsingacionValoresDatosRadicadoRutaWorklflow, AsingacionValoresDatosRadicadoRutaWorklflow>();
+builder.Services.AddScoped<IValidaDatosRadicacionTareaWorkflowService, ValidaDatosRadicacionTareaWorkflowService>();
+builder.Services.AddScoped<IValidaPreRegistroWorkflowService, ValidaPreRegistroWorkflowService>();
+builder.Services.AddScoped<IWorkflowInboxRepository, WorkflowInboxRepository>();
+builder.Services.AddScoped<IWorkflowInboxService, WorkflowInboxService>();
+builder.Services.AddScoped<IWorkflowDynamicUiColumnBuilder, WorkflowDynamicUiColumnBuilder>();
+builder.Services.AddScoped<IDynamicUiTableBuilder, DynamicUiTableBuilder>();
+builder.Services.AddScoped<IDynamicUiTableService, DynamicUiTableService>();
+builder.Services.AddScoped<IDynamicUiTableHandler, DefaultDynamicUiTableHandler>();
+builder.Services.AddScoped<IConfiguracionPlantillaService, ConfiguracionPlantillaService>();
+builder.Services.AddScoped<IRelacionCamposRutaWorklflowService, RelacionCamposRutaWorklflowService>();
+builder.Services.AddScoped<ISolicitaExistenciaRadicadoRutaWorkflowService, SolicitaExistenciaRadicadoRutaWorkflowService>();
+builder.Services.AddScoped<ISolicitaGabineteRadicadoWorkflowService, SolicitaGabineteRadicadoWorkflowService>();
+builder.Services.AddScoped<ISolicitaEstructuraRutaWorkflowService, SolicitaEstructuraRutaWorkflowService>();
+builder.Services.AddScoped<IServiceSolicitaEstructuraRespuesta, ServiceSolicitaEstructuraRespuesta>();
+builder.Services.AddScoped<IServiceSolicitaListaTiposRespuesta, ServiceSolicitaListaTiposRespuesta>();
+builder.Services.AddScoped<IServiceSolicitaCorreoElectronicoRemitente, ServiceSolicitaCorreoElectronicoRemitente>();
+builder.Services.AddScoped<IServiceSolicitaUsuarioPrincipalRespuesta, ServiceSolicitaUsuarioPrincipalRespuesta>();
+builder.Services.AddScoped<IServiceSolicitaListaFirmasPermitidasSolicitudAprobacion, ServiceSolicitaListaFirmasPermitidasSolicitudAprobacion>();
+builder.Services.AddScoped<ISolicitaListaFirmasPermitidasSolicitudAprobacionRepository, SolicitaListaFirmasPermitidasSolicitudAprobacionRepository>();
+builder.Services.AddScoped<IServiceSolicitaListaFirmasAutorizadasDocumento, ServiceSolicitaListaFirmasAutorizadasDocumento>();
+builder.Services.AddScoped<IServiceSolicitaFirmasDocumentoRespuestaOrquestado, ServiceSolicitaFirmasDocumentoRespuestaOrquestado>();
+builder.Services.AddScoped<ISolicitaListaFirmasAutorizadasDocumentoRepository, SolicitaListaFirmasAutorizadasDocumentoRepository>();
+builder.Services.AddScoped<IServiceSolicitaEstructuraConfiguracionUpload, ServiceSolicitaEstructuraConfiguracionUpload>();
+builder.Services.AddScoped<IServiceGuardaEditorDocument, ServiceGuardaEditorDocument>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPdfService, MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPdfService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPaginasPdfAnotadasService, MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPaginasPdfAnotadasService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPdfStorageReplacementExecutor, MiApp.Services.Service.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPdfStorageReplacementExecutor>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.IPdfPageReplacementService, MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.PdfPageReplacementService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.ITifToPdfConverterService, MiApp.Services.Service.GestorDocumental.Documentos.PdfTools.TifToPdfConverterService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.VisualizacionDocumento.IVisualizacionDocumentoService, MiApp.Services.Service.GestorDocumental.Documentos.VisualizacionDocumento.VisualizacionDocumentoService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados.IListaDocumentosRadicadoService, MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados.ListaDocumentosRadicadoService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Documentos.FirmaElectronica.IFirmaElectronicaDocumentoService, MiApp.Services.Service.GestorDocumental.Documentos.FirmaElectronica.FirmaElectronicaDocumentoService>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.PermisosVisorPdf.IPermisosVisorPdfService, MiApp.Services.Service.GestorDocumental.PermisosVisorPdf.PermisosVisorPdfService>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Documentos.ReemplazoPdf.IReemplazoPdfDocumentLocationRepository, MiApp.Repository.Repositorio.GestorDocumental.Documentos.ReemplazoPdf.ReemplazoPdfDocumentLocationRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Documentos.ListaDocumentosRadicados.IListaDocumentosRadicadosRepository, MiApp.Repository.Repositorio.GestorDocumental.Documentos.ListaDocumentosRadicados.ListaDocumentosRadicadosRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Documentos.FirmaElectronica.IFirmaElectronicaDocumentoRepository, MiApp.Repository.Repositorio.GestorDocumental.Documentos.FirmaElectronica.FirmaElectronicaDocumentoRepository>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.PermisosVisorPdf.IPermisosVisorPdfRepository, MiApp.Repository.Repositorio.GestorDocumental.PermisosVisorPdf.PermisosVisorPdfRepository>();
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // Infrastructure (Security + Session)
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.Configure<PermissionTestSettings>(
 builder.Configuration.GetSection("PermissionTest"));
 builder.Services.AddScoped<ITokenIssuer, TokenIssuer>();
 builder.Services.AddScoped<IIpHelper, IpHelperL>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();  //CAMBIADO:     Retorna el sistema de autenticación actual (JWT o ASP.NET Session) según el contexto
 builder.Services.AddScoped<IClaimValidationService, ClaimValidationService>();
+builder.Services.AddScoped<DocuArchi.Api.Infrastructure.Features.IFeatureToggleService, DocuArchi.Api.Infrastructure.Features.FeatureToggleService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SesionActual>();
 
@@ -198,12 +455,23 @@ builder.Services.AddScoped<ISesionRadicacion>(sp => sp.GetRequiredService<Sesion
 builder.Services.AddScoped<ISesionWorkflow>(sp => sp.GetRequiredService<SesionActual>());
 
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // ASP.NET Session
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 var sessionConfig = new SessionConfigDTO();
 builder.Configuration.GetSection("SessionConfig").Bind(sessionConfig);
 if (sessionConfig.IdleTimeoutMinutes <= 0)
     sessionConfig.IdleTimeoutMinutes = 20;
+
+var dataProtectionKeysPath = ResolveConfiguredPath(
+    builder.Configuration["DataProtection:KeysPath"] ?? builder.Configuration["RuntimePaths:DataProtectionKeys"],
+    Path.Combine(runtimeRootPath, "dataprotection-keys"));
+var dataProtectionKeysDirectory = EnsureRuntimeDirectory(dataProtectionKeysPath, "DataProtection keys");
+builder.Services
+    .AddDataProtection()
+    .PersistKeysToFileSystem(dataProtectionKeysDirectory)
+    .SetApplicationName("DocuArchi.Api");
 
 builder.Services.AddSingleton(sessionConfig);
 builder.Services.AddDistributedMemoryCache();
@@ -215,8 +483,10 @@ builder.Services.AddSession(o =>
     o.Cookie.SameSite = SameSiteMode.Lax;
 });
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 // ASP.NET JWT Authentication
 // ===================================================
+  builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -253,6 +523,22 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 // ===================================================
+builder.Services.AddScoped<IGuardaEditorDocumentRepository, GuardaEditorDocumentRepository>();
+builder.Services.AddScoped<ISolicitaEditorContextDefinitionRepository, SolicitaEditorContextDefinitionRepository>();
+builder.Services.AddScoped<IGuardaEditorDocumentContextRepository, GuardaEditorDocumentContextRepository>();
+builder.Services.AddScoped<IServiceGuardaEditorDocumentContext, ServiceGuardaEditorDocumentContext>();
+builder.Services.AddScoped<ISincronizaEditorDocumentImagesRepository, SincronizaEditorDocumentImagesRepository>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceFullSaveEditorDocument, MiApp.Services.Service.GestorDocumental.Editor.ServiceFullSaveEditorDocument>();
+builder.Services.AddScoped<MiApp.Repository.Repositorio.GestorDocumental.Editor.ISolicitaEditorDocumentByIdRepository, MiApp.Repository.Repositorio.GestorDocumental.Editor.SolicitaEditorDocumentByIdRepository>();
+builder.Services.AddScoped<MiApp.Services.Service.GestorDocumental.Editor.IServiceSolicitaEditorDocumentById, MiApp.Services.Service.GestorDocumental.Editor.ServiceSolicitaEditorDocumentById>();
+builder.Services.AddScoped<ITemplateDefinitionsRepository, TemplateDefinitionsRepository>();
+builder.Services.AddScoped<ITemplateTokensRepository, TemplateTokensRepository>();
+builder.Services.AddScoped<ITemplateContextRulesRepository, TemplateContextRulesRepository>();
+builder.Services.AddScoped<IServiceTemplateDefinitions, ServiceTemplateDefinitions>();
+builder.Services.AddScoped<IServiceInitialContentEditor, ServiceInitialContentEditor>();
+builder.Services.AddScoped<ISolicitaEditorDocumentByContextRepository, SolicitaEditorDocumentByContextRepository>();
+builder.Services.AddScoped<IServiceSolicitaEditorDocumentByContext, ServiceSolicitaEditorDocumentByContext>();
+builder.Services.AddScoped<IServiceResolveEditorDocument, ServiceResolveEditorDocument>();
 // Build pipeline
 // ===================================================
 var app = builder.Build();
@@ -261,7 +547,15 @@ var app = builder.Build();
 
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("v1/swagger.json", "DocuArchi.Api v1 (Legacy)");
+    c.SwaggerEndpoint("radicacion/swagger.json", "Radicacion");
+    c.SwaggerEndpoint("workflow/swagger.json", "Workflow");
+    c.SwaggerEndpoint("gestor-documental/swagger.json", "GestorDocumental");
+    c.SwaggerEndpoint("gestion-correspondencia/swagger.json", "GestionCorrespondencia");
+    c.SwaggerEndpoint("cross-cutting/swagger.json", "CrossCutting");
+});
 
 app.UseHttpsRedirection();
 
@@ -275,17 +569,40 @@ app.UseAuthentication();         // JWT
 app.UseAuthorization();          // Authorization policies
 
 app.MapControllers();
-
 app.Run();
 
+static string GetDefaultRuntimeRootPath()
+{
+    if (OperatingSystem.IsWindows())
+    {
+        return @"C:\AppData\DocuArchiApi";
+    }
 
+    return Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "DocuArchiApi");
+}
 
+static string ResolveConfiguredPath(string? configuredPath, string fallbackPath)
+{
+    var path = string.IsNullOrWhiteSpace(configuredPath)
+        ? fallbackPath
+        : configuredPath.Trim();
+    return Environment.ExpandEnvironmentVariables(path);
+}
 
-
-
-
-
-
-
-
+static DirectoryInfo EnsureRuntimeDirectory(string path, string logicalName)
+{
+    try
+    {
+        return Directory.CreateDirectory(path);
+    }
+    catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+    {
+        throw new InvalidOperationException(
+            $"No se pudo crear o acceder la carpeta de {logicalName}: '{path}'. " +
+            "Configure permisos Modify al identity real del App Pool o ajuste la ruta por configuracion.",
+            ex);
+    }
+}
 

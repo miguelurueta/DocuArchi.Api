@@ -7,6 +7,7 @@ using MiApp.Services.Service.Home.Menu;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
+using System.Diagnostics;
 
 namespace DocuArchi.Api.Controllers.Account
 {
@@ -44,7 +45,7 @@ namespace DocuArchi.Api.Controllers.Account
                
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new AppResponses<List<RaMenuPrincipalDto>>
@@ -58,9 +59,10 @@ namespace DocuArchi.Api.Controllers.Account
                             {
                                 Type = "System",
                                 Field = nameof(ServiceSolicitaEstructuraMenuPrincipal),
-                                Message = ex.Message
+                                Message = "Error sanitizado. Consulte el requestId de la operación."
                             }
-                        }
+                        },
+                        meta = new AppMeta { RequestId = Activity.Current?.Id }
                     });
             }
         }
