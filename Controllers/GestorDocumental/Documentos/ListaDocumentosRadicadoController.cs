@@ -49,6 +49,15 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 }
 
                 string? workflowAlias = null;
+                int? usuarioRadicadorId = null;
+                if (string.Equals(request?.ResolutionSource?.Trim(), "RADICACION", StringComparison.OrdinalIgnoreCase))
+                {
+                    var radicadorValidation = _claimValidationService.ValidateClaim<string>("IdUsuarioRadicador");
+                    if (radicadorValidation?.Success != true ||
+                        !int.TryParse(radicadorValidation.ClaimValue, out var parsed) || parsed <= 0)
+                        return BadRequest(radicadorValidation?.Response);
+                    usuarioRadicadorId = parsed;
+                }
                 if (string.Equals(request?.ResolutionSource?.Trim(), "WORKFLOW", StringComparison.OrdinalIgnoreCase))
                 {
                     var workflowValidation = _claimValidationService.ValidateClaim<string>("defaulaliaswf");
@@ -58,7 +67,8 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
 
                 var result = await _service.SolicitaListaDocumentosRadicadosTreeAsync(
                     request, usuarioId, aliasValidation.ClaimValue, workflowAlias,
-                    HttpContext.TraceIdentifier, cancellationToken);
+                    HttpContext.TraceIdentifier, cancellationToken,
+                    User.FindFirst("login")?.Value?.Trim(), usuarioRadicadorId);
                 if (!result.success)
                 {
                     result.meta ??= new AppMeta { Status = "error" };

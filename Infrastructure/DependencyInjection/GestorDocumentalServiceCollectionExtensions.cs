@@ -1,6 +1,8 @@
 using MiApp.Repository.Repositorio.GestorDocumental.ContextoDocumental;
+using MiApp.Repository.Repositorio.GestorDocumental.Documentos.ListaDocumentosRadicados;
 using MiApp.Repository.Repositorio.GestorDocumental.TipologiasDocumentales;
 using MiApp.Services.Service.GestorDocumental.ContextoDocumental;
+using MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados;
 using MiApp.Services.Service.GestorDocumental.TipologiasDocumentales;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +17,16 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
         {
             services.AddTipologiasDocumentales();
             services.AddContextoDocumental();
+            services.AddListaDocumentosRadicados();
+
+            return services;
+        }
+
+        private static IServiceCollection AddListaDocumentosRadicados(this IServiceCollection services)
+        {
+            services.AddScoped<IListaDocumentosRadicadosRepository, ListaDocumentosRadicadosRepository>();
+            services.AddScoped<IListaDocumentosRadicadoService, ListaDocumentosRadicadoService>();
+            services.AddScoped<IListaDocumentosRadicadosOperacionalService, ListaDocumentosRadicadosOperacionalService>();
 
             return services;
         }
