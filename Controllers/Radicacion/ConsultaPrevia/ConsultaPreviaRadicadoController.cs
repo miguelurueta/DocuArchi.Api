@@ -168,6 +168,81 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
         }
 
         /// <summary>
+        /// Busca sugerencias autorizadas para un campo de consulta previa.
+        /// </summary>
+        /// <param name="idPlantilla">Identificador de la plantilla de radicacion.</param>
+        /// <param name="nombreCanonico">Nombre canonico publicado por la estructura.</param>
+        /// <param name="request">Tipo, texto, limite opcional y contexto v1 vacío.</param>
+        /// <param name="cancellationToken">Token de cancelacion de la solicitud HTTP.</param>
+        [HttpPost("plantillas/{idPlantilla:long}/campos/{nombreCanonico}/autocomplete")]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAutocompleteResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAutocompleteResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAutocompleteResponseDto>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAutocompleteResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<AppResponses<ConsultaPreviaRadicadoAutocompleteResponseDto>>> GetAutocompleteAsync(
+            long idPlantilla,
+            string nombreCanonico,
+            [FromBody] ConsultaPreviaRadicadoAutocompleteRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.AutocompleteRequestInvalido,
+                        "request",
+                        requestId));
+                }
+
+                var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
+                if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.AutocompleteClaimRequired,
+                        "defaulalias",
+                        requestId));
+                }
+
+                var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
+                if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
+                    || !long.TryParse(usuario.ClaimValue, out var usuarioId))
+                {
+                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                        ConsultaPreviaRadicadoErrorCatalog.AutocompleteClaimRequired,
+                        "usuarioid",
+                        requestId));
+                }
+
+                var result = await _consultaPreviaRadicadoService.GetAutocompleteAsync(
+                    idPlantilla,
+                    nombreCanonico,
+                    request,
+                    alias.ClaimValue,
+                    usuarioId,
+                    requestId,
+                    cancellationToken);
+
+                return result.success ? Ok(result) : StatusCode(ResolveStatusCode(result), result);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.AutocompleteUnexpected),
+                    "unexpected",
+                    requestId,
+                    ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
+        }
+
+        /// <summary>
         /// Obtiene el detalle vertical completo de un radicado consultado previamente.
         /// </summary>
         /// <param name="radicado">Consecutivo del radicado seleccionado.</param>

@@ -1,11 +1,14 @@
 using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Acciones;
+using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Autocomplete;
 using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Estructura;
 using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Query;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Acciones;
+using MiApp.Services.Service.Radicacion.ConsultaPrevia.Autocomplete;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Core;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Detalle;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Errors;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Estructura;
+using MiApp.Services.Service.Radicacion.ConsultaPrevia.Fields;
 using MiApp.Services.Service.Radicacion.ConsultaPrevia.Query;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection
@@ -21,8 +24,16 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
         {
             services.AddScoped<IConsultaPreviaRadicadoEstructuraRepository, ConsultaPreviaRadicadoEstructuraRepository>();
             services.AddScoped<IConsultaPreviaRadicadoRepository, ConsultaPreviaRadicadoRepository>();
+            services.AddScoped<IConsultaPreviaRadicadoAutocompleteRepository, ConsultaPreviaRadicadoAutocompleteRepository>();
             services.AddScoped<IConsultaPreviaRadicadoActionRepository, ConsultaPreviaRadicadoActionRepository>();
             services.AddScoped<IConsultaPreviaRadicadoEstructuraService, ConsultaPreviaRadicadoEstructuraService>();
+            services.AddScoped<IConsultaPreviaRadicadoFieldResolver, ConsultaPreviaRadicadoFieldResolver>();
+            services.AddScoped<IConsultaPreviaRadicadoAutocompleteCatalog, ConsultaPreviaRadicadoAutocompleteCatalog>();
+            services.AddScoped<IConsultaPreviaRadicadoAutocompleteProvider, ConsultaPreviaRadicadoDistinctValuesProvider>();
+            services.AddScoped<IConsultaPreviaRadicadoAutocompleteProvider, ConsultaPreviaRadicadoNumberProvider>();
+            services.AddScoped<IConsultaPreviaRadicadoAutocompleteProvider, ConsultaPreviaRadicadoRemitenteProvider>();
+            services.AddScoped<IConsultaPreviaRadicadoAutocompleteProvider, ConsultaPreviaRadicadoDestinatarioProvider>();
+            services.AddScoped<IConsultaPreviaRadicadoAutocompleteService, ConsultaPreviaRadicadoAutocompleteService>();
             services.AddScoped<IConsultaPreviaRadicadoQueryService, ConsultaPreviaRadicadoQueryService>();
             services.AddScoped<IConsultaPreviaRadicadoDetalleService, ConsultaPreviaRadicadoDetalleService>();
             services.AddScoped<IConsultaPreviaRadicadoActionService, ConsultaPreviaRadicadoActionService>();
