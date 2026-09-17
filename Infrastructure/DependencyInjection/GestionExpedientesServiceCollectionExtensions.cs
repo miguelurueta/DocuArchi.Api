@@ -9,6 +9,12 @@ public static class GestionExpedientesServiceCollectionExtensions
     {
         services.AddScoped<IExpedienteRepository, ExpedienteRepository>();
         services.AddScoped<IExpedienteService, ExpedienteService>();
+        services.AddScoped<IExpedienteTypeCatalogRepository, ExpedienteTypeCatalogRepository>();
+        services.AddScoped<IArchivoCatalogRepository, ArchivoCatalogRepository>();
+        services.AddScoped<IOrganizationalStructureCatalogRepository, OrganizationalStructureCatalogRepository>();
+        services.AddScoped<IResponsableGestionRepository, ResponsableGestionRepository>();
+        services.AddScoped<IExpedienteCatalogService, ExpedienteCatalogService>();
+        services.AddScoped<IExpedienteCreateModelService, ExpedienteCreateModelService>();
         return services;
     }
 }
