@@ -183,6 +183,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     c.OperationFilter<UploadTemporalChunkOperationFilter>();
+    c.OperationFilter<ListaDocumentosRadicadosOperacionalOperationFilter>();
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -343,7 +344,6 @@ builder.Services.AddScoped<IServiceGuardaEditorDocumentContext, ServiceGuardaEdi
 builder.Services.AddScoped<ISolicitaEstructuraConfiguracionListadoRutaRepository, SolicitaEstructuraConfiguracionListadoRutaRepository>();
 builder.Services.AddScoped<ISolicitaCamposListaGestionCorrespondenciaRepository, SolicitaCamposListaGestionCorrespondenciaRepository>();
 builder.Services.AddScoped<IWorkflowRouteColumnConfigRepository, WorkflowRouteColumnConfigRepository>();
-builder.Services.AddScoped<IWorkflowInboxContextResolverService, WorkflowInboxContextResolverService>();
 builder.Services.AddScoped<IWorkflowInboxQueryBuilder, WorkflowInboxQueryBuilder>();
 builder.Services.AddScoped<IRegistroRadicadoTareaWorkflowRepository, RegistroRadicadoTareaWorkflowRepository>();
 builder.Services.AddScoped<ISolicitaConfiguracionListaUsuarioWorkflowRepository, SolicitaConfiguracionListaUsuarioWorkflowRepository>();
