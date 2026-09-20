@@ -4,6 +4,7 @@ using MiApp.Repository.Repositorio.GestorDocumental.TipologiasDocumentales;
 using MiApp.Services.Service.GestorDocumental.ContextoDocumental;
 using MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados;
 using MiApp.Services.Service.GestorDocumental.TipologiasDocumentales;
+using MiApp.Services.Service.Workflow.BandejaCorrespondencia;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,6 +38,7 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<IContextoDocumentalResolver, RadicacionContextResolver>();
             services.AddScoped<IContextoDocumentalResolver, WorkflowContextResolver>();
             services.AddScoped<IContextoDocumentalRadicadoService, ContextoDocumentalRadicadoService>();
+            services.AddScoped<IWorkflowInboxContextResolverService, WorkflowInboxContextResolverService>();
 
             return services;
         }
