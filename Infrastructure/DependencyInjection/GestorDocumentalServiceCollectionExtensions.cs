@@ -49,6 +49,14 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<ISolicitaListaTipologiasDocumentalesRepository, SolicitaListaTipologiasDocumentalesRepository>();
             services.AddScoped<IContextoTipologiaResolverService, ContextoTipologiaResolverService>();
             services.AddScoped<IContextoTipologiaResolverRepository, SolicitaListaTipologiasDocumentalesRepository>();
+            services.AddScoped<ITipologiasDocumentalesContextCoordinator, TipologiasDocumentalesContextCoordinator>();
+            services.AddScoped<ITipologiasDocumentalesContextStrategy, RadicacionTipologiasContextStrategy>();
+            services.AddScoped<ITipologiasDocumentalesContextStrategy, WorkflowTipologiasContextStrategy>();
+            services.AddScoped<ITipologiasDocumentalesContextStrategy, GestionRespuestaTipologiasContextStrategy>();
+            services.AddScoped<ITipologiasDocumentalesContextStrategy, ProduccionTipologiasContextStrategy>();
+            services.AddScoped<ITipologiasDocumentalesContextStrategy, TrdSerieTipologiasContextStrategy>();
+            services.AddScoped<ITipologiasDocumentalesContextStrategy, TrdSubSerieTipologiasContextStrategy>();
+            services.AddScoped<ITipologiasDocumentalesContextStrategy, MigracionTipologiasContextStrategy>();
 
             return services;
         }
