@@ -27,6 +27,13 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.TipologiasDocumentales
             _logger = logger;
         }
 
+        /// <summary>Consulta las tipologias documentales aplicables al contexto explicito.</summary>
+        /// <remarks>
+        /// Contextos: RADICACION, WORKFLOW, GESTION_RESPUESTA, PRODUCCION, TRD_SERIE,
+        /// TRD_SUBSERIE y MIGRACION. RADICACION V2 requiere idTipoTramite y
+        /// tipoPlantillaTramite canonico; GESTION_RESPUESTA requiere idTareaWf y admite
+        /// idRutaWf opcional. Sin versionContrato=2 se conserva la respuesta V1.
+        /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(AppResponses<List<ResponseDropdownDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<TipologiasDocumentalesResponseDto>), StatusCodes.Status200OK)]
