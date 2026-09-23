@@ -23,6 +23,14 @@ public static class GestionExpedientesServiceCollectionExtensions
         services.AddScoped<IExpedienteWriteRepository, ExpedienteWriteRepository>();
         services.AddScoped<IExpedienteIndiceXmlInitializer, ExpedienteIndiceXmlInitializer>();
         services.AddScoped<ICrearExpedienteUseCase, CrearExpedienteUseCase>();
+        services.AddScoped<IExpedienteEditModelService, ExpedienteEditModelService>();
+        services.AddScoped<IEditarExpedienteUseCase, EditarExpedienteUseCase>();
+        services.AddScoped<IExpedienteUpdateValidator, ExpedienteUpdateValidator>();
+        services.AddScoped<IExpedientePermissionPolicy, ExpedientePermissionPolicy>();
+        services.AddScoped<IExpedienteEstadoPolicy, ExpedienteEstadoPolicy>();
+        services.AddScoped<IExpedienteOwnershipPolicy, ExpedienteOwnershipPolicy>();
+        services.AddScoped<IExpedienteAutoRegistroPolicy, ExpedienteAutoRegistroPolicy>();
+        services.AddScoped<IExpedienteRetencionService, ExpedienteRetencionService>();
         return services;
     }
 }
