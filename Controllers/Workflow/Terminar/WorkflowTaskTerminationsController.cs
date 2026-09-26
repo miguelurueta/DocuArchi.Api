@@ -131,9 +131,10 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
         {
             throw;
         }
-        catch
+        catch (Exception exception)
         {
             _logger.LogError(
+                exception,
                 "Workflow termination failed unexpectedly. stage={Stage} requestId={RequestId} taskId={TaskId}",
                 "Controller",
                 requestId,
