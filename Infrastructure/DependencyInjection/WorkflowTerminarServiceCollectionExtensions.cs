@@ -64,7 +64,11 @@ public static class WorkflowTerminarServiceCollectionExtensions
         services.AddScoped<IWorkflowTaskTransitionStore, DapperCrudWorkflowTaskTransitionStore>();
         services.AddScoped<IWorkflowTaskTransitionRepository, WorkflowTaskTransitionRepository>();
         services.AddScoped<IWorkflowSuccessorTaskStore, DapperCrudWorkflowSuccessorTaskStore>();
+        services.AddScoped<IWorkflowStateStore>(provider =>
+            provider.GetRequiredService<IWorkflowSuccessorTaskStore>());
         services.AddScoped<IWorkflowSuccessorTaskRepository, WorkflowSuccessorTaskRepository>();
+        services.AddScoped<IWorkflowStateRepository>(provider =>
+            provider.GetRequiredService<IWorkflowSuccessorTaskRepository>());
         services.AddScoped<IWorkflowRadicacionTransitionStore, DapperCrudWorkflowRadicacionTransitionStore>();
         services.AddScoped<IWorkflowRadicacionTransitionRepository, WorkflowRadicacionTransitionRepository>();
         services.AddScoped<IWorkflowTerminationAuditStore, DapperCrudWorkflowTerminationAuditStore>();

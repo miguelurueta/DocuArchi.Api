@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DocuArchi.Api.Controllers.Workflow.Terminar;
 
 /// <summary>
-/// Completes a Workflow task through the atomic Normal-transition use case.
+/// Completes a Workflow task through the atomic Normal/Final transition use case.
 /// Server-owned routing, authorization and destination facts are resolved by
 /// the application service and are intentionally absent from the HTTP input.
 /// </summary>
@@ -42,8 +42,8 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
     }
 
     /// <summary>
-    /// Executes one Normal transition. Reusing an idempotency key with the same
-    /// authorized payload returns the already committed result.
+    /// Executes one server-classified Normal or Final transition. Reusing an
+    /// idempotency key with the same authorized payload returns the committed result.
     /// </summary>
     [HttpPost("{idTarea:long}/terminaciones")]
     [ProducesResponseType(typeof(AppResponses<CompleteWorkflowTaskResponseDto>), StatusCodes.Status200OK)]
@@ -131,14 +131,14 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
         {
             throw;
         }
-        catch (Exception exception)
+        catch (Exception)
         {
             _logger.LogError(
-                exception,
-                "Workflow termination failed unexpectedly. stage={Stage} requestId={RequestId} taskId={TaskId}",
+                "Workflow termination failed unexpectedly. stage={Stage} requestId={RequestId} taskId={TaskId} errorCode={ErrorCode}",
                 "Controller",
                 requestId,
-                idTarea);
+                idTarea,
+                WorkflowTerminationErrorCatalog.Unexpected);
             return FromFailure(CompleteWorkflowTaskServiceStatus.UnexpectedFailure, requestId);
         }
     }
