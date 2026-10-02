@@ -87,6 +87,14 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                 return FromFailure(CompleteWorkflowTaskServiceStatus.AccessDenied, requestId, "IdUsuarioWorkflow");
             }
 
+            var companyValidation = _claimValidationService.ValidateClaim<string>("emp");
+            if (!companyValidation.Success
+                || !int.TryParse(companyValidation.ClaimValue, out var companyId)
+                || companyId <= 0)
+            {
+                return FromFailure(CompleteWorkflowTaskServiceStatus.AccessDenied, requestId, "emp");
+            }
+
             var idempotency = new WorkflowIdempotencyKey(
                 idTarea,
                 workflowUserId,
@@ -99,6 +107,7 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                 {
                     options.Items[WorkflowTerminationMappingContextKeys.TaskId] = idTarea;
                     options.Items[WorkflowTerminationMappingContextKeys.WorkflowUserId] = workflowUserId;
+                    options.Items[WorkflowTerminationMappingContextKeys.CompanyId] = companyId;
                     options.Items[WorkflowTerminationMappingContextKeys.IdempotencyKey] = idempotency;
                     options.Items[WorkflowTerminationMappingContextKeys.PayloadHash] = payloadHash;
                 });
