@@ -88,6 +88,10 @@ public static class WorkflowTerminarServiceCollectionExtensions
         {
             services.AddScoped<IWorkflowTaskNotificationDispatcher, WorkflowTaskNotificationDispatcher>();
         }
+        else
+        {
+            services.AddScoped<IWorkflowTaskNotificationDispatcher, DisabledWorkflowTaskNotificationDispatcher>();
+        }
         services.AddScoped<ICompleteWorkflowTaskService, CompleteWorkflowTaskService>();
         return services;
     }
