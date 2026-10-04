@@ -80,6 +80,18 @@ public static class WorkflowTerminarServiceCollectionExtensions
         services.AddScoped<IWorkflowBeforeTransitionPipeline, WorkflowBeforeTransitionPipeline>();
         services.AddScoped<IWorkflowOutboxIntentFactory, WorkflowOutboxIntentFactory>();
         services.AddScoped<IWorkflowOutboxDispatcher, WorkflowOutboxDispatcher>();
+        services.AddScoped<IWorkflowTaskNotificationContextRepository, WorkflowTaskNotificationContextRepository>();
+        services.AddScoped<IWorkflowTaskNotificationRecipientRepository, WorkflowTaskNotificationRecipientRepository>();
+        services.AddScoped<IWorkflowTaskNotificationMessageComposer, WorkflowTaskNotificationMessageComposer>();
+        services.AddScoped<IWorkflowTaskEmailDispatchRequestFactory, WorkflowTaskEmailDispatchRequestFactory>();
+        if (configuration.GetValue<bool>("EmailDispatch:EnableDispatchService"))
+        {
+            services.AddScoped<IWorkflowTaskNotificationDispatcher, WorkflowTaskNotificationDispatcher>();
+        }
+        else
+        {
+            services.AddScoped<IWorkflowTaskNotificationDispatcher, DisabledWorkflowTaskNotificationDispatcher>();
+        }
         services.AddScoped<ICompleteWorkflowTaskService, CompleteWorkflowTaskService>();
         return services;
     }

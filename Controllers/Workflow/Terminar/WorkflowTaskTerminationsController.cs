@@ -87,6 +87,14 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                 return FromFailure(CompleteWorkflowTaskServiceStatus.AccessDenied, requestId, "IdUsuarioWorkflow");
             }
 
+            var companyValidation = _claimValidationService.ValidateClaim<string>("emp");
+            if (!companyValidation.Success
+                || !int.TryParse(companyValidation.ClaimValue, out var companyId)
+                || companyId <= 0)
+            {
+                return FromFailure(CompleteWorkflowTaskServiceStatus.AccessDenied, requestId, "emp");
+            }
+
             var idempotency = new WorkflowIdempotencyKey(
                 idTarea,
                 workflowUserId,
@@ -99,6 +107,7 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                 {
                     options.Items[WorkflowTerminationMappingContextKeys.TaskId] = idTarea;
                     options.Items[WorkflowTerminationMappingContextKeys.WorkflowUserId] = workflowUserId;
+                    options.Items[WorkflowTerminationMappingContextKeys.CompanyId] = companyId;
                     options.Items[WorkflowTerminationMappingContextKeys.IdempotencyKey] = idempotency;
                     options.Items[WorkflowTerminationMappingContextKeys.PayloadHash] = payloadHash;
                 });
@@ -110,15 +119,22 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                 return FromResultFailure(result, requestId);
             }
 
+            var mappedResult = _mapper.Map<CompleteWorkflowTaskResponseDto>(result.Result!);
+            var hasNotificationWarning =
+                result.Result!.Notification.Status == WorkflowTaskNotificationStatus.Warning;
             var response = new AppResponses<CompleteWorkflowTaskResponseDto>
             {
                 success = true,
-                message = "La tarea Workflow fue terminada.",
-                data = _mapper.Map<CompleteWorkflowTaskResponseDto>(result.Result!),
+                message = hasNotificationWarning
+                    ? "La tarea Workflow fue terminada con una alarma de notificación."
+                    : "La tarea Workflow fue terminada.",
+                data = mappedResult,
                 errors = [],
                 meta = new AppMeta
                 {
-                    Status = result.Status == CompleteWorkflowTaskServiceStatus.Replayed ? "replayed" : "completed",
+                    Status = hasNotificationWarning
+                        ? "completed_with_notification_warning"
+                        : result.Status == CompleteWorkflowTaskServiceStatus.Replayed ? "replayed" : "completed",
                     RequestId = requestId,
                     ResponseVersion = "1.0"
                 }

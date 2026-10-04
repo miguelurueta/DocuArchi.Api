@@ -15,6 +15,17 @@ public static class EmailServiceCollectionExtensions
 
         services.AddEmailDispatchRepositories();
         services.TryAddScoped<MiApp.Services.Service.Email.IServicioCorreo, MiApp.Services.Service.Email.ServicioCorreo>();
+        services.AddOptions<MiApp.Services.Service.Email.EmailDispatchOptions>()
+            .Bind(configuration.GetSection("EmailDispatch"));
+        if (configuration.GetValue<bool>("EmailDispatch:EnableDispatchService"))
+        {
+            services.TryAddScoped<
+                MiApp.Services.Service.Email.IIdempotencyKeyFactory,
+                MiApp.Services.Service.Email.IdempotencyKeyFactory>();
+            services.TryAddScoped<
+                MiApp.Services.Service.Email.IServiceDespachoCorreo,
+                MiApp.Services.Service.Email.ServicioDespachoCorreo>();
+        }
 
         return services;
     }

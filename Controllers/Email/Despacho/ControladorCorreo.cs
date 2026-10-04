@@ -49,8 +49,11 @@ public sealed class ControladorCorreo(
             var alias = claimValidation.ValidateClaim<string>("defaulalias");
             if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 return Unauthorized(Error("EMAIL_ALIAS_REQUIRED", "No fue posible validar el contexto de la solicitud.", requestId, "defaulalias"));
+            var company = claimValidation.ValidateClaim<string>("emp");
+            if (!company.Success || !int.TryParse(company.ClaimValue, out var idEmpresa) || idEmpresa <= 0)
+                return Unauthorized(Error("EMAIL_COMPANY_REQUIRED", "No fue posible validar la empresa de la solicitud.", requestId, "emp"));
             ct.ThrowIfCancellationRequested();
-            var result = await service.SolicitarEnvioAsync(request, alias.ClaimValue.Trim(), ct).ConfigureAwait(false);
+            var result = await service.SolicitarEnvioAsync(request, alias.ClaimValue.Trim(), idEmpresa, ct).ConfigureAwait(false);
             result.meta ??= new AppMeta();
             result.meta.RequestId ??= requestId;
             result.meta.Metadata ??= new Dictionary<string, object?>();
