@@ -1,8 +1,10 @@
 using MiApp.Repository.Repositorio.GestorDocumental.ContextoDocumental;
 using MiApp.Repository.Repositorio.GestorDocumental.Documentos.ListaDocumentosRadicados;
+using MiApp.Repository.Repositorio.GestorDocumental.Editor;
 using MiApp.Repository.Repositorio.GestorDocumental.TipologiasDocumentales;
 using MiApp.Services.Service.GestorDocumental.ContextoDocumental;
 using MiApp.Services.Service.GestorDocumental.Documentos.ListaDocumentosRadicados;
+using MiApp.Services.Service.GestorDocumental.Editor;
 using MiApp.Services.Service.GestorDocumental.TipologiasDocumentales;
 using MiApp.Services.Service.Workflow.BandejaCorrespondencia;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +21,15 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddTipologiasDocumentales();
             services.AddContextoDocumental();
             services.AddListaDocumentosRadicados();
+            services.AddEditorImageContent();
+
+            return services;
+        }
+
+        private static IServiceCollection AddEditorImageContent(this IServiceCollection services)
+        {
+            services.AddScoped<ISolicitaEditorImageContentRepository, SolicitaEditorImageContentRepository>();
+            services.AddScoped<IServiceSolicitaEditorImageContent, ServiceSolicitaEditorImageContent>();
 
             return services;
         }
