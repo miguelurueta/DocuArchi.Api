@@ -75,6 +75,36 @@ public sealed class InstrumentosArchivisticosController : ControllerBase
         return StatusCode(status, response);
     }
 
+    [HttpGet("{idInstrumento:int}/series/{idSerie:int}/subseries")]
+    [ProducesResponseType(typeof(AppResponses<IReadOnlyList<InstrumentoArchivisticoSubSerieDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AppResponses<IReadOnlyList<InstrumentoArchivisticoSubSerieDto>>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(AppResponses<IReadOnlyList<InstrumentoArchivisticoSubSerieDto>>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(AppResponses<IReadOnlyList<InstrumentoArchivisticoSubSerieDto>>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(AppResponses<IReadOnlyList<InstrumentoArchivisticoSubSerieDto>>), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AppResponses<IReadOnlyList<InstrumentoArchivisticoSubSerieDto>>>> ListSubSeries(
+        [FromRoute] int idInstrumento,
+        [FromRoute] int idSerie)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var requestId = _correlation?.RequestId
+            ?? Activity.Current?.TraceId.ToString()
+            ?? HttpContext.TraceIdentifier;
+        var usuarioId = _currentUser.ResolveUsuarioIdOrThrow();
+        var response = await _service.ListSubSeriesAsync(
+            idInstrumento, idSerie, _currentUser.ResolveAliasOrThrow(), requestId);
+        var status = ResolveHttpStatus(response);
+        var code = response.success
+            ? "NONE"
+            : response.errors?.OfType<MiApp.DTOs.DTOs.Errors.AppError>().FirstOrDefault()?.Code ?? "UNKNOWN";
+        _logger.LogInformation(
+            "Instrument subseries query completed. RequestId {RequestId} UsuarioId {UsuarioId} IdInstrumento {IdInstrumento} IdSerie {IdSerie} Operation {Operation} Stage {Stage} DurationMs {DurationMs} ResultCount {ResultCount} ErrorCode {ErrorCode} MetaStatus {MetaStatus} HttpStatus {HttpStatus}",
+            requestId, usuarioId, idInstrumento, idSerie, "list_subseries", "completed",
+            stopwatch.Elapsed.TotalMilliseconds, response.success ? response.data?.Count ?? 0 : 0,
+            code, response.meta?.Status ?? "unknown", status);
+        return StatusCode(status, response);
+    }
+
     [HttpGet("{idInstrumento:int}/retencion")]
     [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(AppResponses<InstrumentoArchivisticoRetencionDto>), StatusCodes.Status400BadRequest)]
