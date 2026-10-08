@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MiApp.DTOs.DTOs.Errors;
 using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Models.Models.GestorDocumental.Editor;
 using MiApp.Services.Service.GestorDocumental.Editor;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
@@ -27,61 +27,40 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
         }
 
         [HttpPost("document/full-save")]
-        public async Task<ActionResult<AppResponses<RaEditorDocument?>>> FullSave([FromBody] FullSaveEditorDocumentRequestDto request)
+        public async Task<ActionResult<AppResponses<RaEditorDocument?>>> FullSave(
+            [FromBody] FullSaveEditorDocumentRequestDto request,
+            CancellationToken cancellationToken = default)
         {
-            var claimResult = _claimValidationService.ValidateClaim<string>("defaulalias");
-            if (!claimResult.Success || claimResult.ClaimValue == null)
+            var requestId = HttpContext?.TraceIdentifier;
+            var aliasClaim = _claimValidationService.ValidateClaim<string>("defaulalias");
+            if (!aliasClaim.Success || string.IsNullOrWhiteSpace(aliasClaim.ClaimValue))
             {
-                return BadRequest(claimResult.Response);
+                return Unauthorized(EditorDocumentErrorResponseFactory.Build<RaEditorDocument?>(
+                    EditorDocumentErrorCatalog.AliasInvalid,
+                    requestId));
             }
 
-            if (request == null)
+            var actorClaim = _claimValidationService.ValidateClaim<string>("usuarioid");
+            if (!actorClaim.Success || string.IsNullOrWhiteSpace(actorClaim.ClaimValue))
             {
-                return BadRequest(Validation("request", "Request requerido"));
+                return Unauthorized(EditorDocumentErrorResponseFactory.Build<RaEditorDocument?>(
+                    EditorDocumentErrorCatalog.ActorInvalid,
+                    requestId));
             }
 
-            if (string.IsNullOrWhiteSpace(request.DocumentHtml))
-            {
-                return BadRequest(Validation("DocumentHtml", "Contenido HTML requerido"));
-            }
-
-            if (string.IsNullOrWhiteSpace(request.ContextCode))
-            {
-                return BadRequest(Validation("ContextCode", "ContextCode requerido"));
-            }
-
-            if (request.EntityId <= 0)
-            {
-                return BadRequest(Validation("EntityId", "EntityId requerido"));
-            }
-
-            if (request.ImageUids == null)
-            {
-                return BadRequest(Validation("ImageUids", "ImageUids requerido"));
-            }
-
-            var result = await _fullSaveService.FullSaveAsync(request, claimResult.ClaimValue);
+            var result = await _fullSaveService.FullSaveAsync(
+                request,
+                aliasClaim.ClaimValue,
+                actorClaim.ClaimValue,
+                requestId,
+                cancellationToken);
 
             if (result == null || !result.success)
             {
-                return BadRequest(result);
+                return StatusCode(EditorDocumentErrorResponseFactory.ResolveHttpStatus(result), result);
             }
 
             return Ok(result);
-        }
-
-        private static AppResponses<RaEditorDocument?> Validation(string field, string message)
-        {
-            return new AppResponses<RaEditorDocument?>
-            {
-                success = false,
-                message = message,
-                data = null,
-                errors =
-                [
-                    new AppError { Type = "Validation", Field = field, Message = message }
-                ]
-            };
         }
     }
 }
