@@ -611,3 +611,5 @@ static DirectoryInfo EnsureRuntimeDirectory(string path, string logicalName)
     }
 }
 
+public partial class Program;
+

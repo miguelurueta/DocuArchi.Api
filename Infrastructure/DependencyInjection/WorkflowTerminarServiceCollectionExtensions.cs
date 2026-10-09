@@ -37,6 +37,11 @@ public static class WorkflowTerminarServiceCollectionExtensions
             services.AddScoped<IWorkflowDatabaseDialect, SqlServerWorkflowDatabaseDialect>();
         else
             services.AddScoped<IWorkflowDatabaseDialect, MySqlWorkflowDatabaseDialect>();
+        services.AddScoped<IWorkflowPreviewIdentityRepository, WorkflowPreviewIdentityRepository>();
+        services.AddScoped<IWorkflowTaskPreviewRepository, WorkflowTaskPreviewRepository>();
+        services.AddScoped<IWorkflowConnectorPreviewRepository, WorkflowConnectorPreviewRepository>();
+        services.AddScoped<IWorkflowPreviewAuthorizationService, WorkflowPreviewAuthorizationService>();
+        services.AddScoped<IConsultarTransicionesDisponiblesService, ConsultarTransicionesDisponiblesService>();
         services.AddScoped<IWorkflowAtomicTopologyGate, WorkflowAtomicTopologyGate>();
         services.TryAddScoped<IDapperCrudTransactionalEngine>(provider =>
             provider.GetRequiredService<IDapperCrudEngine>() as IDapperCrudTransactionalEngine
