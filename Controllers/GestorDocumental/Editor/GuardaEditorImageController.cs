@@ -3,12 +3,14 @@ using MiApp.DTOs.DTOs.GestorDocumental.Editor;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.GestorDocumental.Editor;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocuArchi.Api.Controllers.GestorDocumental.Editor
 {
     [Route("api/gestor-documental/editor")]
     [ApiController]
+    [Authorize]
     public sealed class GuardaEditorImageController : ControllerBase
     {
         private readonly IClaimValidationService _claimValidationService;

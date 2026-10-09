@@ -28,6 +28,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
 
         private static IServiceCollection AddEditorImageContent(this IServiceCollection services)
         {
+            services.AddScoped<IGuardaEditorImageRepository, GuardaEditorImageRepository>();
+            services.AddScoped<IServiceGuardaEditorImage, ServiceGuardaEditorImage>();
             services.AddScoped<ISolicitaEditorImageContentRepository, SolicitaEditorImageContentRepository>();
             services.AddScoped<IServiceSolicitaEditorImageContent, ServiceSolicitaEditorImageContent>();
 
