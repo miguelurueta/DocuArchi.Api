@@ -19,6 +19,7 @@ public static class GestionExpedientesServiceCollectionExtensions
         services.AddScoped<IOrganizationalStructureCatalogRepository, OrganizationalStructureCatalogRepository>();
         services.AddScoped<IResponsableGestionRepository, ResponsableGestionRepository>();
         services.AddScoped<IExpedienteCatalogService, ExpedienteCatalogService>();
+        services.AddScoped<IExpedienteCycleContextService, ExpedienteCycleContextService>();
         services.AddScoped<IExpedienteCreateModelService, ExpedienteCreateModelService>();
         services.AddScoped<IExpedienteWriteRepository, ExpedienteWriteRepository>();
         services.AddScoped<IExpedienteIndiceXmlInitializer, ExpedienteIndiceXmlInitializer>();
