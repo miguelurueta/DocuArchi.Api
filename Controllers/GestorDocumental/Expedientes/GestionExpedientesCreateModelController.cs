@@ -56,6 +56,7 @@ public sealed class GestionExpedientesCreateModelController(
     [ProducesResponseType(typeof(AppResponses<ExpedienteEditModelDto>), 403)]
     [ProducesResponseType(typeof(AppResponses<ExpedienteEditModelDto>), 404)]
     [ProducesResponseType(typeof(AppResponses<ExpedienteEditModelDto>), 409)]
+    [ProducesResponseType(typeof(AppResponses<ExpedienteEditModelDto>), 422)]
     [ProducesResponseType(typeof(AppResponses<ExpedienteEditModelDto>), 500)]
     public async Task<ActionResult<AppResponses<ExpedienteEditModelDto>>> GetEditModel(
         [FromRoute] int idExpediente,
@@ -103,7 +104,7 @@ public sealed class GestionExpedientesCreateModelController(
             "EXPEDIENTE_EDIT_FORBIDDEN" or "EXPEDIENTE_EDIT_SCOPE_FORBIDDEN" => StatusCodes.Status403Forbidden,
             "EXPEDIENTE_EDIT_NOT_FOUND" or "EXPEDIENTE_EDIT_INSTRUMENT_NOT_FOUND" => StatusCodes.Status404NotFound,
             "EXPEDIENTE_EDIT_AUTOREG_BLOCKED" or "EXPEDIENTE_EDIT_STATE_BLOCKED" or "EXPEDIENTE_EDIT_OWNER_BLOCKED" or "EXPEDIENTE_EDIT_CONCURRENCY" => StatusCodes.Status409Conflict,
-            "EXPEDIENTE_EDIT_CLASSIFICATION_INVALID" or "EXPEDIENTE_EDIT_RETENTION_NOT_CONFIGURED" or "EXPEDIENTE_EDIT_REFERENCE_INVALID" or "EXPEDIENTE_EDIT_ORGANIZATION_INVALID" => StatusCodes.Status422UnprocessableEntity,
+            "EXPEDIENTE_EDIT_CLASSIFICATION_INVALID" or "EXPEDIENTE_EDIT_RETENTION_NOT_CONFIGURED" or "EXPEDIENTE_EDIT_REFERENCE_INVALID" or "EXPEDIENTE_EDIT_ORGANIZATION_INVALID" or "EXPEDIENTE_EDIT_RESPONSIBLE_INVALID" => StatusCodes.Status422UnprocessableEntity,
             "EXPEDIENTE_EDIT_REQUEST_INVALID" or "EXPEDIENTE_EDIT_NAME_INVALID" or "EXPEDIENTE_EDIT_ALIAS_INVALID" or "EXPEDIENTE_EDIT_DATES_INVALID" or "EXPEDIENTE_EDIT_FOLIOS_INVALID" or "EXPEDIENTE_EDIT_CONTEXT_INVALID" or "EXPEDIENTE_EDIT_ROW_VERSION_REQUIRED" or "EXPEDIENTE_EDIT_ROW_VERSION_INVALID" => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
