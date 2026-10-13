@@ -1,7 +1,9 @@
 using MiApp.Repository.DataAccess;
 using MiApp.Repository.Repositorio.Workflow.Terminar;
 using MiApp.Services.Service.Workflow.Terminar;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection;
 
@@ -28,6 +30,22 @@ public static class WorkflowTerminarServiceCollectionExtensions
         services.AddScoped<IWorkflowDocumentRequirementEvaluator, WorkflowDocumentRequirementEvaluator>();
         services.AddScoped<IWorkflowRadicacionPreparationStore, WorkflowRadicacionPreparationStore>();
         services.AddScoped<IWorkflowRadicacionPreparationRepository, WorkflowRadicacionPreparationRepository>();
+        services.AddScoped<IWorkflowManagedDestinationRepository, WorkflowManagedDestinationRepository>();
+        services.AddScoped<IWorkflowManagedResponseEvaluator, WorkflowManagedResponseEvaluator>();
+        services.AddScoped<IWorkflowManagedDestinationFingerprint, WorkflowManagedDestinationFingerprint>();
+        services.AddScoped<IWorkflowManagedDestinationResolver, WorkflowManagedDestinationResolver>();
+        services.AddDataProtection();
+        services.AddOptions<ManagedDestinationPreviewTokenOptions>()
+            .Bind(configuration.GetSection(ManagedDestinationPreviewTokenOptions.SectionName))
+            .Validate(value => value.SchemaVersion > 0, "SchemaVersion must be positive.")
+            .Validate(value => !string.IsNullOrWhiteSpace(value.Purpose), "Purpose is required.")
+            .Validate(value => value.TimeToLive >= TimeSpan.FromSeconds(30)
+                && value.TimeToLive <= TimeSpan.FromMinutes(15),
+                "TimeToLive must be between 30 seconds and 15 minutes.")
+            .Validate(value => value.SharedKeyRingConfirmed,
+                "A persistent shared Data Protection key ring must be explicitly confirmed.")
+            .ValidateOnStart();
+        services.AddScoped<IManagedDestinationPreviewTokenService, ManagedDestinationPreviewTokenService>();
         services.AddScoped<IWorkflowTerminationPreparationResolver, WorkflowTerminationPreparationResolver>();
         if (engine == "sqlserver")
             services.AddScoped<IWorkflowTopologyMetadataReader, SqlServerWorkflowTopologyMetadataReader>();
