@@ -1,7 +1,6 @@
 using MiApp.Models.Models.Radicacion.Terminar;
 using MiApp.Repository.Repositorio.Radicacion.Terminar;
 using MiApp.Services.Service.Radicacion.Terminar;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DocuArchi.Api.Infrastructure.DependencyInjection;
 
@@ -17,8 +16,8 @@ public static class RadicacionTerminarServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddScoped<IRadicationCompletionPolicyRepository, RadicationCompletionPolicyRepository>();
-        services.TryAddScoped<IWorkflowManagedDestinationPolicyResolver,
-            UnavailableWorkflowManagedDestinationPolicyResolver>();
+        services.AddScoped<IWorkflowManagedDestinationPolicyResolver,
+            WorkflowManagedDestinationPolicyResolver>();
         services.AddScoped<IWorkflowTerminationPolicyGateway, WorkflowTerminationPolicyGateway>();
         services.AddScoped<IRadicationCompletionPolicyService, RadicationCompletionPolicyService>();
 
