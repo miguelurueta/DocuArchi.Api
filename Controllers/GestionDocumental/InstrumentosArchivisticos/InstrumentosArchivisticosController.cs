@@ -39,9 +39,18 @@ public sealed class InstrumentosArchivisticosController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(AppResponses<IReadOnlyList<InstrumentoArchivisticoDto>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AppResponses<IReadOnlyList<InstrumentoArchivisticoDto>>>> List([FromQuery] bool soloActivos = true)
+    public async Task<ActionResult<AppResponses<IReadOnlyList<InstrumentoArchivisticoDto>>>> List(
+        [FromQuery] bool soloActivos = true,
+        [FromQuery] int? organigramaId = null,
+        [FromQuery] int? areaId = null)
     {
-        var response = await _service.ListAsync(soloActivos, _currentUser.ResolveAliasOrThrow(), HttpContext.TraceIdentifier);
+        if (organigramaId.HasValue != areaId.HasValue)
+            return BadRequest(InstrumentoArchivisticoErrorResponseFactory.Build<IReadOnlyList<InstrumentoArchivisticoDto>>(
+                InstrumentoArchivisticoErrorCatalog.IdInvalid, HttpContext.TraceIdentifier));
+        var response = organigramaId is > 0 && areaId is > 0
+            ? await _service.ListForCreationAsync(organigramaId.Value, areaId.Value,
+                _currentUser.ResolveAliasOrThrow(), HttpContext.TraceIdentifier)
+            : await _service.ListAsync(soloActivos, _currentUser.ResolveAliasOrThrow(), HttpContext.TraceIdentifier);
         return StatusCode(ResolveHttpStatus(response), response);
     }
 
@@ -59,12 +68,14 @@ public sealed class InstrumentosArchivisticosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AppResponses<IReadOnlyList<InstrumentoArchivisticoSerieDto>>>> ListSeries([FromRoute] int idInstrumento)
+    public async Task<ActionResult<AppResponses<IReadOnlyList<InstrumentoArchivisticoSerieDto>>>> ListSeries(
+        [FromRoute] int idInstrumento,
+        [FromQuery] int areaId)
     {
         var stopwatch = Stopwatch.StartNew();
         var requestId = HttpContext.TraceIdentifier;
         var usuarioId = _currentUser.ResolveUsuarioIdOrThrow();
-        var response = await _service.ListSeriesAsync(idInstrumento, _currentUser.ResolveAliasOrThrow(), requestId);
+        var response = await _service.ListSeriesAsync(idInstrumento, areaId, _currentUser.ResolveAliasOrThrow(), requestId);
         var status = ResolveHttpStatus(response);
         var code = response.success
             ? "NONE"

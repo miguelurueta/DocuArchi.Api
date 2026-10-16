@@ -10,6 +10,7 @@ public sealed class GestionExpedientesCreateModelController(
     IExpedienteCreateModelService createModel,
     IExpedienteCatalogService catalogs,
     ICrearExpedienteUseCase createExpediente,
+    IExpedienteService expedientes,
     IExpedienteEditModelService editModel,
     IEditarExpedienteUseCase editExpediente) : ControllerBase
 {
@@ -34,7 +35,7 @@ public sealed class GestionExpedientesCreateModelController(
             "EXPEDIENTE_CREATE_FORBIDDEN" or "EXPEDIENTE_SCOPE_FORBIDDEN" => StatusCodes.Status403Forbidden,
             "EXPEDIENTE_INSTRUMENT_NOT_FOUND" => StatusCodes.Status404NotFound,
             "EXPEDIENTE_CLASSIFICATION_INVALID" or "EXPEDIENTE_REFERENCE_INVALID" or "EXPEDIENTE_RETENTION_NOT_CONFIGURED" => StatusCodes.Status422UnprocessableEntity,
-            "EXPEDIENTE_NAME_INVALID" or "EXPEDIENTE_ALIAS_INVALID" or "EXPEDIENTE_REQUEST_INVALID" or "EXPEDIENTE_DATES_INVALID" or "EXPEDIENTE_FOLIOS_INVALID" or "EXPEDIENTE_CONTEXT_INVALID" => StatusCodes.Status400BadRequest,
+            "EXPEDIENTE_NAME_INVALID" or "EXPEDIENTE_ALIAS_INVALID" or "EXPEDIENTE_RESPONSIBLE_INVALID" or "EXPEDIENTE_REQUEST_INVALID" or "EXPEDIENTE_DATES_INVALID" or "EXPEDIENTE_FOLIOS_INVALID" or "EXPEDIENTE_CONTEXT_INVALID" => StatusCodes.Status400BadRequest,
             _ => StatusCodes.Status500InternalServerError
         };
         return StatusCode(status, result);
@@ -48,6 +49,24 @@ public sealed class GestionExpedientesCreateModelController(
     {
         var result = await createModel.GetAsync(Alias(), HttpContext.TraceIdentifier);
         return result.success ? Ok(result) : result.message.Contains("FORBIDDEN", StringComparison.Ordinal) ? StatusCode(403, result) : StatusCode(500, result);
+    }
+
+    [HttpPost("campos/autocomplete")]
+    [ProducesResponseType(typeof(AppResponses<ExpedienteAutocompleteResponseDto>), 200)]
+    [ProducesResponseType(typeof(AppResponses<ExpedienteAutocompleteResponseDto>), 400)]
+    [ProducesResponseType(typeof(AppResponses<ExpedienteAutocompleteResponseDto>), 403)]
+    [ProducesResponseType(typeof(AppResponses<ExpedienteAutocompleteResponseDto>), 500)]
+    public async Task<ActionResult<AppResponses<ExpedienteAutocompleteResponseDto>>> Autocomplete(
+        [FromBody] ExpedienteAutocompleteRequestDto request)
+    {
+        var result = await expedientes.AutocompleteAsync(request, Alias(), HttpContext.TraceIdentifier);
+        var status = result.success ? StatusCodes.Status200OK : result.message switch
+        {
+            "EXPEDIENTE_AUTOCOMPLETE_TEXT_INVALID" => StatusCodes.Status400BadRequest,
+            "EXPEDIENTE_CREATE_FORBIDDEN" or "EXPEDIENTE_SCOPE_FORBIDDEN" => StatusCodes.Status403Forbidden,
+            _ => StatusCodes.Status500InternalServerError
+        };
+        return StatusCode(status, result);
     }
 
     [HttpGet("{idExpediente:int}/edit-model")]

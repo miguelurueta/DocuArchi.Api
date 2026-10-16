@@ -173,7 +173,8 @@ public sealed class GestionExpedientesApiContractTests
     {
         var controller = new GestionExpedientesCreateModelController(
             Mock.Of<IExpedienteCreateModelService>(), Mock.Of<IExpedienteCatalogService>(),
-            Mock.Of<ICrearExpedienteUseCase>(), editModel ?? Mock.Of<IExpedienteEditModelService>(),
+            Mock.Of<ICrearExpedienteUseCase>(), Mock.Of<IExpedienteService>(),
+            editModel ?? Mock.Of<IExpedienteEditModelService>(),
             update ?? Mock.Of<IEditarExpedienteUseCase>());
         controller.ControllerContext = new ControllerContext
         {

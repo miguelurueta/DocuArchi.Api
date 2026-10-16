@@ -202,8 +202,7 @@ builder.Services.AddSwaggerGen(c =>
             relativePath.StartsWith("api/instrumentos-archivisticos") ||
             relativePath.StartsWith("api/gestion-expedientes") ||
             relativePath.StartsWith("api/archivo/") ||
-            relativePath.StartsWith("api/estructura-organica/") ||
-            relativePath.StartsWith("api/usuarios/responsables/"))
+            relativePath.StartsWith("api/estructura-organica/"))
         {
             return "gestor-documental";
         }
