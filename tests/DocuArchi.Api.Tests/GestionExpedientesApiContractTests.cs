@@ -13,6 +13,7 @@ using MiApp.DTOs.DTOs.GestorDocumental.Expedientes;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Repository.Repositorio.GestorDocumental.Expedientes;
 using MiApp.Services.Service.GestorDocumental.Expedientes;
+using MiApp.Services.Service.GestorDocumental.InstrumentosArchivisticos;
 using Moq;
 using Swashbuckle.AspNetCore.Swagger;
 using Xunit;
@@ -99,6 +100,28 @@ public sealed class GestionExpedientesApiContractTests
         Assert.Equal("req-423", body.meta?.RequestId);
     }
 
+    [Theory]
+    [InlineData("EXPEDIENTE_AUTOCOMPLETE_TEXT_INVALID", 400)]
+    [InlineData("EXPEDIENTE_CREATE_FORBIDDEN", 403)]
+    [InlineData("EXPEDIENTE_SCOPE_FORBIDDEN", 403)]
+    [InlineData("EXPEDIENTE_AUTOCOMPLETE_FAILED", 500)]
+    public async Task Autocomplete_MapsClosedFailureMatrix(string code, int expectedStatus)
+    {
+        var service = new Mock<IExpedienteService>();
+        service.Setup(x => x.AutocompleteAsync(It.IsAny<ExpedienteAutocompleteRequestDto>(),
+                It.IsAny<string>(), "req-423"))
+            .ReturnsAsync(Failure<ExpedienteAutocompleteResponseDto>(code));
+        var controller = CreateController(expedientes: service.Object);
+
+        var result = await controller.Autocomplete(new ExpedienteAutocompleteRequestDto
+            { Campo = ExpedienteAutocompleteCampo.NombreExpediente, Texto = "ab" });
+
+        var response = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(expectedStatus, response.StatusCode);
+        Assert.Equal("req-423",
+            Assert.IsType<AppResponses<ExpedienteAutocompleteResponseDto>>(response.Value).meta.RequestId);
+    }
+
     [Fact]
     public void GeneratedOpenApi_DeclaresProtectedEditModelResponsesAndRequiredOpaqueRowVersion()
     {
@@ -134,6 +157,14 @@ public sealed class GestionExpedientesApiContractTests
         var resolved = document.Components!.Schemas!["EditarExpedienteRequestDto"];
         Assert.Contains("rowVersion", resolved.Required!);
         Assert.Equal(128, resolved.Properties!["rowVersion"].MaxLength);
+
+        Assert.Contains("/api/gestion-expedientes/campos/autocomplete", document.Paths.Keys);
+        Assert.DoesNotContain("/api/usuarios/responsables/search", document.Paths.Keys);
+        Assert.DoesNotContain("idResponsable",
+            document.Components.Schemas["CrearExpedienteRequestDto"].Properties!.Keys);
+        Assert.DoesNotContain("idResponsable", resolved.Properties.Keys);
+        var defaults = document.Components.Schemas["ExpedienteCreateDefaultsDto"].Properties!;
+        Assert.Equal(9, defaults.Count);
     }
 
     [Fact]
@@ -152,6 +183,9 @@ public sealed class GestionExpedientesApiContractTests
         AssertRegistration<IExpedienteOwnershipPolicy, ExpedienteOwnershipPolicy>(services);
         AssertRegistration<IExpedienteAutoRegistroPolicy, ExpedienteAutoRegistroPolicy>(services);
         AssertRegistration<IExpedienteRetencionService, ExpedienteRetencionService>(services);
+        AssertRegistration<IInitialExpedienteContextResolver, InitialExpedienteContextResolver>(services);
+        Assert.DoesNotContain(services, descriptor =>
+            descriptor.ServiceType.Name.Contains("ResponsableGestion", StringComparison.Ordinal));
     }
 
     private static void AssertRegistration<TService, TImplementation>(IServiceCollection services) =>
@@ -169,11 +203,12 @@ public sealed class GestionExpedientesApiContractTests
 
     private static GestionExpedientesCreateModelController CreateController(
         IExpedienteEditModelService? editModel = null,
-        IEditarExpedienteUseCase? update = null)
+        IEditarExpedienteUseCase? update = null,
+        IExpedienteService? expedientes = null)
     {
         var controller = new GestionExpedientesCreateModelController(
             Mock.Of<IExpedienteCreateModelService>(), Mock.Of<IExpedienteCatalogService>(),
-            Mock.Of<ICrearExpedienteUseCase>(), Mock.Of<IExpedienteService>(),
+            Mock.Of<ICrearExpedienteUseCase>(), expedientes ?? Mock.Of<IExpedienteService>(),
             editModel ?? Mock.Of<IExpedienteEditModelService>(),
             update ?? Mock.Of<IEditarExpedienteUseCase>());
         controller.ControllerContext = new ControllerContext
