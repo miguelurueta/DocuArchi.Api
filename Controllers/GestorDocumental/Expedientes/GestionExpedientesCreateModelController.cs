@@ -1,3 +1,4 @@
+using DocuArchi.Api.Infrastructure.Filters;
 using MiApp.DTOs.DTOs.GestorDocumental.Expedientes;
 using MiApp.DTOs.DTOs.Utilidades;
 using MiApp.Services.Service.GestorDocumental.Expedientes;
@@ -56,6 +57,7 @@ public sealed class GestionExpedientesCreateModelController(
     [ProducesResponseType(typeof(AppResponses<ExpedienteAutocompleteResponseDto>), 400)]
     [ProducesResponseType(typeof(AppResponses<ExpedienteAutocompleteResponseDto>), 403)]
     [ProducesResponseType(typeof(AppResponses<ExpedienteAutocompleteResponseDto>), 500)]
+    [ExpedienteAutocompleteValidationResponse]
     public async Task<ActionResult<AppResponses<ExpedienteAutocompleteResponseDto>>> Autocomplete(
         [FromBody] ExpedienteAutocompleteRequestDto request)
     {
