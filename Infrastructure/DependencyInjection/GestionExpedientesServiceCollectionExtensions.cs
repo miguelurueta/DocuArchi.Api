@@ -1,5 +1,6 @@
 using MiApp.Repository.Repositorio.GestorDocumental.Expedientes;
 using MiApp.Services.Service.GestorDocumental.Expedientes;
+using MiApp.Services.Service.GestorDocumental.InstrumentosArchivisticos;
 using MiApp.Repository.DataAccess;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -17,10 +18,10 @@ public static class GestionExpedientesServiceCollectionExtensions
         services.AddScoped<IExpedienteTypeCatalogRepository, ExpedienteTypeCatalogRepository>();
         services.AddScoped<IArchivoCatalogRepository, ArchivoCatalogRepository>();
         services.AddScoped<IOrganizationalStructureCatalogRepository, OrganizationalStructureCatalogRepository>();
-        services.AddScoped<IResponsableGestionRepository, ResponsableGestionRepository>();
         services.AddScoped<IExpedienteCatalogService, ExpedienteCatalogService>();
         services.AddScoped<IExpedienteCycleContextService, ExpedienteCycleContextService>();
         services.AddScoped<IExpedienteCreateModelService, ExpedienteCreateModelService>();
+        services.AddScoped<IInitialExpedienteContextResolver, InitialExpedienteContextResolver>();
         services.AddScoped<IExpedienteWriteRepository, ExpedienteWriteRepository>();
         services.AddScoped<IExpedienteIndiceXmlInitializer, ExpedienteIndiceXmlInitializer>();
         services.AddScoped<ICrearExpedienteUseCase, CrearExpedienteUseCase>();
