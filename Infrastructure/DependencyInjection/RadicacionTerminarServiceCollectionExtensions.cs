@@ -21,6 +21,10 @@ public static class RadicacionTerminarServiceCollectionExtensions
         services.AddScoped<IWorkflowTerminationPolicyGateway, WorkflowTerminationPolicyGateway>();
         services.AddScoped<IRadicationCompletionPolicyService, RadicationCompletionPolicyService>();
 
+        services.AddScoped<CloseRadicationTopologyGate>();
+        services.AddScoped<ICloseRadicationRepository, CloseRadicationRepository>();
+        services.AddScoped<ICloseRadicationService, CloseRadicationService>();
+
         return services;
     }
 }
