@@ -23,6 +23,29 @@ public sealed class GestionExpedientesCreateModelController(
     [ProducesResponseType(typeof(AppResponses<CrearExpedienteResponseDto>), 404)]
     [ProducesResponseType(typeof(AppResponses<CrearExpedienteResponseDto>), 422)]
     [ProducesResponseType(typeof(AppResponses<CrearExpedienteResponseDto>), 500)]
+    [Microsoft.AspNetCore.Http.EndpointDescription("""
+        Crea un expediente con identidad y alcance resueltos desde el contexto autenticado.
+        Ejemplo de request (IDs ilustrativos, utilizar catálogos autorizados):
+        { "nombreExpediente": "Expediente de prueba", "idTipoExpediente": 7, "idTipoUnidadDocumental": 1,
+          "idInstrumento": 3, "idCiclo": 4, "idOrganigrama": 1, "idArea": 46, "idSerie": 2,
+          "fechaExtremaInicial": "2026-10-21" }
+        Éxito 201: { "success": true, "message": "EXPEDIENTE_CREATED", "data": { "idExpediente": 1,
+          "codigoUnico": "Expediente de prueba", "codigoCorto": "26-2-141-1", "consecutivo": 1 },
+          "errors": [], "meta": { "Status": "success", "RequestId": "correlation-id" } }
+        Fallo técnico 500, contrato aditivo:
+        { "success": false, "message": "EXPEDIENTE_CREATE_FAILED", "data": null,
+          "errors": [{ "Type": "Infrastructure", "Code": "EXPEDIENTE_CREATE_FAILED", "Field": "create",
+          "Message": "No fue posible crear el expediente.", "UserMessage": "No fue posible crear el expediente." }],
+          "meta": { "Status": "error", "RequestId": "correlation-id", "Metadata": { "Stage": "transaction",
+          "Operation": "insert-expediente", "TechnicalCode": "EXPEDIENTE_INSERT_FAILED",
+          "TechnicalDetail": "No fue posible insertar el expediente." } } }
+        Las operaciones distinguen conexión, inicio, lectura y actualización del consecutivo, inserción, auditoría,
+        XML y commit. Metadata puede indicar RollbackFailed o CompensationFailed sin sustituir la causa principal.
+        Mostrar errors[].UserMessage al usuario; message conserva su código público y su uso para resolver HTTP status.
+        Respuestas: 201 creado; 400 validación/contexto; 401 sin autenticación; 403 autorización;
+        404 instrumento; 422 clasificación/retención/referencia; 500 infraestructura.
+        El acceso denegado a archivos en XML es infraestructura 500; una denegación real de alcance conserva 403.
+        """)]
     public async Task<ActionResult<AppResponses<CrearExpedienteResponseDto>>> Create(
         [FromBody] CrearExpedienteRequestDto request,
         CancellationToken cancellationToken)
