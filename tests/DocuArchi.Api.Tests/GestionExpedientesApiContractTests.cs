@@ -165,6 +165,16 @@ public sealed class GestionExpedientesApiContractTests
         Assert.DoesNotContain("idResponsable", resolved.Properties.Keys);
         var defaults = document.Components.Schemas["ExpedienteCreateDefaultsDto"].Properties!;
         Assert.Equal(9, defaults.Count);
+
+        var detail = document.Paths["/api/gestion-expedientes/{idExpediente}"].Operations![HttpMethod.Get];
+        Assert.Equal(new[] { "200", "400", "401", "404" },
+            detail.Responses!.Keys.OrderBy(x => x, StringComparer.Ordinal));
+        Assert.Contains("meta.Metadata", detail.Description!);
+        var detailProperties = document.Components.Schemas["ExpedienteDetalleDto"].Properties!;
+        Assert.Equal(31, detailProperties.Count);
+        Assert.Contains("rowVersion", detailProperties.Keys);
+        Assert.Contains("identificacionResponsable", detailProperties.Keys);
+        Assert.Contains("estadoPublico", detailProperties.Keys);
     }
 
     [Fact]
@@ -177,6 +187,8 @@ public sealed class GestionExpedientesApiContractTests
         AssertRegistration<IExpedienteEditModelService, ExpedienteEditModelService>(services);
         AssertRegistration<IEditarExpedienteUseCase, EditarExpedienteUseCase>(services);
         AssertRegistration<IExpedienteWriteRepository, ExpedienteWriteRepository>(services);
+        AssertRegistration<IExpedienteService, ExpedienteService>(services);
+        AssertRegistration<IExpedienteRepository, ExpedienteRepository>(services);
         AssertRegistration<IExpedienteUpdateValidator, ExpedienteUpdateValidator>(services);
         AssertRegistration<IExpedientePermissionPolicy, ExpedientePermissionPolicy>(services);
         AssertRegistration<IExpedienteEstadoPolicy, ExpedienteEstadoPolicy>(services);
@@ -220,7 +232,10 @@ public sealed class GestionExpedientesApiContractTests
 
     private sealed class SingleControllerFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
-        public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) =>
+        public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature)
+        {
             feature.Controllers.Add(typeof(GestionExpedientesCreateModelController).GetTypeInfo());
+            feature.Controllers.Add(typeof(DetalleExpedientesController).GetTypeInfo());
+        }
     }
 }
