@@ -29,8 +29,8 @@ public sealed class GestionExpedientesCreateModelController(
         { "nombreExpediente": "Expediente de prueba", "idTipoExpediente": 7, "idTipoUnidadDocumental": 1,
           "idInstrumento": 3, "idCiclo": 4, "idOrganigrama": 1, "idArea": 46, "idSerie": 2,
           "fechaExtremaInicial": "2026-10-21" }
-        Éxito 201: { "success": true, "message": "EXPEDIENTE_CREATED", "data": { "IdExpediente": 1,
-          "CodigoUnico": "Expediente de prueba", "CodigoCorto": "26-2-141-1", "Consecutivo": 1 },
+        Éxito 201: { "success": true, "message": "EXPEDIENTE_CREATED", "data": { "idExpediente": 1,
+          "codigoUnico": "Expediente de prueba", "codigoCorto": "26-2-141-1", "consecutivo": 1 },
           "errors": [], "meta": { "Status": "success", "RequestId": "correlation-id" } }
         Fallo técnico 500, contrato aditivo:
         { "success": false, "message": "EXPEDIENTE_CREATE_FAILED", "data": null,
