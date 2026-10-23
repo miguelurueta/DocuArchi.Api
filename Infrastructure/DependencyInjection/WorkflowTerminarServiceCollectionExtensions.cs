@@ -1,3 +1,4 @@
+using DocuArchi.Api.Infrastructure.Observability;
 using MiApp.Repository.DataAccess;
 using MiApp.Repository.Repositorio.Workflow.Terminar;
 using MiApp.Services.Service.Workflow.Terminar;
@@ -11,6 +12,8 @@ public static class WorkflowTerminarServiceCollectionExtensions
 {
     public static IServiceCollection AddWorkflowTerminar(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddHttpContextAccessor();
+        services.TryAddScoped<IRequestCorrelationContext, RequestCorrelationContext>();
         var engine = configuration["DbEngine"]?.Trim().ToLowerInvariant();
         if (engine is not ("mysql" or "sqlserver"))
         {
