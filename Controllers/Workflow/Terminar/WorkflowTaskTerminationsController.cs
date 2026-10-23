@@ -177,7 +177,7 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
         var descriptor = WorkflowTerminationErrorCatalog.Get(result.Status);
         var response = WorkflowTerminationErrorResponseFactory.Create<CompleteWorkflowTaskResponseDto>(result, requestId, field);
         var diagnostic = response.meta!.Metadata!;
-        _logger.LogWarning("Workflow HTTP rejection RequestId {RequestId} Stage {Stage} Operation {Operation} TechnicalCode {TechnicalCode} TechnicalDetail {TechnicalDetail} ErrorCode {ErrorCode} MetaStatus {MetaStatus} DurationMs {DurationMs}",
+        _logger.Log(descriptor.HttpStatus >= 500 ? LogLevel.Error : LogLevel.Warning, "Workflow HTTP rejection RequestId {RequestId} Stage {Stage} Operation {Operation} TechnicalCode {TechnicalCode} TechnicalDetail {TechnicalDetail} ErrorCode {ErrorCode} MetaStatus {MetaStatus} DurationMs {DurationMs}",
             response.meta.RequestId, diagnostic["Stage"], diagnostic["Operation"], diagnostic["TechnicalCode"], diagnostic["TechnicalDetail"], descriptor.Code, descriptor.MetaStatus, _timer?.Elapsed.TotalMilliseconds);
         return StatusCode(descriptor.HttpStatus, response);
     }
