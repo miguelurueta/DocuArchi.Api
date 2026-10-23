@@ -1,3 +1,5 @@
+using DocuArchi.Api.Infrastructure.Observability;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -25,6 +27,8 @@ namespace DocuArchi.Api.Controllers.Workflow.Terminar;
 public sealed class WorkflowTaskTerminationsController : ControllerBase
 {
     private readonly IClaimValidationService _claimValidationService;
+    private readonly IRequestCorrelationContext? _correlation;
+    private Stopwatch? _timer;
     private readonly IMapper _mapper;
     private readonly ICompleteWorkflowTaskService _service;
     private readonly ILogger<WorkflowTaskTerminationsController> _logger;
@@ -33,12 +37,14 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
         IClaimValidationService claimValidationService,
         IMapper mapper,
         ICompleteWorkflowTaskService service,
-        ILogger<WorkflowTaskTerminationsController> logger)
+        ILogger<WorkflowTaskTerminationsController> logger,
+        IRequestCorrelationContext? correlation = null)
     {
         _claimValidationService = claimValidationService;
         _mapper = mapper;
         _service = service;
         _logger = logger;
+        _correlation = correlation;
     }
 
     /// <summary>
@@ -61,7 +67,8 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
         [FromHeader(Name = WorkflowTerminationHeaders.IdempotencyKey)] string? idempotencyKey,
         CancellationToken cancellationToken)
     {
-        var requestId = Guid.NewGuid().ToString("N");
+        var requestId = _correlation?.RequestId ?? Guid.NewGuid().ToString("N");
+        _timer = Stopwatch.StartNew();
 
         try
         {
@@ -105,6 +112,7 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                 request,
                 options =>
                 {
+                    options.Items[WorkflowTerminationMappingContextKeys.RequestId] = requestId;
                     options.Items[WorkflowTerminationMappingContextKeys.TaskId] = idTarea;
                     options.Items[WorkflowTerminationMappingContextKeys.WorkflowUserId] = workflowUserId;
                     options.Items[WorkflowTerminationMappingContextKeys.CompanyId] = companyId;
@@ -136,7 +144,8 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                         ? "completed_with_notification_warning"
                         : result.Status == CompleteWorkflowTaskServiceStatus.Replayed ? "replayed" : "completed",
                     RequestId = requestId,
-                    ResponseVersion = "1.0"
+                    ResponseVersion = "1.0",
+                    Metadata = result.Diagnostic is null ? null : WorkflowTerminationDiagnostics.ToMetadata(result.Diagnostic)
                 }
             };
 
@@ -147,7 +156,7 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
         {
             throw;
         }
-        catch (Exception)
+        catch (Exception exception)
         {
             _logger.LogError(
                 "Workflow termination failed unexpectedly. stage={Stage} requestId={RequestId} taskId={TaskId} errorCode={ErrorCode}",
@@ -155,16 +164,23 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
                 requestId,
                 idTarea,
                 WorkflowTerminationErrorCatalog.Unexpected);
-            return FromFailure(CompleteWorkflowTaskServiceStatus.UnexpectedFailure, requestId);
+            return FromResultFailure(CompleteWorkflowTaskServiceResult.Failure(CompleteWorkflowTaskServiceStatus.UnexpectedFailure) with
+            { Diagnostic = WorkflowTerminationDiagnostics.FromException(exception) }, requestId);
         }
     }
 
     private ActionResult<AppResponses<CompleteWorkflowTaskResponseDto>> FromResultFailure(
         CompleteWorkflowTaskServiceResult result,
-        string requestId) =>
-        StatusCode(
-            WorkflowTerminationErrorCatalog.Get(result.Status).HttpStatus,
-            WorkflowTerminationErrorResponseFactory.Create<CompleteWorkflowTaskResponseDto>(result, requestId));
+        string requestId,
+        string? field = null)
+    {
+        var descriptor = WorkflowTerminationErrorCatalog.Get(result.Status);
+        var response = WorkflowTerminationErrorResponseFactory.Create<CompleteWorkflowTaskResponseDto>(result, requestId, field);
+        var diagnostic = response.meta!.Metadata!;
+        _logger.LogWarning("Workflow HTTP rejection RequestId {RequestId} Stage {Stage} Operation {Operation} TechnicalCode {TechnicalCode} TechnicalDetail {TechnicalDetail} ErrorCode {ErrorCode} MetaStatus {MetaStatus} DurationMs {DurationMs}",
+            response.meta.RequestId, diagnostic["Stage"], diagnostic["Operation"], diagnostic["TechnicalCode"], diagnostic["TechnicalDetail"], descriptor.Code, descriptor.MetaStatus, _timer?.Elapsed.TotalMilliseconds);
+        return StatusCode(descriptor.HttpStatus, response);
+    }
 
     private ActionResult<AppResponses<CompleteWorkflowTaskResponseDto>> FromFailure(
         CompleteWorkflowTaskServiceStatus status,
@@ -172,9 +188,7 @@ public sealed class WorkflowTaskTerminationsController : ControllerBase
         string? field = null)
     {
         var result = CompleteWorkflowTaskServiceResult.Failure(status);
-        return StatusCode(
-            WorkflowTerminationErrorCatalog.Get(status).HttpStatus,
-            WorkflowTerminationErrorResponseFactory.Create<CompleteWorkflowTaskResponseDto>(result, requestId, field));
+        return FromResultFailure(result, requestId, field);
     }
 
     private void LogCompletion(
