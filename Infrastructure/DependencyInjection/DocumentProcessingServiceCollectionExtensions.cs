@@ -17,6 +17,10 @@ using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContex
 using MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.DocumentExtraction.Office;
 using MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Physical;
 
+using MiApp.Repository.Repositorio.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud;
+using MiApp.Models.Models.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud;
+using MiApp.Services.Service.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud;
+
 namespace DocuArchi.Api.Infrastructure.DependencyInjection
 {
     public static class DocumentProcessingServiceCollectionExtensions
@@ -25,6 +29,14 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            services.Configure<StorageProcessingOptions>(configuration.GetSection("DocumentProcessing:StorageIntegration"));
+            services.AddScoped<StorageProcessingStore>();
+            services.AddScoped<IStorageProcessingIdentityResolver, StorageProcessingIdentityResolver>();
+            services.AddScoped<IStorageProcessingPolicyResolver, StorageProcessingPolicyResolver>();
+            services.AddScoped<IStorageProcessingPolicyRepository, StorageProcessingPolicyRepository>();
+            services.AddScoped<IStorageProcessingIntentRepository, StorageProcessingIntentRepository>();
+            services.AddScoped<IStorageProcessingManifestRepository, StorageProcessingManifestRepository>();
+            services.AddScoped<IStorageProcessingExtractionLinkRepository, StorageProcessingExtractionLinkRepository>();
             var workerSection = configuration.GetSection("DocumentProcessing:OcrWorker");
             services.Configure<DocumentProcessingOcrWorkerOptions>(workerSection);
             services.Configure<DocumentProcessingOfficeWorkerOptions>(
