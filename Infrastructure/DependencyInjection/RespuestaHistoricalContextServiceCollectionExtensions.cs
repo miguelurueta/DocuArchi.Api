@@ -62,6 +62,12 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.AddScoped<MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.IRespuestaHistoricalIndexOperationRepository, MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.RespuestaHistoricalIndexOperationRepository>();
             services.AddScoped<MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.IRespuestaHistoricalContextCheckpointRepository, MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.ContextoHistorico.RespuestaHistoricalContextCheckpointRepository>();
 
+            services.Configure<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.AgentContextHistoricalOptions>(configuration.GetSection("AgentContext:HistoricalContract"));
+            services.AddScoped<MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.IAgentContextEvidenceRepository, MiApp.Repository.Repositorio.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.AgentContextEvidenceRepository>();
+            services.AddScoped<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.AgentContextHistoricalAdapter>();
+            services.AddScoped<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.IAgentContextHistoricalAdapter>(p => p.GetRequiredService<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.AgentContextHistoricalAdapter>());
+            services.AddScoped<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.IAgentContextSourceResolver>(p => p.GetRequiredService<MiApp.Services.Service.GestionCorrespondencia.GestionRespuesta.AgentContext.Comun.AgentContextHistoricalAdapter>());
+
             return services;
         }
     }

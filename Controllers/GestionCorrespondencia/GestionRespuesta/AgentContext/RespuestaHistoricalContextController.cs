@@ -58,21 +58,14 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
                 return BadRequest(Validation("usuarioid", "Claim usuarioid invalido", requestId));
             }
 
-            _logger.LogInformation(
-                "RespuestaHistoricalContextController requestId={RequestId} usuarioId={UsuarioId} alias={Alias} tramiteDocumento={TramiteDocumento} radicado={Radicado} idTareaWf={IdTareaWf} idRespuestaRadicado={IdRespuestaRadicado}",
-                requestId,
-                usuarioId,
-                aliasValidation.ClaimValue,
-                request?.TramiteDocumento,
-                request?.Radicado,
-                request?.IdTareaWf,
-                request?.IdRespuestaRadicado);
+            _logger.LogInformation("Context requestId={RequestId} usuarioId={UsuarioId} stage={Stage} operation={Operation}",
+                requestId, usuarioId, "http", "read-context");
 
             var result = await _service.GetContextAsync(request, aliasValidation.ClaimValue, usuarioId, requestId);
             sw.Stop();
 
             _logger.LogInformation(
-                "RespuestaHistoricalContextController completed requestId={RequestId} usuarioId={UsuarioId} status={Status} success={Success} durationMs={DurationMs}",
+                "Context completed requestId={RequestId} usuarioId={UsuarioId} metaStatus={MetaStatus} success={Success} durationMs={DurationMs}",
                 requestId,
                 usuarioId,
                 result.meta?.Status,
@@ -90,7 +83,7 @@ namespace DocuArchi.Api.Controllers.GestionCorrespondencia.GestionRespuesta.Agen
         private string ResolveRequestId()
         {
             var header = Request.Headers["X-Request-Id"].ToString();
-            return string.IsNullOrWhiteSpace(header) ? HttpContext.TraceIdentifier : header;
+            return string.IsNullOrWhiteSpace(header) || header.Length > 120 || header.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not ('-' or '_' or ':' or '.')) ? HttpContext.TraceIdentifier : header;
         }
 
         private static AppResponses<RespuestaHistoricalContextResponseDto> Validation(
