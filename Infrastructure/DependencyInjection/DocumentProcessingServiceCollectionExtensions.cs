@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MiApp.Repository.Repositorio.DocumentProcessing.Core;
 using MiApp.Repository.Repositorio.DocumentProcessing.Ocr.Configuration;
 using MiApp.Repository.Repositorio.DocumentProcessing.Office.Configuration;
@@ -32,6 +33,8 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             services.Configure<StorageProcessingOptions>(configuration.GetSection("DocumentProcessing:StorageIntegration"));
             services.AddScoped<StorageProcessingStore>();
             services.AddScoped<IStorageProcessingIdentityResolver, StorageProcessingIdentityResolver>();
+            services.AddScoped<IStorageProcessingAdmissionService, StorageProcessingAdmissionService>();
+            services.TryAddScoped<IOcrConfigurationRepository, OcrConfigurationRepository>();
             services.AddScoped<IStorageProcessingPolicyResolver, StorageProcessingPolicyResolver>();
             services.AddScoped<IStorageProcessingPolicyRepository, StorageProcessingPolicyRepository>();
             services.AddScoped<IStorageProcessingIntentRepository, StorageProcessingIntentRepository>();

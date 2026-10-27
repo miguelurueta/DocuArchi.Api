@@ -5,6 +5,7 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
 {
     public sealed class OcrWorkerHostedService : BackgroundService
     {
+        private long _recoveryCursor;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<OcrWorkerHostedService> _logger;
         private readonly DocumentProcessingOcrWorkerOptions _options;
@@ -60,6 +61,16 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
                 return;
             }
 
+            try {
+                using var recoveryScope = _scopeFactory.CreateScope();
+                var recovery = recoveryScope.ServiceProvider.GetService<MiApp.Services.Service.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud.IStorageProcessingAdmissionService>();
+                if (recovery is not null) {
+                    var page = await recovery.ReconcileAsync(_options.DefaultDbAlias, _recoveryCursor, stoppingToken);
+                    _recoveryCursor = page.NextCursor;
+                }
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { return; }
+            catch { _logger.LogWarning("StorageProcessing reconciliation remains pending errorCode={ErrorCode}", "STORAGE_PROCESSING_RECOVERY_PENDING"); }
             var maxBatch = Math.Max(1, _options.MaxBatchSize);
             for (var index = 0; index < maxBatch && !stoppingToken.IsCancellationRequested; index++)
             {
