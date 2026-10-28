@@ -49,8 +49,8 @@ public sealed class ControladorCorreo(
             var alias = claimValidation.ValidateClaim<string>("defaulalias");
             if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 return Unauthorized(Error("EMAIL_ALIAS_REQUIRED", "No fue posible validar el contexto de la solicitud.", requestId, "defaulalias"));
-            var company = claimValidation.ValidateClaim<string>("emp");
-            if (!company.Success || !int.TryParse(company.ClaimValue, out var idEmpresa) || idEmpresa <= 0)
+            var empresa = claimValidation.ValidateClaim<string>("emp");
+            if (!empresa.Success || !int.TryParse(empresa.ClaimValue, out var idEmpresa) || idEmpresa <= 0)
                 return Unauthorized(Error("EMAIL_COMPANY_REQUIRED", "No fue posible validar la empresa de la solicitud.", requestId, "emp"));
             ct.ThrowIfCancellationRequested();
             var result = await service.SolicitarEnvioAsync(request, alias.ClaimValue.Trim(), idEmpresa, ct).ConfigureAwait(false);
@@ -80,9 +80,11 @@ public sealed class ControladorCorreo(
     private static int MapStatus(AppResponses<RespuestaEnvioCorreoDto> result)
     {
         var code = result.errors?.OfType<AppError>().Select(e => e.Code).FirstOrDefault(c => !string.IsNullOrWhiteSpace(c)) ?? string.Empty;
+        if (code is "EMAIL_SENDER_NOT_CONFIGURED" or "EMAIL_SENDER_CONFIGURATION_INVALID") return StatusCodes.Status409Conflict;
         if (code.Contains("IDEMPOTENCY_CONFLICT", StringComparison.OrdinalIgnoreCase)) return StatusCodes.Status409Conflict;
         if (code.Contains("QUEUE", StringComparison.OrdinalIgnoreCase) || code.Contains("REPOSITORY", StringComparison.OrdinalIgnoreCase)) return StatusCodes.Status503ServiceUnavailable;
-        if (code.Contains("INVALID", StringComparison.OrdinalIgnoreCase) || code.Contains("REQUIRED", StringComparison.OrdinalIgnoreCase)) return StatusCodes.Status400BadRequest;
+        if (code is "EMAIL_RECIPIENT_VALIDATION_UNAVAILABLE") return StatusCodes.Status503ServiceUnavailable;
+        if (code.Contains("INVALID", StringComparison.OrdinalIgnoreCase) || code.Contains("REQUIRED", StringComparison.OrdinalIgnoreCase) || code is "EMAIL_RECIPIENT_NOT_FOUND") return StatusCodes.Status400BadRequest;
         return StatusCodes.Status500InternalServerError;
     }
 
