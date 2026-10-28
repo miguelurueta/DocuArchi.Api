@@ -31,7 +31,23 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             IConfiguration configuration)
         {
             services.Configure<StorageProcessingOptions>(configuration.GetSection("DocumentProcessing:StorageIntegration"));
+            services.Configure<StorageProcessingDispatchOptions>(configuration.GetSection("DocumentProcessing:StorageIntegration:Dispatch"));
             services.AddScoped<StorageProcessingStore>();
+            services.AddScoped<IStorageProcessingDispatchRepository, StorageProcessingDispatchRepository>();
+            services.AddScoped<IStorageProcessingResultRepository, StorageProcessingResultRepository>();
+            services.AddScoped<IStorageProcessingFileSourceResolver, StorageProcessingFileSourceResolver>();
+            services.AddScoped<IStorageProcessingJobFactory, StorageProcessingJobFactory>();
+            services.AddScoped<IStorageProcessingResultService, StorageProcessingResultService>();
+            services.AddScoped<IStorageProcessingDispatcher, StorageProcessingDispatcher>();
+            services.AddScoped<IStorageProcessingBackfillRepository, StorageProcessingBackfillRepository>();
+            services.AddScoped<IStorageProcessingBackfillPreparation, StorageProcessingBackfillPreparation>();
+            services.AddScoped<IStorageProcessingBackfillService, StorageProcessingBackfillService>();
+            services.AddHttpContextAccessor();
+            services.TryAddScoped<MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim.ICurrentUserService,
+                MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim.CurrentUserService>();
+            services.TryAddScoped<IOcrJobRepository, OcrJobRepository>();
+            services.TryAddScoped<MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.IStorageNamingService,
+                MiApp.Services.Service.GestorDocumental.AlmacenamientoDocumental.Naming.StorageNamingService>();
             services.AddScoped<IStorageProcessingIdentityResolver, StorageProcessingIdentityResolver>();
             services.AddScoped<IStorageProcessingAdmissionService, StorageProcessingAdmissionService>();
             services.TryAddScoped<IOcrConfigurationRepository, OcrConfigurationRepository>();

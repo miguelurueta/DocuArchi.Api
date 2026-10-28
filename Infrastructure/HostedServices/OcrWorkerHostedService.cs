@@ -1,23 +1,33 @@
 using MiApp.Services.Service.DocumentProcessing.Core;
 using Microsoft.Extensions.Options;
+using MiApp.Models.Models.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud;
+using MiApp.Services.Service.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud;
 
 namespace DocuArchi.Api.Infrastructure.HostedServices
 {
     public sealed class OcrWorkerHostedService : BackgroundService
     {
-        private long _recoveryCursor;
+        private readonly Dictionary<string, long> _recoveryCursors = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, long> _dispatchCursors = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, long> _backfillCursors = new(StringComparer.OrdinalIgnoreCase);
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<OcrWorkerHostedService> _logger;
         private readonly DocumentProcessingOcrWorkerOptions _options;
+        private readonly StorageProcessingOptions _integration;
+        private readonly StorageProcessingDispatchOptions _dispatch;
 
         public OcrWorkerHostedService(
             IServiceScopeFactory scopeFactory,
             IOptions<DocumentProcessingOcrWorkerOptions>? options,
-            ILogger<OcrWorkerHostedService> logger)
+            ILogger<OcrWorkerHostedService> logger,
+            IOptions<StorageProcessingOptions>? integration = null,
+            IOptions<StorageProcessingDispatchOptions>? dispatch = null)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
             _options = options?.Value ?? new DocumentProcessingOcrWorkerOptions();
+            _integration = integration?.Value ?? new();
+            _dispatch = dispatch?.Value ?? new();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,19 +65,25 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
 
         private async Task RunBatchAsync(CancellationToken stoppingToken)
         {
-            if (string.IsNullOrWhiteSpace(_options.DefaultDbAlias))
-            {
-                _logger.LogWarning("docproc_ocr_worker_hosted_skipped errorCode={ErrorCode}", "DOCPROC_OCR_WORKER_ALIAS_REQUIRED");
-                return;
+            foreach (var alias in StorageProcessingWorkerAliases.Resolve(_scopeFactory, _options.DefaultDbAlias, _integration, _dispatch)) {
+                stoppingToken.ThrowIfCancellationRequested();
+                await RunAliasAsync(alias, stoppingToken);
             }
+        }
 
+        private async Task RunAliasAsync(string alias, CancellationToken stoppingToken)
+        {
             try {
                 using var recoveryScope = _scopeFactory.CreateScope();
                 var recovery = recoveryScope.ServiceProvider.GetService<MiApp.Services.Service.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud.IStorageProcessingAdmissionService>();
                 if (recovery is not null) {
-                    var page = await recovery.ReconcileAsync(_options.DefaultDbAlias, _recoveryCursor, stoppingToken);
-                    _recoveryCursor = page.NextCursor;
+                    var page = await recovery.ReconcileAsync(alias, _recoveryCursors.GetValueOrDefault(alias), stoppingToken);
+                    _recoveryCursors[alias] = page.NextCursor;
                 }
+                var dispatcher = recoveryScope.ServiceProvider.GetService<IStorageProcessingDispatcher>();
+                if (dispatcher is not null) _dispatchCursors[alias] = await dispatcher.RunPageAsync(alias, _dispatchCursors.GetValueOrDefault(alias), stoppingToken);
+                var backfill = recoveryScope.ServiceProvider.GetService<IStorageProcessingBackfillService>();
+                if (backfill is not null) _backfillCursors[alias] = await backfill.RunPageAsync(alias, _backfillCursors.GetValueOrDefault(alias), stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { return; }
             catch { _logger.LogWarning("StorageProcessing reconciliation remains pending errorCode={ErrorCode}", "STORAGE_PROCESSING_RECOVERY_PENDING"); }
@@ -79,7 +95,7 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
                     using var scope = _scopeFactory.CreateScope();
                     var coordinator = scope.ServiceProvider.GetRequiredService<IDocumentProcessingOcrWorkerCoordinator>();
                     var result = await coordinator.ExecuteNextAsync(
-                        _options.DefaultDbAlias,
+                        alias,
                         string.IsNullOrWhiteSpace(_options.WorkerUser) ? "ocr-worker" : _options.WorkerUser.Trim(),
                         stoppingToken);
 
@@ -116,7 +132,7 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
         {
             try
             {
-                _logger.LogError(exception, message, args);
+                _logger.LogError(message, args);
             }
             catch
             {

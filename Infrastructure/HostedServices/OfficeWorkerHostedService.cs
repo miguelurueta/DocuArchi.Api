@@ -1,5 +1,7 @@
 using MiApp.Services.Service.DocumentProcessing.Core;
 using Microsoft.Extensions.Options;
+using MiApp.Models.Models.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud;
+using MiApp.Services.Service.DocumentProcessing.IntegracionAlmacenamientoContextoSolicitud;
 
 namespace DocuArchi.Api.Infrastructure.HostedServices
 {
@@ -8,15 +10,24 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<OfficeWorkerHostedService> _logger;
         private readonly DocumentProcessingOfficeWorkerOptions _options;
+        private readonly StorageProcessingOptions _integration;
+        private readonly StorageProcessingDispatchOptions _dispatch;
+        private readonly Dictionary<string, long> _recoveryCursors = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, long> _dispatchCursors = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, long> _backfillCursors = new(StringComparer.OrdinalIgnoreCase);
 
         public OfficeWorkerHostedService(
             IServiceScopeFactory scopeFactory,
             IOptions<DocumentProcessingOfficeWorkerOptions>? options,
-            ILogger<OfficeWorkerHostedService> logger)
+            ILogger<OfficeWorkerHostedService> logger,
+            IOptions<StorageProcessingOptions>? integration = null,
+            IOptions<StorageProcessingDispatchOptions>? dispatch = null)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
             _options = options?.Value ?? new DocumentProcessingOfficeWorkerOptions();
+            _integration = integration?.Value ?? new();
+            _dispatch = dispatch?.Value ?? new();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -54,12 +65,26 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
 
         private async Task RunBatchAsync(CancellationToken stoppingToken)
         {
-            if (string.IsNullOrWhiteSpace(_options.DefaultDbAlias))
-            {
-                _logger.LogWarning("office_worker_hosted_skipped errorCode={ErrorCode}", "OFFICE_WORKER_ALIAS_REQUIRED");
-                return;
+            foreach (var alias in StorageProcessingWorkerAliases.Resolve(_scopeFactory, _options.DefaultDbAlias, _integration, _dispatch)) {
+                stoppingToken.ThrowIfCancellationRequested();
+                await RunAliasAsync(alias, stoppingToken);
             }
+        }
 
+        private async Task RunAliasAsync(string alias, CancellationToken stoppingToken)
+        {
+            try {
+                using var integrationScope = _scopeFactory.CreateScope();
+                var recovery = integrationScope.ServiceProvider.GetService<IStorageProcessingAdmissionService>();
+                if (recovery is not null && _integration.Enabled && _dispatch.Enabled)
+                    _recoveryCursors[alias] = (await recovery.ReconcileAsync(alias, _recoveryCursors.GetValueOrDefault(alias), stoppingToken)).NextCursor;
+                var dispatcher = integrationScope.ServiceProvider.GetService<IStorageProcessingDispatcher>();
+                if (dispatcher is not null) _dispatchCursors[alias] = await dispatcher.RunPageAsync(alias, _dispatchCursors.GetValueOrDefault(alias), stoppingToken);
+                var backfill = integrationScope.ServiceProvider.GetService<IStorageProcessingBackfillService>();
+                if (backfill is not null) _backfillCursors[alias] = await backfill.RunPageAsync(alias, _backfillCursors.GetValueOrDefault(alias), stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { return; }
+            catch { _logger.LogWarning("StorageProcessing office reconciliation pending errorCode={ErrorCode}", "STORAGE_PROCESSING_RECOVERY_PENDING"); }
             var maxBatch = Math.Max(1, _options.MaxBatchSize);
             for (var index = 0; index < maxBatch && !stoppingToken.IsCancellationRequested; index++)
             {
@@ -68,7 +93,7 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
                     using var scope = _scopeFactory.CreateScope();
                     var coordinator = scope.ServiceProvider.GetRequiredService<IDocumentProcessingOfficeWorkerCoordinator>();
                     var result = await coordinator.ExecuteNextAsync(
-                        _options.DefaultDbAlias,
+                        alias,
                         string.IsNullOrWhiteSpace(_options.WorkerUser) ? "office-worker" : _options.WorkerUser.Trim(),
                         stoppingToken);
 
@@ -105,7 +130,7 @@ namespace DocuArchi.Api.Infrastructure.HostedServices
         {
             try
             {
-                _logger.LogError(exception, message, args);
+                _logger.LogError(message, args);
             }
             catch
             {
