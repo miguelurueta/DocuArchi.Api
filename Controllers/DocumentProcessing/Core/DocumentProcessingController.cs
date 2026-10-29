@@ -5,6 +5,7 @@ using MiApp.Services.Service.SessionHelper;
 using MiApp.Services.Service.Seguridad.Autorizacion.CurrentClaim;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace DocuArchi.Api.Controllers.DocumentProcessing.Core
 {
@@ -78,18 +79,24 @@ namespace DocuArchi.Api.Controllers.DocumentProcessing.Core
             [FromRoute] long jobId,
             CancellationToken cancellationToken)
         {
+            var clock=Stopwatch.StartNew();
+            var requestId=HttpContext.TraceIdentifier;
+            var publicCode="";
+            var metaStatus="success";
             try
             {
                 var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 {
-                    return BadRequest(Error<DocumentProcessingJobStatusDto?>("DOCPROC_ALIAS_REQUIRED", "Claim defaulalias requerido."));
+                    publicCode="DOCPROC_ALIAS_REQUIRED";metaStatus="error";
+                    return BadRequest(DocumentProcessingErrorResponseFactory.Build<DocumentProcessingJobStatusDto?>(publicCode,requestId));
                 }
 
                 var result = await _service.GetJobAsync(jobId, alias.ClaimValue, cancellationToken);
                 if (result == null)
                 {
-                    return NotFound(Error<DocumentProcessingJobStatusDto?>("DOCPROC_JOB_NOT_FOUND", "Job de procesamiento documental no encontrado."));
+                    publicCode="DOCPROC_JOB_NOT_FOUND";metaStatus="error";
+                    return NotFound(DocumentProcessingErrorResponseFactory.Build<DocumentProcessingJobStatusDto?>(publicCode,requestId));
                 }
 
                 return Ok(new AppResponses<DocumentProcessingJobStatusDto?>
@@ -97,14 +104,23 @@ namespace DocuArchi.Api.Controllers.DocumentProcessing.Core
                     success = true,
                     message = "OK",
                     data = ToDto(result),
+                    meta = DocumentProcessingErrorResponseFactory.Metadata(requestId,result),
                     errors = Array.Empty<object>()
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "docproc_get_failed jobId={JobId} errorCode={ErrorCode}", jobId, "DOCPROC_GET_FAILED");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    Error<DocumentProcessingJobStatusDto?>("DOCPROC_GET_FAILED", "No fue posible consultar el job de procesamiento documental."));
+                publicCode="DOCPROC_GET_FAILED";metaStatus="error";
+                var descriptor=DocumentProcessingErrorCatalog.Resolve(publicCode);
+                return StatusCode(descriptor.HttpStatus,DocumentProcessingErrorResponseFactory.Build<DocumentProcessingJobStatusDto?>(publicCode,requestId,ex));
+            }
+            finally {
+                try {
+                    var actor=_currentUserService.UsuarioIdInt;
+                    _logger.LogInformation("docproc_get requestId={RequestId} docprocJobId={DocprocJobId} stage={Stage} operation={Operation} errorCode={ErrorCode} metaStatus={MetaStatus} durationMs={DurationMs} usuarioId={UsuarioId}",
+                        requestId,jobId,"lookup","GetJob",publicCode,metaStatus,clock.ElapsedMilliseconds,actor>0?(int?)actor:null);
+                }
+                catch { /* A logging/optional actor failure must not replace the primary HTTP result. */ }
             }
         }
 
