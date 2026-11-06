@@ -10,6 +10,10 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection;
 
 public static class WorkflowTerminarServiceCollectionExtensions
 {
+    /// <summary>Registra preparación y motor Workflow, incluidos los lectores del envío inicial manual de Radicación.</summary>
+    /// <param name="services">Colección DI del host de API.</param>
+    /// <param name="configuration">Configuración que selecciona MySQL o SQL Server y capacidades existentes.</param>
+    /// <returns>Colección con servicios/repositorios de terminación registrados; rechaza proveedores no soportados.</returns>
     public static IServiceCollection AddWorkflowTerminar(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
@@ -26,6 +30,7 @@ public static class WorkflowTerminarServiceCollectionExtensions
         services.AddScoped<IWorkflowSuccessorDestinationRepository, WorkflowSuccessorDestinationRepository>();
         services.AddScoped<IWorkflowVirtualDestinationRepository, WorkflowVirtualDestinationRepository>();
         services.AddScoped<IWorkflowTerminationPreparationTaskRepository, WorkflowTerminationPreparationTaskRepository>();
+        services.AddScoped<IValidadorActividadVirtualOrigenWorkflow, ValidadorActividadVirtualOrigenWorkflow>();
         services.AddScoped<ITransitionConnectorResolver, TransitionConnectorResolver>();
         services.AddScoped<IWorkflowActivityDestinationPolicyResolver, WorkflowActivityDestinationPolicyResolver>();
         services.AddScoped<IWorkflowSuccessorDestinationResolver, WorkflowSuccessorDestinationResolver>();
@@ -50,6 +55,7 @@ public static class WorkflowTerminarServiceCollectionExtensions
             .ValidateOnStart();
         services.AddScoped<IManagedDestinationPreviewTokenService, ManagedDestinationPreviewTokenService>();
         services.AddScoped<IWorkflowTerminationPreparationResolver, WorkflowTerminationPreparationResolver>();
+        services.AddScoped<IWorkflowRadicacionManualContextRepository, WorkflowRadicacionManualContextRepository>();
         if (engine == "sqlserver")
             services.AddScoped<IWorkflowTopologyMetadataReader, SqlServerWorkflowTopologyMetadataReader>();
         else
