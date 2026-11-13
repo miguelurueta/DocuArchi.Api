@@ -1,3 +1,5 @@
+using MiApp.Repository.Repositorio.Radicador.ResolucionDocumental;
+using MiApp.Services.Service.Radicacion.ResolucionDocumental;
 using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Acciones;
 using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Autocomplete;
 using MiApp.Repository.Repositorio.Radicador.ConsultaPrevia.Estructura;
@@ -18,10 +20,16 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
     /// </summary>
     public static class ConsultaPreviaRadicadoServiceCollectionExtensions
     {
+        /// <summary>Registra la capacidad documental compartida junto a los servicios existentes de Consulta Previa.</summary>
+        /// <param name="services">Contenedor que recibe la capacidad documental y la composición existente.</param>
+        /// <param name="configuration">Configuración conservada por compatibilidad con las llamadas existentes.</param>
+        /// <returns>El mismo contenedor con servicios y repositorios de Consulta Previa registrados.</returns>
         public static IServiceCollection AddConsultaPreviaRadicado(
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            services.AddScoped<IResolucionDocumentoRadicacionRepository, ResolucionDocumentoRadicacionRepository>();
+            services.AddScoped<IResolucionDocumentoRadicacionService, ResolucionDocumentoRadicacionService>();
             services.AddScoped<IConsultaPreviaRadicadoEstructuraRepository, ConsultaPreviaRadicadoEstructuraRepository>();
             services.AddScoped<IConsultaPreviaRadicadoRepository, ConsultaPreviaRadicadoRepository>();
             services.AddScoped<IConsultaPreviaRadicadoAutocompleteRepository, ConsultaPreviaRadicadoAutocompleteRepository>();
