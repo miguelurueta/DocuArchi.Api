@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using MiApp.Services.Service.Radicacion.ResolucionDocumental.Errors;
 using MiApp.DTOs.DTOs.Radicacion.ConsultaPrevia;
 using MiApp.DTOs.DTOs.UI.MuiTable;
 using MiApp.DTOs.DTOs.Utilidades;
@@ -17,15 +19,23 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
         private readonly IClaimValidationService _claimValidationService;
         private readonly IConsultaPreviaRadicadoService _consultaPreviaRadicadoService;
         private readonly ConsultaPreviaRadicadoErrorResponseFactory _errorFactory;
+        private readonly ILogger<ConsultaPreviaRadicadoController>? _logger;
 
+        /// <summary>Compone la frontera autenticada de Consulta Previa y la proyección de errores seguros de lectura.</summary>
+        /// <param name="claimValidationService">Validación de los claims existentes sin aceptar contexto físico del request.</param>
+        /// <param name="consultaPreviaRadicadoService">Fachada de casos de uso existentes, sin SQL en el controller.</param>
+        /// <param name="errorFactory">Catálogo compatible y diagnóstico seguro de lecturas.</param>
+        /// <param name="logger">Registro estructurado de errores de frontera con correlación y actor cuando está acreditado.</param>
         public ConsultaPreviaRadicadoController(
             IClaimValidationService claimValidationService,
             IConsultaPreviaRadicadoService consultaPreviaRadicadoService,
-            ConsultaPreviaRadicadoErrorResponseFactory errorFactory)
+            ConsultaPreviaRadicadoErrorResponseFactory errorFactory,
+            ILogger<ConsultaPreviaRadicadoController>? logger = null)
         {
             _claimValidationService = claimValidationService;
             _consultaPreviaRadicadoService = consultaPreviaRadicadoService;
             _errorFactory = errorFactory;
+            _logger = logger;
         }
 
         /// <summary>
@@ -44,29 +54,32 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             [FromQuery] string tipo,
             CancellationToken cancellationToken)
         {
-            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var requestId = ErroresResolucionDocumental.NormalizarCorrelacionDocumental(HttpContext?.TraceIdentifier);
+            var inicio = Stopwatch.StartNew();
+            long? usuarioIdResuelto = null;
 
             try
             {
                 var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoEstructuraDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoEstructuraDto>(
                         ConsultaPreviaRadicadoErrorCatalog.ClaimRequired,
                         "defaulalias",
-                        requestId));
+                        requestId, "estructura", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
                 if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
                     || !long.TryParse(usuario.ClaimValue, out var usuarioId))
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoEstructuraDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoEstructuraDto>(
                         ConsultaPreviaRadicadoErrorCatalog.ClaimRequired,
                         "usuarioid",
-                        requestId));
+                        requestId, "estructura", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
+                usuarioIdResuelto = usuarioId;
                 var result = await _consultaPreviaRadicadoService.GetEstructuraAsync(
                     idPlantilla,
                     tipo,
@@ -75,6 +88,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
                     requestId,
                     cancellationToken);
 
+
+                result = _errorFactory.CompletarDiagnosticoLecturaConsultaPrevia(result, requestId, "estructura", _logger, usuarioIdResuelto, inicio.ElapsedMilliseconds);
                 if (result.success)
                 {
                     return Ok(result);
@@ -88,7 +103,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
             catch (Exception ex)
             {
-                var error = _errorFactory.Unexpected<ConsultaPreviaRadicadoEstructuraDto>(requestId, ex.Message);
+                var error = _errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoEstructuraDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.Unexpected, "unexpected", requestId, "estructura", ex,
+                    logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
@@ -107,37 +124,40 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             [FromBody] ConsultaPreviaRadicadoQueryRequestDto request,
             CancellationToken cancellationToken)
         {
-            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var requestId = ErroresResolucionDocumental.NormalizarCorrelacionDocumental(HttpContext?.TraceIdentifier);
+            var inicio = Stopwatch.StartNew();
+            long? usuarioIdResuelto = null;
 
             try
             {
                 if (request == null)
                 {
-                    return BadRequest(_errorFactory.Validation<DynamicUiTableDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<DynamicUiTableDto>(
                         ConsultaPreviaRadicadoErrorCatalog.QueryRequestInvalido,
                         "request",
-                        requestId));
+                        requestId, "query", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 {
-                    return BadRequest(_errorFactory.Validation<DynamicUiTableDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<DynamicUiTableDto>(
                         ConsultaPreviaRadicadoErrorCatalog.QueryClaimRequired,
                         "defaulalias",
-                        requestId));
+                        requestId, "query", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
                 if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
                     || !long.TryParse(usuario.ClaimValue, out var usuarioId))
                 {
-                    return BadRequest(_errorFactory.Validation<DynamicUiTableDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<DynamicUiTableDto>(
                         ConsultaPreviaRadicadoErrorCatalog.QueryClaimRequired,
                         "usuarioid",
-                        requestId));
+                        requestId, "query", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
+                usuarioIdResuelto = usuarioId;
                 var result = await _consultaPreviaRadicadoService.QueryAsync(
                     request,
                     alias.ClaimValue,
@@ -145,6 +165,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
                     requestId,
                     cancellationToken);
 
+
+                result = _errorFactory.CompletarDiagnosticoLecturaConsultaPrevia(result, requestId, "query", _logger, usuarioIdResuelto, inicio.ElapsedMilliseconds);
                 if (result.success)
                 {
                     return Ok(result);
@@ -158,11 +180,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
             catch (Exception ex)
             {
-                var error = _errorFactory.FromDescriptor<DynamicUiTableDto>(
-                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.QueryUnexpected),
-                    "unexpected",
-                    requestId,
-                    ex.Message);
+                var error = _errorFactory.CrearFalloLecturaConsultaPrevia<DynamicUiTableDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.QueryUnexpected, "unexpected", requestId, "query", ex,
+                    logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
@@ -174,6 +194,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
         /// <param name="nombreCanonico">Nombre canonico publicado por la estructura.</param>
         /// <param name="request">Tipo, texto, limite opcional y contexto v1 vacío.</param>
         /// <param name="cancellationToken">Token de cancelacion de la solicitud HTTP.</param>
+        /// <returns>Contrato de sugerencias configuradas o error catalogado con diagnóstico seguro.</returns>
         [HttpPost("plantillas/{idPlantilla:long}/campos/{nombreCanonico}/autocomplete")]
         [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAutocompleteResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAutocompleteResponseDto>), StatusCodes.Status400BadRequest)]
@@ -185,37 +206,40 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             [FromBody] ConsultaPreviaRadicadoAutocompleteRequestDto request,
             CancellationToken cancellationToken)
         {
-            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var requestId = ErroresResolucionDocumental.NormalizarCorrelacionDocumental(HttpContext?.TraceIdentifier);
+            var inicio = Stopwatch.StartNew();
+            long? usuarioIdResuelto = null;
 
             try
             {
                 if (request == null)
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoAutocompleteResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.AutocompleteRequestInvalido,
                         "request",
-                        requestId));
+                        requestId, "autocomplete", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoAutocompleteResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.AutocompleteClaimRequired,
                         "defaulalias",
-                        requestId));
+                        requestId, "autocomplete", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
                 if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
                     || !long.TryParse(usuario.ClaimValue, out var usuarioId))
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoAutocompleteResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.AutocompleteClaimRequired,
                         "usuarioid",
-                        requestId));
+                        requestId, "autocomplete", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
+                usuarioIdResuelto = usuarioId;
                 var result = await _consultaPreviaRadicadoService.GetAutocompleteAsync(
                     idPlantilla,
                     nombreCanonico,
@@ -225,6 +249,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
                     requestId,
                     cancellationToken);
 
+
+                result = _errorFactory.CompletarDiagnosticoLecturaConsultaPrevia(result, requestId, "autocomplete", _logger, usuarioIdResuelto, inicio.ElapsedMilliseconds);
                 return result.success ? Ok(result) : StatusCode(ResolveStatusCode(result), result);
             }
             catch (OperationCanceledException)
@@ -233,11 +259,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
             catch (Exception ex)
             {
-                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoAutocompleteResponseDto>(
-                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.AutocompleteUnexpected),
-                    "unexpected",
-                    requestId,
-                    ex.Message);
+                var error = _errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoAutocompleteResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.AutocompleteUnexpected, "unexpected", requestId, "autocomplete", ex,
+                    logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
@@ -262,29 +286,32 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             [FromQuery] string tipo,
             CancellationToken cancellationToken)
         {
-            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var requestId = ErroresResolucionDocumental.NormalizarCorrelacionDocumental(HttpContext?.TraceIdentifier);
+            var inicio = Stopwatch.StartNew();
+            long? usuarioIdResuelto = null;
 
             try
             {
                 var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoDetalleDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoDetalleDto>(
                         ConsultaPreviaRadicadoErrorCatalog.DetalleClaimRequired,
                         "defaulalias",
-                        requestId));
+                        requestId, "detalle", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
                 if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
                     || !long.TryParse(usuario.ClaimValue, out var usuarioId))
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoDetalleDto>(
+                    return BadRequest(_errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoDetalleDto>(
                         ConsultaPreviaRadicadoErrorCatalog.DetalleClaimRequired,
                         "usuarioid",
-                        requestId));
+                        requestId, "detalle", logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
+                usuarioIdResuelto = usuarioId;
                 var result = await _consultaPreviaRadicadoService.GetDetalleAsync(
                     radicado,
                     idPlantilla,
@@ -294,6 +321,8 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
                     requestId,
                     cancellationToken);
 
+
+                result = _errorFactory.CompletarDiagnosticoLecturaConsultaPrevia(result, requestId, "detalle", _logger, usuarioIdResuelto, inicio.ElapsedMilliseconds);
                 if (result.success)
                 {
                     return Ok(result);
@@ -307,11 +336,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
             catch (Exception ex)
             {
-                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoDetalleDto>(
-                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.DetalleUnexpected),
-                    "unexpected",
-                    requestId,
-                    ex.Message);
+                var error = _errorFactory.CrearFalloLecturaConsultaPrevia<ConsultaPreviaRadicadoDetalleDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.DetalleUnexpected, "unexpected", requestId, "detalle", ex,
+                    logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
