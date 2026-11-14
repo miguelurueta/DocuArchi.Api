@@ -267,7 +267,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
         }
 
         /// <summary>
-        /// Obtiene el detalle vertical completo de un radicado consultado previamente.
+        /// Obtiene el detalle vertical de un radicado por su identidad persistida, sin exigir un listado previo.
         /// </summary>
         /// <param name="radicado">Consecutivo del radicado seleccionado.</param>
         /// <param name="idPlantilla">Identificador de plantilla de radicacion.</param>
