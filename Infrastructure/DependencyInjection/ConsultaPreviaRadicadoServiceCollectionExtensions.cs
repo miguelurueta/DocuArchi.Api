@@ -30,7 +30,10 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
         {
             services.AddScoped<IResolucionDocumentoRadicacionRepository, ResolucionDocumentoRadicacionRepository>();
             services.AddScoped<IResolucionDocumentoRadicacionService, ResolucionDocumentoRadicacionService>();
+            services.AddScoped<ICatalogoSeleccionConsultaPreviaRepository, CatalogoSeleccionConsultaPreviaRepository>();
+            services.AddScoped<ISeleccionConsultaPreviaService, SeleccionConsultaPreviaService>();
             services.AddScoped<IConsultaPreviaRadicadoEstructuraRepository, ConsultaPreviaRadicadoEstructuraRepository>();
+            services.AddScoped<IFuenteDocumentalConsultaPreviaRepository, FuenteDocumentalConsultaPreviaRepository>();
             services.AddScoped<IConsultaPreviaRadicadoRepository, ConsultaPreviaRadicadoRepository>();
             services.AddScoped<IConsultaPreviaRadicadoAutocompleteRepository, ConsultaPreviaRadicadoAutocompleteRepository>();
             services.AddScoped<IConsultaPreviaRadicadoActionRepository, ConsultaPreviaRadicadoActionRepository>();
