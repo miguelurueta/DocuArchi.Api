@@ -13,10 +13,31 @@ public static class EmailServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        services.AddEmailDispatchRepositories();        services.AddOptions<MiApp.Services.Service.Email.Queue.EmailQueueOptions>()
+        services.AddEmailDispatchRepositories();
+        services.AddOptions<MiApp.Services.Service.Email.Queue.EmailQueueOptions>()
             .Bind(configuration.GetSection("EmailDispatch:Broker"))
-            .Validate(options => !options.UseAzureServiceBus || options.IsValid(), "EmailDispatch:Broker no está configurado correctamente.")
+            .Validate(options => options.IsValid(), "EmailDispatch:Broker no está configurado correctamente.")
             .ValidateOnStart();
+        services.TryAddSingleton<MiApp.Services.Service.Email.Queue.EmailWorkerStatus>();
+        if (!services.Any(d => d.ServiceType == typeof(MiApp.Services.Service.Email.Queue.EmailWorkerHealthCheck)))
+        {
+            services.AddScoped<MiApp.Services.Service.Email.Queue.EmailWorkerHealthCheck>();
+            services.AddHealthChecks().AddCheck<MiApp.Services.Service.Email.Queue.EmailWorkerHealthCheck>("email-worker");
+        }
+        services.AddHttpContextAccessor();
+        services.AddOptions<MiApp.Services.Service.Email.Attachments.EmailAttachmentOptions>()
+            .Bind(configuration.GetSection("EmailDispatch:Attachments"))
+            .Validate(o => o.IsValid(), "Email attachment configuration is invalid.").ValidateOnStart();
+        services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentContextAccessor, HttpEmailAttachmentContextAccessor>();
+        services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentSource, MiApp.Services.Service.Email.Attachments.DeniedEmailAttachmentSource>();
+        services.AddOptions<MiApp.Services.Service.Email.Attachments.EmailAttachmentScannerOptions>()
+            .Bind(configuration.GetSection("EmailDispatch:Attachments:Scanner"))
+            .Validate(o => o.IsValid(), "Email scanner configuration is invalid.").ValidateOnStart();
+        if (configuration.GetValue<string>("EmailDispatch:Attachments:Scanner:Provider") == "ClamD")
+            services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentScanner, MiApp.Services.Service.Email.Attachments.ClamAvEmailAttachmentScanner>();
+        else
+            services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentScanner, MiApp.Services.Service.Email.Attachments.DeniedEmailAttachmentScanner>();
+        services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentStore, MiApp.Services.Service.Email.Attachments.FileEmailAttachmentStore>();
         services.AddOptions<MiApp.Services.Service.Email.EmailAcsOptions>()
             .Bind(configuration.GetSection("EmailDispatch:AzureAcs"));
         if (configuration.GetValue<bool>("EmailDispatch:Broker:UseAzureServiceBus"))
