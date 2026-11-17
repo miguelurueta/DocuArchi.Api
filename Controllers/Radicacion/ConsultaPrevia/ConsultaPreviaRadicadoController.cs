@@ -360,43 +360,48 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             [FromBody] ConsultaPreviaRadicadoCopiarDatosRequestDto request,
             CancellationToken cancellationToken)
         {
-            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var requestId = ErroresResolucionDocumental.NormalizarCorrelacionDocumental(HttpContext?.TraceIdentifier);
+            var inicio = Stopwatch.StartNew();
+            long? usuarioIdResuelto = null;
 
             try
             {
                 if (request == null)
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloCopiaConsultaPrevia<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.CopiarRequestInvalido,
                         "request",
-                        requestId));
+                        requestId, logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var alias = _claimValidationService.ValidateClaim<string>("defaulalias");
                 if (!alias.Success || string.IsNullOrWhiteSpace(alias.ClaimValue))
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloCopiaConsultaPrevia<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.CopiarClaimRequired,
                         "defaulalias",
-                        requestId));
+                        requestId, logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
                 var usuario = _claimValidationService.ValidateClaim<string>("usuarioid");
                 if (!usuario.Success || string.IsNullOrWhiteSpace(usuario.ClaimValue)
-                    || !long.TryParse(usuario.ClaimValue, out var usuarioId))
+                    || !long.TryParse(usuario.ClaimValue, out var usuarioId) || usuarioId <= 0)
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloCopiaConsultaPrevia<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.CopiarClaimRequired,
                         "usuarioid",
-                        requestId));
+                        requestId, logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds));
                 }
 
+                usuarioIdResuelto = usuarioId;
                 var result = await _consultaPreviaRadicadoService.CopiarDatosAsync(
                     request,
                     alias.ClaimValue,
                     usuarioId,
                     requestId,
                     cancellationToken);
+
+                result = _errorFactory.CompletarDiagnosticoCopiaConsultaPrevia(result, requestId, _logger, usuarioIdResuelto, inicio.ElapsedMilliseconds);
 
                 if (result.success)
                 {
@@ -411,11 +416,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
             catch (Exception ex)
             {
-                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
-                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.CopiarUnexpected),
-                    "unexpected",
-                    requestId,
-                    ex.Message);
+                var error = _errorFactory.CrearFalloCopiaConsultaPrevia<ConsultaPreviaRadicadoCopiarDatosResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.CopiarUnexpected, "unexpected", requestId, ex,
+                    logger: _logger, usuarioId: usuarioIdResuelto, duracionMs: inicio.ElapsedMilliseconds);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
