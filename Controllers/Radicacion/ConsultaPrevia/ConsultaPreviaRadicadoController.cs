@@ -423,6 +423,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
         /// <summary>
         /// Anexa el radicado destino al expediente asociado al radicado origen.
         /// </summary>
+        /// <param name="request">Solicitud pública existente de la acción; el contexto proviene de claims autenticados.</param>
+        /// <param name="cancellationToken">Cancelación propagada a preparación y persistencia.</param>
+        /// <returns>Resultado HTTP con catálogo y DTO compatibles; errores con diagnóstico seguro en Production.</returns>
         [HttpPost("anexar-expediente")]
         [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>), StatusCodes.Status400BadRequest)]
@@ -435,24 +438,27 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             [FromBody] ConsultaPreviaRadicadoAnexarExpedienteRequestDto request,
             CancellationToken cancellationToken)
         {
-            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var requestId = ErroresResolucionDocumental.NormalizarCorrelacionDocumental(HttpContext?.TraceIdentifier);
+            var reloj = Stopwatch.StartNew();
+            long? usuarioId = null;
 
             try
             {
                 if (request == null)
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloAccionConsultaPrevia<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.RelacionRequestInvalido,
                         "request",
-                        requestId));
+                        requestId, "anexar-expediente", logger: _logger, duracionMs: reloj.ElapsedMilliseconds));
                 }
 
                 var claims = ValidateBaseClaims<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(requestId);
                 if (claims.Error != null)
                 {
-                    return BadRequest(claims.Error);
+                    return BadRequest(_errorFactory.CompletarDiagnosticoAccionConsultaPrevia(claims.Error, requestId, "anexar-expediente", _logger, duracionMs: reloj.ElapsedMilliseconds));
                 }
 
+                usuarioId = claims.UsuarioId;
                 var result = await _consultaPreviaRadicadoService.AnexarExpedienteAsync(
                     request,
                     claims.DefaultDbAlias!,
@@ -461,6 +467,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
                     requestId,
                     cancellationToken);
 
+                if (!result.success) result = _errorFactory.CompletarDiagnosticoAccionConsultaPrevia(result, requestId, "anexar-expediente", _logger, usuarioId, reloj.ElapsedMilliseconds);
                 return result.success ? Ok(result) : StatusCode(ResolveStatusCode(result), result);
             }
             catch (OperationCanceledException)
@@ -469,11 +476,11 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
             catch (Exception ex)
             {
-                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(
-                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.RelacionUnexpected),
+                var error = _errorFactory.CrearFalloAccionConsultaPrevia<ConsultaPreviaRadicadoAnexarExpedienteResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.RelacionUnexpected,
                     "unexpected",
                     requestId,
-                    ex.Message);
+                    "anexar-expediente", ex, _logger, usuarioId, reloj.ElapsedMilliseconds);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
@@ -481,6 +488,9 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
         /// <summary>
         /// Relaciona dos radicados desde Consulta Previa con modo agrega o remplaza.
         /// </summary>
+        /// <param name="request">Solicitud pública existente de la acción; el contexto proviene de claims autenticados.</param>
+        /// <param name="cancellationToken">Cancelación propagada a preparación y persistencia.</param>
+        /// <returns>Resultado HTTP con catálogo y DTO compatibles; errores con diagnóstico seguro en Production.</returns>
         [HttpPost("relacionar")]
         [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(AppResponses<ConsultaPreviaRadicadoRelacionResponseDto>), StatusCodes.Status400BadRequest)]
@@ -493,24 +503,27 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             [FromBody] ConsultaPreviaRadicadoRelacionRequestDto request,
             CancellationToken cancellationToken)
         {
-            var requestId = HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+            var requestId = ErroresResolucionDocumental.NormalizarCorrelacionDocumental(HttpContext?.TraceIdentifier);
+            var reloj = Stopwatch.StartNew();
+            long? usuarioId = null;
 
             try
             {
                 if (request == null)
                 {
-                    return BadRequest(_errorFactory.Validation<ConsultaPreviaRadicadoRelacionResponseDto>(
+                    return BadRequest(_errorFactory.CrearFalloAccionConsultaPrevia<ConsultaPreviaRadicadoRelacionResponseDto>(
                         ConsultaPreviaRadicadoErrorCatalog.RelacionRequestInvalido,
                         "request",
-                        requestId));
+                        requestId, "relacionar", logger: _logger, duracionMs: reloj.ElapsedMilliseconds));
                 }
 
                 var claims = ValidateBaseClaims<ConsultaPreviaRadicadoRelacionResponseDto>(requestId);
                 if (claims.Error != null)
                 {
-                    return BadRequest(claims.Error);
+                    return BadRequest(_errorFactory.CompletarDiagnosticoAccionConsultaPrevia(claims.Error, requestId, "relacionar", _logger, duracionMs: reloj.ElapsedMilliseconds));
                 }
 
+                usuarioId = claims.UsuarioId;
                 var result = await _consultaPreviaRadicadoService.RelacionarAsync(
                     request,
                     claims.DefaultDbAlias!,
@@ -519,6 +532,7 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
                     requestId,
                     cancellationToken);
 
+                if (!result.success) result = _errorFactory.CompletarDiagnosticoAccionConsultaPrevia(result, requestId, "relacionar", _logger, usuarioId, reloj.ElapsedMilliseconds);
                 return result.success ? Ok(result) : StatusCode(ResolveStatusCode(result), result);
             }
             catch (OperationCanceledException)
@@ -527,11 +541,11 @@ namespace DocuArchi.Api.Controllers.Radicacion.ConsultaPrevia
             }
             catch (Exception ex)
             {
-                var error = _errorFactory.FromDescriptor<ConsultaPreviaRadicadoRelacionResponseDto>(
-                    ConsultaPreviaRadicadoErrorCatalog.Get(ConsultaPreviaRadicadoErrorCatalog.RelacionUnexpected),
+                var error = _errorFactory.CrearFalloAccionConsultaPrevia<ConsultaPreviaRadicadoRelacionResponseDto>(
+                    ConsultaPreviaRadicadoErrorCatalog.RelacionUnexpected,
                     "unexpected",
                     requestId,
-                    ex.Message);
+                    "relacionar", ex, _logger, usuarioId, reloj.ElapsedMilliseconds);
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
