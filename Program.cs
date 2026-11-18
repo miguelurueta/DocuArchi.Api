@@ -90,6 +90,9 @@ using System.IO;
 using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddPrivateEmailConfiguration(
+    Environment.GetEnvironmentVariable("DOCUARCHI_EMAIL_CONFIG_FILE"), args);
+
 var runtimeRootPath = ResolveConfiguredPath(
     builder.Configuration["RuntimePaths:Root"],
     GetDefaultRuntimeRootPath());

@@ -26,6 +26,7 @@ public sealed class ControladorCorreo(
     [ProducesResponseType(typeof(AppResponses<RespuestaEnvioCorreoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(AppResponses<RespuestaEnvioCorreoDto>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(AppResponses<RespuestaEnvioCorreoDto>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(AppResponses<RespuestaEnvioCorreoDto>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(AppResponses<RespuestaEnvioCorreoDto>), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(AppResponses<RespuestaEnvioCorreoDto>), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(AppResponses<RespuestaEnvioCorreoDto>), StatusCodes.Status503ServiceUnavailable)]
@@ -97,6 +98,12 @@ public sealed class ControladorCorreo(
         var code = result.errors?.OfType<AppError>().Select(e => e.Code).FirstOrDefault(c => !string.IsNullOrWhiteSpace(c)) ?? string.Empty;
         if (code is "EMAIL_SENDER_NOT_CONFIGURED" or "EMAIL_SENDER_CONFIGURATION_INVALID") return StatusCodes.Status409Conflict;
         if (code.Contains("IDEMPOTENCY_CONFLICT", StringComparison.OrdinalIgnoreCase)) return StatusCodes.Status409Conflict;
+        if (code == "EMAIL_ATTACHMENT_ACCESS_DENIED") return StatusCodes.Status403Forbidden;
+        if (code is "EMAIL_ATTACHMENTS_DISABLED" or "EMAIL_ATTACHMENT_PROVIDER_UNAVAILABLE" or "EMAIL_ATTACHMENT_SOURCE_UNAVAILABLE"
+            or "EMAIL_ATTACHMENT_SCANNER_UNAVAILABLE" or "EMAIL_ATTACHMENT_STORAGE_UNAVAILABLE")
+            return StatusCodes.Status503ServiceUnavailable;
+        if (code is "EMAIL_ATTACHMENT_LIMIT_EXCEEDED" or "EMAIL_ATTACHMENT_CONTENT_REJECTED" or "EMAIL_ATTACHMENT_MISSING")
+            return StatusCodes.Status400BadRequest;
         if (code.Contains("QUEUE", StringComparison.OrdinalIgnoreCase) || code.Contains("REPOSITORY", StringComparison.OrdinalIgnoreCase)) return StatusCodes.Status503ServiceUnavailable;
         if (code is "EMAIL_RECIPIENT_VALIDATION_UNAVAILABLE") return StatusCodes.Status503ServiceUnavailable;
         if (code.Contains("INVALID", StringComparison.OrdinalIgnoreCase) || code.Contains("REQUIRED", StringComparison.OrdinalIgnoreCase) || code is "EMAIL_RECIPIENT_NOT_FOUND") return StatusCodes.Status400BadRequest;
