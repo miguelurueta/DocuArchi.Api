@@ -6,6 +6,10 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection;
 
 public static class EmailServiceCollectionExtensions
 {
+    /// <summary>Conserva la composicion publica del motor Email y registra sus adaptadores y salud pasiva.</summary>
+    /// <param name="services">Coleccion de servicios donde se conservan registros previos compatibles.</param>
+    /// <param name="configuration">Configuracion central del motor, broker y proveedor ACS.</param>
+    /// <returns>La misma coleccion con los servicios del modulo registrados.</returns>
     public static IServiceCollection AddEmailDispatchEngine(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -40,6 +44,13 @@ public static class EmailServiceCollectionExtensions
         services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentStore, MiApp.Services.Service.Email.Attachments.FileEmailAttachmentStore>();
         services.AddOptions<MiApp.Services.Service.Email.EmailAcsOptions>()
             .Bind(configuration.GetSection("EmailDispatch:AzureAcs"));
+        services.TryAddSingleton<MiApp.Services.Service.Email.Providers.Azure.IAzureCommunicationEmailMapper,
+            MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationEmailMapper>();
+        if (!services.Any(d => d.ServiceType == typeof(MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationHealthCheck)))
+        {
+            services.AddScoped<MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationHealthCheck>();
+            services.AddHealthChecks().AddCheck<MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationHealthCheck>("azure-email");
+        }
         if (configuration.GetValue<bool>("EmailDispatch:Broker:UseAzureServiceBus"))
             services.TryAddSingleton<MiApp.Services.Service.Email.Queue.IMessageBus, MiApp.Services.Service.Email.Queue.AzureServiceBusMessageBus>();
         else
