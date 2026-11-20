@@ -117,6 +117,7 @@ builder.Services.AddRadicacionPendientes(builder.Configuration);
 builder.Services.AddRadicacionTerminar(builder.Configuration);
 builder.Services.AddWorkflowTerminar(builder.Configuration);
 builder.Services.AddConsultaPreviaRadicado(builder.Configuration);
+    builder.Services.AddBusquedaRadicados(builder.Configuration);
 builder.Services.AddDocumentProcessing(builder.Configuration);
 builder.Services.AddGestionExpedientes(builder.Configuration);
 builder.Services.AddInstrumentosArchivisticos(builder.Configuration);
