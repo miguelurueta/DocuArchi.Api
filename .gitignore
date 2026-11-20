@@ -3,3 +3,8 @@ obj/
 .tmp/
 logs/
 App_Data/
+/.private/
+/secrets/
+appsettings.*.local.json
+*.local.env
+*.pfx

@@ -6,6 +6,10 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection;
 
 public static class EmailServiceCollectionExtensions
 {
+    /// <summary>Conserva la composicion publica del motor Email y registra sus adaptadores y salud pasiva.</summary>
+    /// <param name="services">Coleccion de servicios donde se conservan registros previos compatibles.</param>
+    /// <param name="configuration">Configuracion central del motor, broker y proveedor ACS.</param>
+    /// <returns>La misma coleccion con los servicios del modulo registrados.</returns>
     public static IServiceCollection AddEmailDispatchEngine(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -13,12 +17,40 @@ public static class EmailServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        services.AddEmailDispatchRepositories();        services.AddOptions<MiApp.Services.Service.Email.Queue.EmailQueueOptions>()
+        services.AddEmailDispatchRepositories();
+        services.AddOptions<MiApp.Services.Service.Email.Queue.EmailQueueOptions>()
             .Bind(configuration.GetSection("EmailDispatch:Broker"))
-            .Validate(options => !options.UseAzureServiceBus || options.IsValid(), "EmailDispatch:Broker no está configurado correctamente.")
+            .Validate(options => options.IsValid(), "EmailDispatch:Broker no está configurado correctamente.")
             .ValidateOnStart();
+        services.TryAddSingleton<MiApp.Services.Service.Email.Queue.EmailWorkerStatus>();
+        if (!services.Any(d => d.ServiceType == typeof(MiApp.Services.Service.Email.Queue.EmailWorkerHealthCheck)))
+        {
+            services.AddScoped<MiApp.Services.Service.Email.Queue.EmailWorkerHealthCheck>();
+            services.AddHealthChecks().AddCheck<MiApp.Services.Service.Email.Queue.EmailWorkerHealthCheck>("email-worker");
+        }
+        services.AddHttpContextAccessor();
+        services.AddOptions<MiApp.Services.Service.Email.Attachments.EmailAttachmentOptions>()
+            .Bind(configuration.GetSection("EmailDispatch:Attachments"))
+            .Validate(o => o.IsValid(), "Email attachment configuration is invalid.").ValidateOnStart();
+        services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentContextAccessor, HttpEmailAttachmentContextAccessor>();
+        services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentSource, MiApp.Services.Service.Email.Attachments.DeniedEmailAttachmentSource>();
+        services.AddOptions<MiApp.Services.Service.Email.Attachments.EmailAttachmentScannerOptions>()
+            .Bind(configuration.GetSection("EmailDispatch:Attachments:Scanner"))
+            .Validate(o => o.IsValid(), "Email scanner configuration is invalid.").ValidateOnStart();
+        if (configuration.GetValue<string>("EmailDispatch:Attachments:Scanner:Provider") == "ClamD")
+            services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentScanner, MiApp.Services.Service.Email.Attachments.ClamAvEmailAttachmentScanner>();
+        else
+            services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentScanner, MiApp.Services.Service.Email.Attachments.DeniedEmailAttachmentScanner>();
+        services.TryAddScoped<MiApp.Services.Service.Email.Attachments.IEmailAttachmentStore, MiApp.Services.Service.Email.Attachments.FileEmailAttachmentStore>();
         services.AddOptions<MiApp.Services.Service.Email.EmailAcsOptions>()
             .Bind(configuration.GetSection("EmailDispatch:AzureAcs"));
+        services.TryAddSingleton<MiApp.Services.Service.Email.Providers.Azure.IAzureCommunicationEmailMapper,
+            MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationEmailMapper>();
+        if (!services.Any(d => d.ServiceType == typeof(MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationHealthCheck)))
+        {
+            services.AddScoped<MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationHealthCheck>();
+            services.AddHealthChecks().AddCheck<MiApp.Services.Service.Email.Providers.Azure.AzureCommunicationHealthCheck>("azure-email");
+        }
         if (configuration.GetValue<bool>("EmailDispatch:Broker:UseAzureServiceBus"))
             services.TryAddSingleton<MiApp.Services.Service.Email.Queue.IMessageBus, MiApp.Services.Service.Email.Queue.AzureServiceBusMessageBus>();
         else
