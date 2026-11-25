@@ -14,11 +14,17 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
 {
     public static class GestorDocumentalServiceCollectionExtensions
     {
+        /// <summary>Registra los servicios del módulo documental y la actualización de tipología, conservando sus componentes existentes.</summary>
+        /// <param name="services">Contenedor de la API que recibe los registros del módulo.</param>
+        /// <param name="configuration">Configuración recibida por el contrato existente; no se modifica.</param>
+        /// <returns>Misma colección con los componentes documentales registrados.</returns>
+        /// <remarks>Nombre público compatible usado por Program.cs; excepción LEG-07, sin renombrado general.</remarks>
         public static IServiceCollection AddGestorDocumental(
             this IServiceCollection services,
             IConfiguration configuration)
         {
             services.AddTipologiasDocumentales();
+            services.AgregarActualizacionTipologiaDocumental();
             services.AddContextoDocumental();
             services.AddListaDocumentosRadicados();
             services.AddEditorImageContent();
