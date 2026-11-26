@@ -15,15 +15,26 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
     {
         private readonly IClaimValidationService _claimValidationService;
         private readonly IListaDocumentosRadicadoService _service;
+        private readonly ILogger<ListaDocumentosRadicadoController>? _logger;
 
+        /// <summary>Conserva la frontera histórica y registra únicamente diagnóstico seguro de sus fallos.</summary>
+        /// <param name="claimValidationService">Validador de identidad autenticada.</param>
+        /// <param name="service">Servicio del listado y sus acciones históricas.</param>
+        /// <param name="logger">Logger opcional para compatibilidad de construcción; no recibe excepciones crudas.</param>
         public ListaDocumentosRadicadoController(
             IClaimValidationService claimValidationService,
-            IListaDocumentosRadicadoService service)
+            IListaDocumentosRadicadoService service,
+            ILogger<ListaDocumentosRadicadoController>? logger = null)
         {
             _claimValidationService = claimValidationService;
             _service = service;
+            _logger = logger;
         }
 
+        /// <summary>Atiende la consulta compatible y conserva diagnóstico seguro sin cambiar sus HTTP históricos.</summary>
+        /// <param name="request">Contexto y filtros documentales recibidos; usuario/alias se acreditan desde JWT.</param>
+        /// <param name="cancellationToken">Cancelación de la lectura HTTP.</param>
+        /// <returns>HTTP 200 o BadRequest históricos con envoltorio compatible y correlación; Query conserva su nombre público.</returns>
         [HttpPost("query")]
         public async Task<ActionResult<AppResponses<object>>> Query(
             [FromBody] ListaDocumentosRadicadosTreeQueryRequestDto request,
@@ -73,13 +84,17 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 {
                     result.meta ??= new AppMeta { Status = "error" };
                     result.meta.RequestId = HttpContext.TraceIdentifier;
+                    if (result.meta.Metadata is null)
+                        DiagnosticoListadoDocumental.CompletarFallo(result, HttpContext.TraceIdentifier,
+                            result.meta.Status == "validation" ? "validate" : "query");
                     return BadRequest(result);
                 }
                return Ok(result);
             }
-            catch (Exception)
+            catch (OperationCanceledException) { throw; }
+            catch (Exception exception)
             {
-                return BadRequest(new AppResponses<object>
+                var respuesta = new AppResponses<object>
                 {
                     success = false,
                     message = "Error en query de ListaDocumentosRadicados",
@@ -96,10 +111,17 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                             UserMessage = "No fue posible consultar la lista de documentos"
                         }
                     ]
-                });
+                };
+                DiagnosticoListadoDocumental.CompletarFallo(respuesta, HttpContext.TraceIdentifier, "boundary", exception);
+                if (_logger is not null)
+                    DiagnosticoListadoDocumental.RegistrarFallo(_logger, respuesta, 0, 0, "GD_LISTA_DOCUMENTOS_QUERY_UNEXPECTED");
+                return BadRequest(respuesta);
             }
         }
 
+        /// <summary>Atiende acciones históricas sin asumir la ejecución de los módulos del nuevo menú.</summary>
+        /// <param name="request">Acción y referencias mínimas recibidas.</param>
+        /// <returns>Resultado o error BadRequest compatible; Action mantiene el nombre utilizado por sus consumidores.</returns>
         [HttpPost("action")]
         public async Task<ActionResult<AppResponses<ListaDocumentosRadicadosTreeMutationResultDto?>>> Action([FromBody] ListaDocumentosRadicadosTreeActionRequestDto request)
         {
@@ -127,13 +149,17 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                 {
                     result.meta ??= new AppMeta { Status = "error" };
                     result.meta.RequestId = HttpContext.TraceIdentifier;
+                    if (result.meta.Metadata is null)
+                        DiagnosticoListadoDocumental.CompletarFallo(result, HttpContext.TraceIdentifier,
+                            result.meta.Status == "validation" ? "validate" : "query");
                     return BadRequest(result);
                 }
                 return Ok(result);
             }
-            catch (Exception)
+            catch (OperationCanceledException) { throw; }
+            catch (Exception exception)
             {
-                return BadRequest(new AppResponses<ListaDocumentosRadicadosTreeMutationResultDto?>
+                var respuesta = new AppResponses<ListaDocumentosRadicadosTreeMutationResultDto?>
                 {
                     success = false,
                     message = "Error en action de ListaDocumentosRadicados",
@@ -150,7 +176,11 @@ namespace DocuArchi.Api.Controllers.GestorDocumental.Documentos
                             UserMessage = "No fue posible procesar la accion solicitada"
                         }
                     ]
-                });
+                };
+                DiagnosticoListadoDocumental.CompletarFallo(respuesta, HttpContext.TraceIdentifier, "action", exception);
+                if (_logger is not null)
+                    DiagnosticoListadoDocumental.RegistrarFallo(_logger, respuesta, 0, 0, "GD_LISTA_DOCUMENTOS_ACTION_UNEXPECTED");
+                return BadRequest(respuesta);
             }
         }
     }

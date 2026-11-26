@@ -25,7 +25,7 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
         {
             services.AddTipologiasDocumentales();
             services.AgregarActualizacionTipologiaDocumental();
-            services.AddContextoDocumental();
+            services.RegistrarContextoDocumental();
             services.AddListaDocumentosRadicados();
             services.AddEditorImageContent();
 
@@ -51,11 +51,18 @@ namespace DocuArchi.Api.Infrastructure.DependencyInjection
             return services;
         }
 
-        private static IServiceCollection AddContextoDocumental(this IServiceCollection services)
+        /// <summary>Registra lectores y resolutores por origen, conservando los ejecutores de módulos fuera del listado.</summary>
+        /// <param name="services">Contenedor modular de la API.</param>
+        /// <returns>El mismo contenedor con resolutores de contexto únicos por origen.</returns>
+        private static IServiceCollection RegistrarContextoDocumental(this IServiceCollection services)
         {
             services.AddScoped<IContextoDocumentalRepository, ContextoDocumentalRepository>();
             services.AddScoped<IContextoDocumentalResolver, RadicacionContextResolver>();
             services.AddScoped<IContextoDocumentalResolver, WorkflowContextResolver>();
+            services.AddScoped<IReferenciasContextoListadoRepository, ReferenciasContextoListadoRepository>();
+            services.AddScoped<IContextoDocumentalResolver, ProduccionListadoContextResolver>();
+            services.AddScoped<IContextoDocumentalResolver, DocuarchiListadoContextResolver>();
+            services.AddScoped<IContextoDocumentalResolver, MigracionListadoContextResolver>();
             services.AddScoped<IContextoDocumentalRadicadoService, ContextoDocumentalRadicadoService>();
             services.AddScoped<IWorkflowInboxContextResolverService, WorkflowInboxContextResolverService>();
 
