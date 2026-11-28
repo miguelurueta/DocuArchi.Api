@@ -85,14 +85,11 @@ jobs:
         run: git config --global core.longpaths true
 
       - name: Checkout DocuArchiCore
-        uses: actions/checkout@v4
+        uses: miguelurueta/DocuArchiCore/.github/actions/checkout-core@3e670f636a909b3b8d4bd28e87669dc5eca387aa
         with:
-          repository: miguelurueta/DocuArchiCore
+          token: ${{ github.token }}
           ref: main
           path: DocuArchiCore
-          token: ${{ github.token }}
-          persist-credentials: false
-          fetch-depth: 0
 
       - name: Normalize DocuArchiCore origin
         shell: pwsh
