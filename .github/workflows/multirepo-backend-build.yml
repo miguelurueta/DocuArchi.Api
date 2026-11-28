@@ -84,20 +84,14 @@ jobs:
         shell: pwsh
         run: git config --global core.longpaths true
 
-      - name: Validate multi-repo read token
-        shell: pwsh
-        run: |
-          if ("${{ secrets.MULTIREPO_READ_TOKEN }}" -eq "") {
-            throw "Missing GitHub Actions secret MULTIREPO_READ_TOKEN. Configure it with read access to every backend repository before enabling this workflow as a required check."
-          }
-
       - name: Checkout DocuArchiCore
         uses: actions/checkout@v4
         with:
           repository: miguelurueta/DocuArchiCore
           ref: main
           path: DocuArchiCore
-          token: ${{ secrets.MULTIREPO_READ_TOKEN }}
+          token: ${{ github.token }}
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Normalize DocuArchiCore origin
@@ -117,13 +111,35 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Configure private repository access
+      - name: Configure dependency access
         shell: pwsh
+        env:
+          MULTIREPO_READ_TOKEN: ${{ secrets.MULTIREPO_READ_TOKEN }}
         run: |
-          $token = "${{ secrets.MULTIREPO_READ_TOKEN }}"
-          $bytes = [Text.Encoding]::ASCII.GetBytes("x-access-token:$token")
-          $encoded = [Convert]::ToBase64String($bytes)
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $encoded"
+          $env:GIT_TERMINAL_PROMPT = "0"
+          $env:GCM_INTERACTIVE = "never"
+          $catalog = Get-Content -LiteralPath "DocuArchiCore/openspec/context/repo-catalog.json" -Raw | ConvertFrom-Json
+          $repositories = @($catalog.repos | Where-Object { $_.requiredForBackendBuild })
+          if ($repositories.Count -eq 0) { throw 'CI_REPOSITORY_CATALOG_EMPTY' }
+          git config --global --unset-all http.https://github.com/.extraheader 2>$null
+          foreach ($repository in $repositories) {
+            $remote = [string]$repository.remoteUrl
+            if ($remote -notmatch '^https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\.git$') { throw 'CI_REPOSITORY_REMOTE_INVALID' }
+            $authKey = "http.$remote.extraheader"
+            git -c credential.helper= -c http.https://github.com/.extraheader= -c "$authKey=" ls-remote $remote HEAD *> $null
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Public dependency accessible: $($repository.name)"
+              continue
+            }
+            if ([string]::IsNullOrWhiteSpace($env:MULTIREPO_READ_TOKEN)) {
+              throw "CI_PRIVATE_REPOSITORY_TOKEN_REQUIRED: $($repository.name). github.token is scoped to the workflow repository; open the authorized public window or supply a valid read credential."
+            }
+            $encoded = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$env:MULTIREPO_READ_TOKEN"))
+            Write-Output "::add-mask::$encoded"
+            git config --global $authKey "AUTHORIZATION: basic $encoded"
+            git -c credential.helper= ls-remote $remote HEAD *> $null
+            if ($LASTEXITCODE -ne 0) { throw "CI_PRIVATE_REPOSITORY_ACCESS_DENIED: $($repository.name)" }
+          }
 
       - name: Reconstruct multi-repo workspace
         working-directory: DocuArchiCore
